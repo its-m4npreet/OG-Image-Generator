@@ -8,9 +8,26 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      "/api/auth": {
+        target: "http://localhost:8000",
+        changeOrigin: false,
+        secure: false,
+        xfwd: true,
+      },
+      "/api/signup": {
+        target: "http://localhost:8000",
+        changeOrigin: false,
+        secure: false,
+        xfwd: true,
+      },
+    },
     hmr: {
       overlay: false,
     },
+  },
+  define: {
+    "process.env": {},
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {

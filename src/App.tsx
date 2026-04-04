@@ -3,12 +3,13 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
-import Dashboard from "./pages/Dashboard.tsx";
-import Editor from "./pages/Editor.tsx";
-import Login from "./pages/Login.tsx";
-import Signup from "./pages/Signup";
-import NotFound from "./pages/NotFound.tsx";
+import Index from "./views/Index.tsx";
+import Dashboard from "./views/Dashboard.tsx";
+import Editor from "./views/Editor.tsx";
+import Auth from "./views/Auth.tsx";
+import Settings from "./views/Settings.tsx";
+import Profile from "./views/Profile.tsx";
+import NotFound from "./views/NotFound.tsx";
 
 const queryClient = new QueryClient();
 
@@ -17,13 +18,14 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/login/:method" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Auth />} />
+          <Route path="/signup" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/editor" element={<Editor />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,0 +1,27 @@
+
+> vite_react_shadcn_ts@0.0.0 dev /home/manpreet/Documents/projects/og image generator/og-studio
+> pnpm run dev:all
+
+
+> vite_react_shadcn_ts@0.0.0 dev:all /home/manpreet/Documents/projects/og image generator/og-studio
+> concurrently -n client,server -c cyan,magenta "pnpm run dev:client" "pnpm run dev:server"
+
+[server] 
+[server] > vite_react_shadcn_ts@0.0.0 dev:server /home/manpreet/Documents/projects/og image generator/og-studio
+[server] > cd server && pnpm run dev
+[server] 
+[client] 
+[client] > vite_react_shadcn_ts@0.0.0 dev:client /home/manpreet/Documents/projects/og image generator/og-studio
+[client] > vite --port 8080
+[client] 
+[server] 
+[server] > og-studio-server@1.0.0 dev /home/manpreet/Documents/projects/og image generator/og-studio/server
+[server] > tsx watch server.ts
+[server] 
+[server]  ELIFECYCLE  Command failed with exit code 1.
+[client]  ELIFECYCLE  Command failed with exit code 1.
+[server]  ELIFECYCLE  Command failed with exit code 1.
+[client] pnpm run dev:client exited with code 1
+[server] pnpm run dev:server exited with code 1
+ ELIFECYCLE  Command failed with exit code 1.
+ ELIFECYCLE  Command failed with exit code 1.

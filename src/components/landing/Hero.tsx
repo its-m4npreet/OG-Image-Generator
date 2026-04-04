@@ -12,7 +12,7 @@ const Hero = () => {
       </div>
       <div className="absolute top-20 right-1/4 w-[300px] h-[300px] rounded-full bg-secondary/10 blur-[100px]" />
 
-      <div className="container relative z-10 flex flex-col items-center text-center gap-8 px-4">
+      <div className="container relative z-10 flex flex-col items-center text-center gap-8 p-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
