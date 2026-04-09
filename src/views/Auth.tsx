@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/use-toast";
+import { signIn, useSession } from "next-auth/react";
 
 const Auth = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { status } = useSession();
   const [authIsLoading, setAuthIsLoading] = useState(false);
   const [mode, setMode] = useState<"signin" | "signup">(
     location.pathname === "/login" ? "signin" : "signup"
@@ -20,12 +22,44 @@ const Auth = () => {
     if (location.pathname === "/signup") setMode("signup");
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (status === "authenticated") {
+      navigate("/dashboard");
+    }
+  }, [status, navigate]);
+
   const handleOAuthAuth = async (provider: "google" | "github") => {
     setAuthIsLoading(true);
-    setTimeout(() => {
-      navigate("/dashboard");
+    try {
+      console.log(`Signin started for provider: ${provider}`);
+      // Use redirect: false to manually handle redirection and see errors
+      const result = await signIn(provider, { 
+        callbackUrl: window.location.origin + "/dashboard",
+        redirect: false 
+      });
+      
+      console.log("NextAuth result:", result);
+
+      if (result?.error) {
+        toast({
+          title: "Authentication Error",
+          description: result.error === "OAuthSignin" ? "Failed to start OAuth flow. Check if backend is reachable." : result.error,
+          variant: "destructive",
+        });
+      } else if (result?.url) {
+        // Manually redirect the browser
+        window.location.href = result.url;
+      }
+    } catch (error) {
+      console.error("Auth exception:", error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setAuthIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

@@ -30,6 +30,9 @@
     "useDefineForClassFields": true
   },
   "include": [
-    "src"
+    "src",
+    "app",
+    "lib",
+    "middleware.ts"
   ]
 }

@@ -11,13 +11,13 @@ export default defineConfig(({ mode }) => ({
     proxy: {
       "/api/auth": {
         target: "http://localhost:8000",
-        changeOrigin: false,
+        changeOrigin: true,
         secure: false,
         xfwd: true,
       },
       "/api/signup": {
         target: "http://localhost:8000",
-        changeOrigin: false,
+        changeOrigin: true,
         secure: false,
         xfwd: true,
       },
@@ -27,7 +27,12 @@ export default defineConfig(({ mode }) => ({
     },
   },
   define: {
-    "process.env": {},
+    "process.env.NEXTAUTH_URL": JSON.stringify(
+      process.env.VITE_AUTH_BASE_URL || "http://localhost:8080"
+    ),
+    "process.env.NEXTAUTH_URL_INTERNAL": JSON.stringify(
+      process.env.NEXTAUTH_URL_INTERNAL || "http://localhost:8000"
+    ),
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {

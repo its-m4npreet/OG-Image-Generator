@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Hexagon, Search, Plus, LayoutGrid, LogOut, User as UserIcon, Settings } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
 
 const categories = ["All", "Blog", "SaaS", "Portfolio", "Product Launch"] as const;
 
@@ -28,21 +29,40 @@ const templates = [
 ];
 
 const Dashboard = () => {
+  const { data: session, status } = useSession();
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
 
-  const user = {
-    name: "John Doe",
-    email: "john@example.com",
-    image: "",
-  };
-  const userInitial = user.name.charAt(0) || "U";
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      navigate("/login");
+    }
+  }, [status, navigate]);
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <Hexagon className="h-10 w-10 text-primary animate-pulse" />
+          <p className="text-muted-foreground animate-pulse">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const user = session?.user;
+  const userInitial = user?.name?.charAt(0) || user?.email?.charAt(0) || "U";
 
   const filtered = templates.filter((t) => {
     const matchCat = activeCategory === "All" || t.category === activeCategory;
     const matchSearch = t.name.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
   });
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/" });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -64,7 +84,7 @@ const Dashboard = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                  <Avatar className="h-9 w-9">
+                  <Avatar className="h-9 w-9 border border-border">
                     <AvatarImage src={user?.image || ""} alt={user?.name || "User"} />
                     <AvatarFallback className="bg-primary/10 text-primary font-bold">
                       {userInitial.toUpperCase()}
@@ -97,7 +117,7 @@ const Dashboard = () => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   className="text-destructive focus:text-destructive cursor-pointer"
-                  onClick={() => {}}
+                  onClick={handleLogout}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
@@ -108,7 +128,7 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <div className="container px-4 py-8">
+      <div className="container px-4 py-8 mx-auto">
         {/* Heading */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Templates</h1>
@@ -151,9 +171,10 @@ const Dashboard = () => {
               transition={{ delay: i * 0.05 }}
             >
               <Link to="/editor" className="block group">
-                <div className="rounded-2xl border border-border bg-card overflow-hidden transition-all duration-150 hover:border-primary/30 hover:scale-[1.02] hover:glow-primary">
-                  <div className={`aspect-[1200/630] bg-gradient-to-br ${template.gradient} flex items-center justify-center dot-grid`}>
-                    <div className="text-center p-4">
+                <div className="rounded-2xl border border-border bg-card overflow-hidden transition-all duration-150 hover:border-primary/30 hover:scale-[1.02] hover:shadow-lg">
+                  <div className={`aspect-[1200/630] bg-gradient-to-br ${template.gradient} flex items-center justify-center relative overflow-hidden`}>
+                    <div className="absolute inset-0 opacity-10 dot-grid" />
+                    <div className="text-center p-4 relative z-10">
                       <LayoutGrid className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
                       <div className="text-lg font-semibold text-foreground">{template.name}</div>
                     </div>
