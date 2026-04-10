@@ -1,1 +1,70 @@
-{"timestamp":"00:00:01.392","source":"Server","level":"WARN","message":"⚠ The \"middleware\" file convention is deprecated. Please use \"proxy\" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy"}
+{"timestamp":"00:00:06.931","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:00:39.110","source":"Server","level":"WARN","message":"[next-auth][warn][DEBUG_ENABLED] \"\\nhttps://next-auth.js.org/warnings#debug_enabled\""}
+{"timestamp":"00:00:39.118","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:00:39.130","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:00:39.890","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:00:42.688","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:00:54.671","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:00:54.710","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:00:54.748","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:00:55.725","source":"Server","level":"LOG","message":"[next-auth][debug][CREATE_STATE] {}"}
+{"timestamp":"00:00:55.735","source":"Server","level":"LOG","message":"[next-auth][debug][CREATE_PKCECODEVERIFIER] {}"}
+{"timestamp":"00:00:55.738","source":"Server","level":"LOG","message":"[next-auth][debug][GET_AUTHORIZATION_URL] {}"}
+{"timestamp":"00:01:03.129","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:01:05.562","source":"Server","level":"LOG","message":"[next-auth][debug][PROFILE_DATA] {}"}
+{"timestamp":"00:01:05.563","source":"Server","level":"LOG","message":"📧 Google profile received: {}"}
+{"timestamp":"00:01:05.564","source":"Server","level":"LOG","message":"[next-auth][debug][OAUTH_CALLBACK_RESPONSE] {}"}
+{"timestamp":"00:01:05.566","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getUserByAccount] {}"}
+{"timestamp":"00:01:05.602","source":"Server","level":"LOG","message":"✅ signIn callback: {}"}
+{"timestamp":"00:01:05.603","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getUserByAccount] {}"}
+{"timestamp":"00:01:05.605","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getUserByEmail] {}"}
+{"timestamp":"00:01:05.607","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_createUser] {}"}
+{"timestamp":"00:01:05.612","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_linkAccount] {}"}
+{"timestamp":"00:01:05.617","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_createSession] {}"}
+{"timestamp":"00:01:06.245","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:01:06.247","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"00:01:06.257","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:03:20.458","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:03:20.471","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"00:03:20.524","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:06:17.846","source":"Server","level":"WARN","message":"⚠ The \"middleware\" file convention is deprecated. Please use \"proxy\" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy"}
+{"timestamp":"00:06:57.895","source":"Server","level":"WARN","message":"[next-auth][warn][DEBUG_ENABLED] \"\\nhttps://next-auth.js.org/warnings#debug_enabled\""}
+{"timestamp":"00:06:57.914","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:06:57.915","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"00:06:58.038","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:17:28.824","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:17:28.825","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"00:17:28.846","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:25:42.254","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:25:42.255","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"00:25:42.281","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:30:14.369","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:30:14.370","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"00:30:14.383","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:31:48.997","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:31:48.998","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"00:31:49.013","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:34:34.190","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:34:34.192","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"00:34:34.213","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:36:46.714","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:36:46.715","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"00:36:46.726","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:38:02.036","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:38:02.037","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"00:38:02.053","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:38:57.991","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:38:57.992","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"00:38:58.010","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:39:09.236","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:39:09.238","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"00:39:09.260","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:43:02.392","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:43:02.393","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"00:43:02.408","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:43:38.053","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:43:38.055","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"00:43:38.079","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:46:26.364","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:46:26.365","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"00:46:26.379","source":"Server","level":"LOG","message":"✅ session callback: {}"}

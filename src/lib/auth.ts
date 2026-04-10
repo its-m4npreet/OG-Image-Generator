@@ -14,7 +14,6 @@ if (!process.env.NEXTAUTH_SECRET) {
 }
 
 export const authOptions: NextAuthOptions = {
-  // ✅ FIX 1: Connect NextAuth to your PostgreSQL pool
   adapter: PostgresAdapter(pool),
 
   providers: [
@@ -30,55 +29,102 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      allowDangerousEmailAccountLinking: true,
+      async profile(profile) {
+        console.log("📧 Google profile received:", { 
+          id: profile.sub, 
+          email: profile.email,
+          name: profile.name 
+        });
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+        };
+      },
     }),
   ],
 
   secret: process.env.NEXTAUTH_SECRET,
 
-  // ✅ FIX 2: When using a DB adapter, use "database" strategy 
-  // OR keep "jwt" but manually forward the user id from the DB
   session: {
-    strategy: "jwt",
+    strategy: "database",
     maxAge: 30 * 24 * 60 * 60,
   },
 
   callbacks: {
-    async jwt({ token, user, account }) {
-      // ✅ FIX 3: user object is only populated on first sign-in
-      // account is only available at sign-in too
-      if (user) {
-        token.id = user.id;         // persisted DB id
+    async signIn({ user, account, profile }) {
+      try {
+        console.log("✅ signIn callback:", { 
+          userId: user.id, 
+          email: user.email,
+          provider: account?.provider 
+        });
+        return true;
+      } catch (error) {
+        console.error("❌ signIn callback error:", error);
+        return false;
       }
-      if (account) {
-        token.provider = account.provider; // "github" | "google"
+    },
+
+    async jwt({ token, user, account }) {
+      // For initial sign in
+      if (user) {
+        token.sub = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.picture = user.image;
       }
       return token;
     },
 
-    async session({ session, token }) {
-      if (session.user) {
-        const sessionUser = session.user as SessionUser;
-        sessionUser.id = token.id as string;
-        sessionUser.provider = token.provider as string | undefined;
+    async session({ session, user }) {
+      try {
+        console.log("✅ session callback:", { userId: user.id, email: user.email });
+        if (session.user) {
+          const sessionUser = session.user as SessionUser;
+          sessionUser.id = user.id;
+        }
+        return session;
+      } catch (error) {
+        console.error("❌ session callback error:", error);
+        throw error;
       }
-      return session;
     },
 
     async redirect({ url, baseUrl }) {
-      const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:8080";
+      try {
+        console.log("✅ redirect callback:", { url, baseUrl });
+        
+        // Allow relative URLs
+        if (url.startsWith("/")) {
+          return `${baseUrl}${url}`;
+        }
 
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      const urlOrigin = new URL(url).origin;
-      if (urlOrigin === baseUrl || urlOrigin === frontendUrl) return url;
+        // Allow absolute URLs if they belong to the same origin as baseUrl
+        // or the FRONTENDOrigin (8080)
+        const urlObj = new URL(url);
+        const baseUrlObj = new URL(baseUrl);
+        
+        const frontendOrigin = process.env.FRONTEND_URL || "http://localhost:8080";
+        const frontendObj = new URL(frontendOrigin);
+
+        if (urlObj.origin === baseUrlObj.origin || urlObj.origin === frontendObj.origin) {
+          return url;
+        }
+      } catch (e) {
+        console.warn("⚠️ redirect callback warning:", e);
+      }
+
+      // Default to baseUrl (home)
       return baseUrl;
     },
   },
 
-  jwt: {
-    maxAge: 30 * 24 * 60 * 60,
-  },
-
   pages: {
     signIn: "/login",
+    error: "/login",
   },
+  debug: process.env.NODE_ENV === "development",
 };

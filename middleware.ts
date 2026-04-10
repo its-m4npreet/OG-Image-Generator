@@ -1,27 +1,61 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { withAuth } from "next-auth/middleware";
+import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(request: NextRequest) {
-  const origin = "http://localhost:8080";
-  
-  if (request.method === "OPTIONS") {
-    const res = new NextResponse(null, { status: 204 });
-    res.headers.set("Access-Control-Allow-Origin", origin);
-    res.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
-    res.headers.set("Access-Control-Allow-Credentials", "true");
-    return res;
+// Protected routes that require authentication
+const protectedRoutes = ["/dashboard"];
+
+// Public routes that are always accessible
+const publicRoutes = ["/", "/login"];
+
+export default withAuth(
+  function middleware(request: NextRequest) {
+    const { pathname } = request.nextUrl;
+    const token = request.nextauth.token;
+
+    // If user is authenticated and tries to access login, redirect to dashboard
+    if (token && pathname === "/login") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
+    // Check if accessing protected route without authentication
+    if (
+      protectedRoutes.some((route) => pathname.startsWith(route)) &&
+      !token
+    ) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+
+    return NextResponse.next();
+  },
+  {
+    callbacks: {
+      authorized: ({ token, req }) => {
+        // For protected routes, token must exist
+        const isProtected = ["/dashboard"].some((route) =>
+          req.nextUrl.pathname.startsWith(route)
+        );
+
+        if (isProtected) {
+          return !!token;
+        }
+
+        // Public routes are always authorized
+        return true;
+      },
+    },
   }
-
-  const res = NextResponse.next();
-  res.headers.set("Access-Control-Allow-Origin", origin);
-  res.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
-  res.headers.set("Access-Control-Allow-Credentials", "true");
-  
-  return res;
-}
+);
 
 export const config = {
-  matcher: ["/api/auth/:path*", "/dashboard/:path*"],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api/auth (auth routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
+     */
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|public).*)",
+  ],
 };

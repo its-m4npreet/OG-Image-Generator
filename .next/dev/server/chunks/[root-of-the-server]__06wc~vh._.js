@@ -154,7 +154,6 @@ if (!process.env.NEXTAUTH_SECRET) {
     throw new Error("NEXTAUTH_SECRET is not set");
 }
 const authOptions = {
-    // ✅ FIX 1: Connect NextAuth to your PostgreSQL pool
     adapter: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f40$auth$2b$pg$2d$adapter$40$1$2e$11$2e$1_pg$40$8$2e$20$2e$0$2f$node_modules$2f40$auth$2f$pg$2d$adapter$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$postgres$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"]),
     providers: [
         (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$2d$auth$40$4$2e$24$2e$13_next$40$16$2e$2$2e$2_$40$playwright$2b$test$40$1$2e$58$2e$2_react$2d$dom$40$18$2e$3$2e$1_react$40$18$2e$3$2e$1_$5f$re_02f7086221eacd6479a312bc639d2eb8$2f$node_modules$2f$next$2d$auth$2f$providers$2f$github$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"])({
@@ -168,50 +167,99 @@ const authOptions = {
         }),
         (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$2d$auth$40$4$2e$24$2e$13_next$40$16$2e$2$2e$2_$40$playwright$2b$test$40$1$2e$58$2e$2_react$2d$dom$40$18$2e$3$2e$1_react$40$18$2e$3$2e$1_$5f$re_02f7086221eacd6479a312bc639d2eb8$2f$node_modules$2f$next$2d$auth$2f$providers$2f$google$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"])({
             clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? ""
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+            allowDangerousEmailAccountLinking: true,
+            async profile (profile) {
+                console.log("📧 Google profile received:", {
+                    id: profile.sub,
+                    email: profile.email,
+                    name: profile.name
+                });
+                return {
+                    id: profile.sub,
+                    name: profile.name,
+                    email: profile.email,
+                    image: profile.picture
+                };
+            }
         })
     ],
     secret: process.env.NEXTAUTH_SECRET,
-    // ✅ FIX 2: When using a DB adapter, use "database" strategy 
-    // OR keep "jwt" but manually forward the user id from the DB
     session: {
-        strategy: "jwt",
+        strategy: "database",
         maxAge: 30 * 24 * 60 * 60
     },
     callbacks: {
-        async jwt ({ token, user, account }) {
-            // ✅ FIX 3: user object is only populated on first sign-in
-            // account is only available at sign-in too
-            if (user) {
-                token.id = user.id; // persisted DB id
+        async signIn ({ user, account, profile }) {
+            try {
+                console.log("✅ signIn callback:", {
+                    userId: user.id,
+                    email: user.email,
+                    provider: account?.provider
+                });
+                return true;
+            } catch (error) {
+                console.error("❌ signIn callback error:", error);
+                return false;
             }
-            if (account) {
-                token.provider = account.provider; // "github" | "google"
+        },
+        async jwt ({ token, user, account }) {
+            // For initial sign in
+            if (user) {
+                token.sub = user.id;
+                token.email = user.email;
+                token.name = user.name;
+                token.picture = user.image;
             }
             return token;
         },
-        async session ({ session, token }) {
-            if (session.user) {
-                const sessionUser = session.user;
-                sessionUser.id = token.id;
-                sessionUser.provider = token.provider;
+        async session ({ session, user }) {
+            try {
+                console.log("✅ session callback:", {
+                    userId: user.id,
+                    email: user.email
+                });
+                if (session.user) {
+                    const sessionUser = session.user;
+                    sessionUser.id = user.id;
+                }
+                return session;
+            } catch (error) {
+                console.error("❌ session callback error:", error);
+                throw error;
             }
-            return session;
         },
         async redirect ({ url, baseUrl }) {
-            const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:8080";
-            if (url.startsWith("/")) return `${baseUrl}${url}`;
-            const urlOrigin = new URL(url).origin;
-            if (urlOrigin === baseUrl || urlOrigin === frontendUrl) return url;
+            try {
+                console.log("✅ redirect callback:", {
+                    url,
+                    baseUrl
+                });
+                // Allow relative URLs
+                if (url.startsWith("/")) {
+                    return `${baseUrl}${url}`;
+                }
+                // Allow absolute URLs if they belong to the same origin as baseUrl
+                // or the FRONTENDOrigin (8080)
+                const urlObj = new URL(url);
+                const baseUrlObj = new URL(baseUrl);
+                const frontendOrigin = process.env.FRONTEND_URL || "http://localhost:8080";
+                const frontendObj = new URL(frontendOrigin);
+                if (urlObj.origin === baseUrlObj.origin || urlObj.origin === frontendObj.origin) {
+                    return url;
+                }
+            } catch (e) {
+                console.warn("⚠️ redirect callback warning:", e);
+            }
+            // Default to baseUrl (home)
             return baseUrl;
         }
     },
-    jwt: {
-        maxAge: 30 * 24 * 60 * 60
-    },
     pages: {
-        signIn: "/login"
-    }
+        signIn: "/login",
+        error: "/login"
+    },
+    debug: ("TURBOPACK compile-time value", "development") === "development"
 };
 __turbopack_async_result__();
 } catch(e) { __turbopack_async_result__(e); } }, false);}),
