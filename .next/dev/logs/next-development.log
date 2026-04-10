@@ -77,3 +77,9 @@
 {"timestamp":"01:12:29.928","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
 {"timestamp":"01:12:29.930","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
 {"timestamp":"01:12:29.948","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"01:16:46.795","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"01:16:46.798","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"01:16:46.869","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"01:16:46.926","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"01:16:46.927","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"01:16:46.933","source":"Server","level":"LOG","message":"✅ session callback: {}"}
