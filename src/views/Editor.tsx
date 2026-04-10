@@ -40,6 +40,30 @@ const gradients = [
   "from-blue-100/40 to-cyan-100/20",
   "from-yellow-100/40 to-orange-100/20",
   "from-green-100/40 to-emerald-100/20",
+  // Premium modern gradients from image
+  "from-red-500 to-orange-400",
+  "from-orange-500 to-amber-400",
+  "from-pink-500 to-rose-400",
+  "from-pink-400 to-red-300",
+  "from-rose-400 to-pink-200",
+  "from-orange-300 to-yellow-200",
+  "from-yellow-200 to-orange-100",
+  "from-cyan-300 to-blue-100",
+  "from-blue-500 to-purple-400",
+  "from-blue-400 to-indigo-300",
+  "from-purple-500 to-pink-400",
+  "from-purple-400 to-blue-300",
+  "from-indigo-500 to-purple-300",
+  "from-cyan-500 to-blue-400",
+  "from-green-500 to-emerald-400",
+  "from-green-400 to-cyan-400",
+  "from-emerald-500 to-teal-400",
+  "from-lime-500 to-green-400",
+  "from-teal-500 to-cyan-300",
+  "from-cyan-400 to-green-300",
+  "from-slate-700 to-slate-500",
+  "from-gray-700 to-gray-500",
+  "from-neutral-600 to-neutral-400",
 ];
 
 const solidColors = [
@@ -127,7 +151,32 @@ const colorHexMap: Record<string, string> = {
   "bg-rose-100": "#ffe4e6",
 };
 
-const fontOptions = ["Inter", "Georgia", "monospace"];
+const fontOptions = ["Inter", "Georgia", "Arial"];
+
+// Function to detect if color is light or dark
+const isLightColor = (hexColor: string): boolean => {
+  if (!hexColor || !hexColor.startsWith("#")) return false;
+  const hex = hexColor.replace("#", "");
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.5;
+};
+
+// Function to generate adaptive noise SVG pattern
+const getNoiseSVG = (noiseLevel: number, bgColor?: string): string => {
+  if (noiseLevel === 0) return "";
+  
+  const isLight = bgColor ? isLightColor(bgColor) : false;
+  const opacity = Math.min((noiseLevel / 100) * 0.8, 0.8);
+  
+  // Use darker noise for light backgrounds, lighter noise for dark backgrounds
+  const noiseColor = isLight ? "%23333333" : "%23FFFFFF"; // Dark gray for light, white for dark
+  const noiseOpacity = isLight ? Math.min((noiseLevel / 100) * 0.6, 0.6) : opacity;
+  
+  return `url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' seed='1' result='noise'/%3E%3C/filter%3E%3Crect width='100' height='100' fill='${noiseColor}' opacity='${noiseOpacity}' filter='url(%23n)'/%3E%3C/svg%3E")`;
+};
 
 // CSS Gradient mapping for color picker display
 const gradientCSSMap = [
@@ -152,6 +201,30 @@ const gradientCSSMap = [
   "linear-gradient(to bottom right, rgba(219, 234, 254, 0.4), rgba(206, 250, 254, 0.2))",
   "linear-gradient(to bottom right, rgba(254, 243, 199, 0.4), rgba(254, 227, 198, 0.2))",
   "linear-gradient(to bottom right, rgba(220, 252, 231, 0.4), rgba(209, 250, 229, 0.2))",
+  // Premium modern gradients
+  "linear-gradient(to bottom right, #ef4444, #fb923c)",
+  "linear-gradient(to bottom right, #f97316, #fbbf24)",
+  "linear-gradient(to bottom right, #ec4899, #f43f5e)",
+  "linear-gradient(to bottom right, #ec4899, #fca5a5)",
+  "linear-gradient(to bottom right, #f43f5e, #fbcfe8)",
+  "linear-gradient(to bottom right, #fdba74, #fef08a)",
+  "linear-gradient(to bottom right, #fbbf24, #fef3c7)",
+  "linear-gradient(to bottom right, #67e8f9, #3b82f6)",
+  "linear-gradient(to bottom right, #3b82f6, #a855f7)",
+  "linear-gradient(to bottom right, #60a5fa, #818cf8)",
+  "linear-gradient(to bottom right, #a855f7, #ec4899)",
+  "linear-gradient(to bottom right, #a78bfa, #60a5fa)",
+  "linear-gradient(to bottom right, #6366f1, #a78bfa)",
+  "linear-gradient(to bottom right, #06b6d4, #3b82f6)",
+  "linear-gradient(to bottom right, #22c55e, #10b981)",
+  "linear-gradient(to bottom right, #4ade80, #06b6d4)",
+  "linear-gradient(to bottom right, #10b981, #14b8a6)",
+  "linear-gradient(to bottom right, #84cc16, #22c55e)",
+  "linear-gradient(to bottom right, #14b8a6, #67e8f9)",
+  "linear-gradient(to bottom right, #06b6d4, #86efac)",
+  "linear-gradient(to bottom right, #475569, #64748b)",
+  "linear-gradient(to bottom right, #525252, #737373)",
+  "linear-gradient(to bottom right, #6b7280, #9ca3af)",
 ];
 
 // Light background detection
@@ -287,8 +360,15 @@ const Editor = () => {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left Panel */}
-        <div className={`border-r border-border bg-card shrink-0 transition-all duration-200 ${leftOpen ? "w-72" : "w-0"} overflow-hidden`}>
-          <div className="p-4 space-y-6 w-72">
+        <div className={`border-r border-border bg-card shrink-0 transition-all duration-200 ${leftOpen ? "w-72" : "w-0"} overflow-hidden h-full`}>
+          <div 
+            className="p-4 space-y-6 w-72 overflow-y-auto no-scrollbar h-full"
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            } as React.CSSProperties}
+          >
+            <style>{`.no-scrollbar::-webkit-scrollbar { display: none; }`}</style>
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <Type className="h-4 w-4" /> Content
@@ -441,15 +521,13 @@ const Editor = () => {
               ...(backgroundType === "gradient"
                 ? {
                     backgroundImage: noiseLevel > 0
-                      ? `${gradientCSSMap[selectedGradient]}, url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' seed='1' result='noise'/%3E%3C/filter%3E%3Crect width='100' height='100' fill='%23000000' opacity='${Math.min((noiseLevel / 100) * 0.5, 0.5)}' filter='url(%23n)'/%3E%3C/svg%3E")`
+                      ? `${gradientCSSMap[selectedGradient]}, ${getNoiseSVG(noiseLevel)}`
                       : gradientCSSMap[selectedGradient],
                     backgroundSize: noiseLevel > 0 ? "100% 100%, 100px 100px" : "100% 100%",
                   }
                 : {
                     backgroundColor: selectedSolidColor ? colorHexMap[selectedSolidColor] || "#ffffff" : "#ffffff",
-                    backgroundImage: noiseLevel > 0
-                      ? `url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' seed='1' result='noise'/%3E%3C/filter%3E%3Crect width='100' height='100' fill='%23000000' opacity='${Math.min((noiseLevel / 100) * 0.5, 0.5)}' filter='url(%23n)'/%3E%3C/svg%3E")`
-                      : "none",
+                    backgroundImage: getNoiseSVG(noiseLevel, selectedSolidColor ? colorHexMap[selectedSolidColor] : "#ffffff"),
                     backgroundSize: "100px 100px",
                   }),
               backgroundRepeat: "repeat",
@@ -542,8 +620,15 @@ const Editor = () => {
         </button>
 
         {/* Right Panel */}
-        <div className={`border-l border-border bg-card shrink-0 transition-all duration-200 ${rightOpen ? "w-80" : "w-0"} overflow-hidden`}>
-          <div className="p-4 space-y-6 w-80 overflow-y-auto">
+        <div className={`border-l border-border bg-card shrink-0 transition-all duration-200 ${rightOpen ? "w-80" : "w-0"} overflow-hidden h-full`}>
+          <div 
+            className="p-4 space-y-6 w-80 overflow-y-auto no-scrollbar h-full"
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            } as React.CSSProperties}
+          >
+            <style>{`.no-scrollbar::-webkit-scrollbar { display: none; }`}</style>
             {/* Image Controls */}
             {selectedImage && images.find((img) => img.id === selectedImage) && (
               <>
@@ -647,7 +732,7 @@ const Editor = () => {
               {backgroundType === "gradient" && (
                 <div>
                   <Label className="text-xs text-muted-foreground mb-2 block">Gradient Colors</Label>
-                  <div className="grid grid-cols-6 gap-1.5">
+                  <div className="grid grid-cols-8 gap-1">
                     {gradients.map((g, i) => (
                       <button
                         key={i}

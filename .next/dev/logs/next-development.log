@@ -68,3 +68,12 @@
 {"timestamp":"00:46:26.364","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
 {"timestamp":"00:46:26.365","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
 {"timestamp":"00:46:26.379","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"01:03:59.825","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"01:03:59.827","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"01:03:59.881","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"01:08:06.412","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"01:08:06.414","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"01:08:06.440","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"01:12:29.928","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"01:12:29.930","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"01:12:29.948","source":"Server","level":"LOG","message":"✅ session callback: {}"}
