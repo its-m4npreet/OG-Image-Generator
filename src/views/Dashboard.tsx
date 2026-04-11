@@ -15,18 +15,245 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Hexagon, Search, Plus, LayoutGrid, LogOut, User as UserIcon, Settings } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 
-const categories = ["All", "Blog", "SaaS", "Portfolio", "Product Launch"] as const;
+const categories = ["All", "Blog", "SaaS", "Portfolio", "Product Launch", "Social Media"] as const;
 
 const templates = [
-  { id: 1, name: "Minimal Blog", category: "Blog", gradient: "from-primary/30 to-secondary/10" },
-  { id: 2, name: "SaaS Launch", category: "SaaS", gradient: "from-primary/40 to-primary/5" },
-  { id: 3, name: "Dark Portfolio", category: "Portfolio", gradient: "from-secondary/20 to-primary/10" },
-  { id: 4, name: "Product Hero", category: "Product Launch", gradient: "from-primary/20 via-card to-secondary/20" },
-  { id: 5, name: "Tech Article", category: "Blog", gradient: "from-secondary/30 to-card" },
-  { id: 6, name: "Startup Pitch", category: "SaaS", gradient: "from-primary/25 to-card" },
-  { id: 7, name: "Creative Folio", category: "Portfolio", gradient: "from-primary/15 via-secondary/10 to-card" },
-  { id: 8, name: "Launch Day", category: "Product Launch", gradient: "from-secondary/25 via-primary/15 to-card" },
-];
+  // Blog Templates
+  { 
+    id: 1, 
+    name: "Minimal Blog", 
+    category: "Blog", 
+    gradient: "from-red-500 to-orange-400",
+    title: "Your Amazing Blog Title",
+    subtitle: "A compelling description that captures attention",
+    hasImage: false,
+    hasLogo: false,
+    preview: {
+      bg: "from-red-500 to-orange-400",
+      text: "white"
+    }
+  },
+  { 
+    id: 2, 
+    name: "Blog with Hero Image", 
+    category: "Blog", 
+    gradient: "from-blue-600/30 to-cyan-500/20",
+    title: "The Future of React",
+    subtitle: "Exploring new patterns and best practices",
+    hasImage: true,
+    hasLogo: true,
+    imageUrl: "/ogImage.png",
+    logoUrl: "/ogImage.png",
+    imagePosition: { x: 280, y: 380, width: 340, height: 220 },
+    logoPosition: { x: 50, y: 50, width: 80, height: 80 },
+    preview: {
+      bg: "from-blue-600/30 to-cyan-500/20",
+      text: "dark"
+    }
+  },
+  { 
+    id: 3, 
+    name: "Dark Tech Article", 
+    category: "Blog", 
+    gradient: "from-slate-700 to-slate-500",
+    title: "Web Performance Optimization",
+    subtitle: "Speed up your website with these proven techniques",
+    hasImage: false,
+    hasLogo: false,
+    preview: {
+      bg: "from-slate-700 to-slate-500",
+      text: "white"
+    }
+  },
+
+  // SaaS Templates
+  { 
+    id: 4, 
+    name: "SaaS Launch", 
+    category: "SaaS", 
+    gradient: "from-purple-600/30 to-blue-600/10",
+    title: "Introducing NextFlow",
+    subtitle: "The faster way to build modern applications",
+    hasImage: true,
+    hasLogo: true,
+    imageUrl: "/ogImage.png",
+    logoUrl: "/ogImage.png",
+    imagePosition: { x: 630, y: 150, width: 250, height: 320 },
+    logoPosition: { x: 40, y: 40, width: 100, height: 100 },
+    preview: {
+      bg: "from-purple-600/30 to-blue-600/10",
+      text: "dark"
+    }
+  },
+  { 
+    id: 5, 
+    name: "Startup Pitch", 
+    category: "SaaS", 
+    gradient: "from-orange-500/20 to-pink-600/10",
+    title: "AI-Powered Analytics",
+    subtitle: "Understand your data like never before",
+    hasImage: true,
+    hasLogo: true,
+    imageUrl: "/ogImage.png",
+    logoUrl: "/ogImage.png",
+    imagePosition: { x: 300, y: 380, width: 300, height: 230 },
+    logoPosition: { x: 50, y: 50, width: 90, height: 90 },
+    preview: {
+      bg: "from-orange-500/20 to-pink-600/10",
+      text: "dark"
+    }
+  },
+  { 
+    id: 6, 
+    name: "SaaS Minimalist", 
+    category: "SaaS", 
+    gradient: "from-cyan-300 to-blue-100",
+    title: "Simple. Powerful. Yours.",
+    subtitle: "Enterprise-grade tool for everyone",
+    hasImage: false,
+    hasLogo: false,
+    preview: {
+      bg: "from-cyan-300 to-blue-100",
+      text: "dark"
+    }
+  },
+
+  // Portfolio Templates
+  { 
+    id: 7, 
+    name: "Creative Folio", 
+    category: "Portfolio", 
+    gradient: "from-pink-500/30 to-rose-500/20",
+    title: "Creative Studio",
+    subtitle: "Transforming ideas into reality",
+    hasImage: true,
+    hasLogo: true,
+    imageUrl: "/ogImage.png",
+    logoUrl: "/ogImage.png",
+    imagePosition: { x: 20, y: 160, width: 280, height: 420 },
+    logoPosition: { x: 60, y: 60, width: 110, height: 110 },
+    preview: {
+      bg: "from-pink-500/30 to-rose-500/20",
+      text: "dark"
+    }
+  },
+  { 
+    id: 8, 
+    name: "Portfolio Classic", 
+    category: "Portfolio", 
+    gradient: "from-emerald-500/20 to-cyan-500/10",
+    title: "John Designer",
+    subtitle: "Award-winning design work",
+    hasImage: false,
+    hasLogo: false,
+    preview: {
+      bg: "from-emerald-500/20 to-cyan-500/10",
+      text: "dark"
+    }
+  },
+
+  // Product Launch Templates
+  { 
+    id: 9, 
+    name: "Product Hero", 
+    category: "Product Launch", 
+    gradient: "from-violet-600/30 to-indigo-600/20",
+    title: "Introducing CloudSync Pro",
+    subtitle: "Sync. Collaborate. Thrive.",
+    hasImage: true,
+    hasLogo: true,
+    imageUrl: "/ogImage.png",
+    logoUrl: "/ogImage.png",
+    imagePosition: { x: 650, y: 140, width: 260, height: 350 },
+    logoPosition: { x: 45, y: 45, width: 95, height: 95 },
+    preview: {
+      bg: "from-violet-600/30 to-indigo-600/20",
+      text: "light"
+    }
+  },
+  { 
+    id: 10, 
+    name: "Launch Day Bold", 
+    category: "Product Launch", 
+    gradient: "from-red-500 to-pink-500",
+    title: "Breaking News: SuperApp v2",
+    subtitle: "Faster, smarter, more powerful",
+    hasImage: true,
+    hasLogo: true,
+    imageUrl: "/ogImage.png",
+    logoUrl: "/ogImage.png",
+    imagePosition: { x: 290, y: 370, width: 320, height: 240 },
+    logoPosition: { x: 55, y: 55, width: 85, height: 85 },
+    preview: {
+      bg: "from-red-500 to-pink-500",
+      text: "white"
+    }
+  },
+  { 
+    id: 11, 
+    name: "Launch Minimal", 
+    category: "Product Launch", 
+    gradient: "from-gray-100 to-white",
+    title: "New Era Begins",
+    subtitle: "What happens next will change everything",
+    hasImage: false,
+    hasLogo: false,
+    preview: {
+      bg: "from-gray-100 to-white",
+      text: "dark"
+    }
+  },
+
+  // Social Media Templates
+  { 
+    id: 12, 
+    name: "Social Media Vibes", 
+    category: "Social Media", 
+    gradient: "from-yellow-100/40 to-orange-100/20",
+    title: "Check Out My Latest Post!",
+    subtitle: "Join the conversation",
+    hasImage: true,
+    hasLogo: false,
+    imageUrl: "/ogImage.png",
+    imagePosition: { x: 680, y: 120, width: 220, height: 380 },
+    preview: {
+      bg: "from-yellow-100/40 to-orange-100/20",
+      text: "dark"
+    }
+  },
+  { 
+    id: 13, 
+    name: "Social Engagement", 
+    category: "Social Media", 
+    gradient: "from-purple-400 to-pink-400",
+    title: "Go Follow Us!",
+    subtitle: "Amazing content coming soon",
+    hasImage: true,
+    hasLogo: true,
+    imageUrl: "/ogImage.png",
+    logoUrl: "/ogImage.png",
+    imagePosition: { x: 260, y: 360, width: 380, height: 250 },
+    logoPosition: { x: 50, y: 50, width: 100, height: 100 },
+    preview: {
+      bg: "from-purple-400 to-pink-400",
+      text: "white"
+    }
+  },
+  { 
+    id: 14, 
+    name: "Social Minimal", 
+    category: "Social Media", 
+    gradient: "from-green-100 to-green-50",
+    title: "New Tutorial Live",
+    subtitle: "Learn something new today",
+    hasImage: false,
+    hasLogo: false,
+    preview: {
+      bg: "from-green-100 to-green-50",
+      text: "dark"
+    }
+  },
+] as const;
 
 const Dashboard = () => {
   const { data: session, status } = useSession();
@@ -169,23 +396,73 @@ const Dashboard = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
+              className="h-full"
             >
-              <Link to="/editor" className="block group">
-                <div className="rounded-2xl border border-border bg-card overflow-hidden transition-all duration-150 hover:border-primary/30 hover:scale-[1.02] hover:shadow-lg">
-                  <div className={`aspect-[1200/630] bg-gradient-to-br ${template.gradient} flex items-center justify-center relative overflow-hidden`}>
-                    <div className="absolute inset-0 opacity-10 dot-grid" />
-                    <div className="text-center p-4 relative z-10">
-                      <LayoutGrid className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
-                      <div className="text-lg font-semibold text-foreground">{template.name}</div>
+              <Link 
+                to={`/editor?template=${template.id}&title=${encodeURIComponent(template.title)}&subtitle=${encodeURIComponent(template.subtitle)}&gradient=${encodeURIComponent(template.gradient)}&logo=${template.hasLogo ? template.logoUrl : ''}&image=${template.hasImage ? template.imageUrl : ''}${template.imagePosition ? `&imagePosition=${encodeURIComponent(JSON.stringify(template.imagePosition))}` : ''}${template.logoPosition ? `&logoPosition=${encodeURIComponent(JSON.stringify(template.logoPosition))}` : ''}`}
+                className="block group h-full"
+              >
+                <div className="rounded-2xl border border-border bg-card overflow-hidden transition-all duration-150 hover:border-primary/30 hover:scale-[1.02] hover:shadow-xl h-full flex flex-col">
+                  {/* Preview - Fixed Height */}
+                  <div className={`h-48 bg-gradient-to-br ${template.gradient} flex items-center justify-center relative overflow-hidden flex-shrink-0`}>
+                    <div className="absolute inset-0 opacity-5 dot-grid" />
+                    
+                    {/* Logo placeholder (top-left) */}
+                    {template.hasLogo && (
+                      <div className="absolute top-2 left-2 w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center">
+                        <div className="w-6 h-6 rounded bg-white/40" />
+                      </div>
+                    )}
+                    
+                    {/* Image placeholder - positioned according to template */}
+                    {template.hasImage && template.imagePosition && (
+                      <>
+                        {/* Scale the preview coordinates to fit the 192px height preview */}
+                        {template.imagePosition.y >= 300 ? (
+                          // Bottom placement - show at bottom
+                          <div 
+                            className="absolute w-12 h-16 bg-white/15 backdrop-blur-sm border border-white/25 rounded-lg opacity-70"
+                            style={{
+                              bottom: '4px',
+                              left: '50%',
+                              transform: 'translateX(-50%)'
+                            }}
+                          />
+                        ) : (
+                          // Right or left placement
+                          <div 
+                            className={`absolute w-12 h-20 bg-white/15 backdrop-blur-sm border border-white/25 rounded-lg opacity-70 ${
+                              template.imagePosition.x > 450 ? 'right-2' : 'left-2'
+                            }`}
+                            style={{
+                              top: '50%',
+                              transform: 'translateY(-50%)'
+                            }}
+                          />
+                        )}
+                      </>
+                    )}
+                    
+                    {/* Text content preview - positioned at top to avoid overlap */}
+                    <div className={`text-center relative z-10 max-w-xs px-3 ${template.hasImage && template.imagePosition?.y >= 300 ? 'pt-0' : 'pt-2'}`}>
+                      <h3 className={`text-sm font-bold mb-1 line-clamp-2 ${template.preview.text === 'white' ? 'text-white' : 'text-gray-900'}`}>
+                        {template.title}
+                      </h3>
+                      <p className={`text-xs line-clamp-1 ${template.preview.text === 'white' ? 'text-white/70' : 'text-gray-700'}`}>
+                        {template.subtitle}
+                      </p>
                     </div>
                   </div>
-                  <div className="p-4 flex items-center justify-between">
+                  
+                  {/* Info section - Flexible height */}
+                  <div className="p-4 space-y-3 flex-1 flex flex-col">
                     <div>
-                      <div className="text-sm font-medium text-foreground">{template.name}</div>
+                      <div className="text-sm font-semibold text-foreground mb-1">{template.name}</div>
                       <div className="text-xs text-muted-foreground">{template.category}</div>
                     </div>
-                    <Button variant="ghost" size="sm" className="text-xs text-primary">
-                      Use
+                    
+                    <Button variant="default" size="sm" className="w-full text-xs mt-auto">
+                      Use Template
                     </Button>
                   </div>
                 </div>

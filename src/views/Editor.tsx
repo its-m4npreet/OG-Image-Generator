@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,53 +18,63 @@ interface CanvasImage {
   height: number;
 }
 
-const gradients = [
-  "from-primary/30 to-secondary/10",
-  "from-primary/40 to-primary/5",
-  "from-secondary/20 to-primary/10",
-  "from-primary/20 via-card to-secondary/20",
-  "from-purple-600/30 to-blue-600/10",
-  "from-orange-500/20 to-pink-600/10",
-  "from-emerald-500/20 to-cyan-500/10",
-  "from-rose-500/20 to-amber-500/10",
-  "from-blue-600/30 to-cyan-500/20",
-  "from-indigo-600/30 to-purple-500/20",
-  "from-pink-500/30 to-rose-500/20",
-  "from-amber-500/30 to-orange-500/20",
-  "from-green-500/30 to-emerald-500/20",
-  "from-teal-500/30 to-cyan-500/20",
-  "from-violet-600/30 to-indigo-600/20",
-  "from-fuchsia-600/30 to-pink-500/20",
+// Unified gradient mapping - Tailwind class to CSS gradient
+const gradientMap = [
+  { tailwind: "from-primary/30 to-secondary/10", css: "linear-gradient(to bottom right, rgba(59, 130, 246, 0.3), rgba(147, 51, 234, 0.1))" },
+  { tailwind: "from-primary/40 to-primary/5", css: "linear-gradient(to bottom right, rgba(59, 130, 246, 0.4), rgba(59, 130, 246, 0.05))" },
+  { tailwind: "from-secondary/20 to-primary/10", css: "linear-gradient(to bottom right, rgba(147, 51, 234, 0.2), rgba(59, 130, 246, 0.1))" },
+  { tailwind: "from-primary/20 via-card to-secondary/20", css: "linear-gradient(to bottom right, rgba(59, 130, 246, 0.2), rgb(24, 24, 27), rgba(147, 51, 234, 0.2))" },
+  { tailwind: "from-purple-600/30 to-blue-600/10", css: "linear-gradient(to bottom right, rgba(147, 112, 219, 0.3), rgba(37, 99, 235, 0.1))" },
+  { tailwind: "from-orange-500/20 to-pink-600/10", css: "linear-gradient(to bottom right, rgba(249, 115, 22, 0.2), rgba(233, 64, 87, 0.1))" },
+  { tailwind: "from-emerald-500/20 to-cyan-500/10", css: "linear-gradient(to bottom right, rgba(16, 185, 129, 0.2), rgba(34, 197, 94, 0.1))" },
+  { tailwind: "from-rose-500/20 to-amber-500/10", css: "linear-gradient(to bottom right, rgba(244, 63, 94, 0.2), rgba(251, 146, 60, 0.1))" },
+  { tailwind: "from-blue-600/30 to-cyan-500/20", css: "linear-gradient(to bottom right, rgba(37, 99, 235, 0.3), rgba(34, 197, 94, 0.2))" },
+  { tailwind: "from-indigo-600/30 to-purple-500/20", css: "linear-gradient(to bottom right, rgba(79, 70, 229, 0.3), rgba(126, 34, 206, 0.2))" },
+  { tailwind: "from-pink-500/30 to-rose-500/20", css: "linear-gradient(to bottom right, rgba(236, 72, 153, 0.3), rgba(244, 63, 94, 0.2))" },
+  { tailwind: "from-amber-500/30 to-orange-500/20", css: "linear-gradient(to bottom right, rgba(251, 146, 60, 0.3), rgba(249, 115, 22, 0.2))" },
+  { tailwind: "from-green-500/30 to-emerald-500/20", css: "linear-gradient(to bottom right, rgba(34, 197, 94, 0.3), rgba(16, 185, 129, 0.2))" },
+  { tailwind: "from-teal-500/30 to-cyan-500/20", css: "linear-gradient(to bottom right, rgba(20, 184, 166, 0.3), rgba(34, 211, 238, 0.2))" },
+  { tailwind: "from-violet-600/30 to-indigo-600/20", css: "linear-gradient(to bottom right, rgba(109, 40, 217, 0.3), rgba(79, 70, 229, 0.2))" },
+  { tailwind: "from-fuchsia-600/30 to-pink-500/20", css: "linear-gradient(to bottom right, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.2))" },
   // Light gradients
-  "from-purple-200/40 to-pink-100/20",
-  "from-blue-100/40 to-cyan-100/20",
-  "from-yellow-100/40 to-orange-100/20",
-  "from-green-100/40 to-emerald-100/20",
-  // Premium modern gradients from image
-  "from-red-500 to-orange-400",
-  "from-orange-500 to-amber-400",
-  "from-pink-500 to-rose-400",
-  "from-pink-400 to-red-300",
-  "from-rose-400 to-pink-200",
-  "from-orange-300 to-yellow-200",
-  "from-yellow-200 to-orange-100",
-  "from-cyan-300 to-blue-100",
-  "from-blue-500 to-purple-400",
-  "from-blue-400 to-indigo-300",
-  "from-purple-500 to-pink-400",
-  "from-purple-400 to-blue-300",
-  "from-indigo-500 to-purple-300",
-  "from-cyan-500 to-blue-400",
-  "from-green-500 to-emerald-400",
-  "from-green-400 to-cyan-400",
-  "from-emerald-500 to-teal-400",
-  "from-lime-500 to-green-400",
-  "from-teal-500 to-cyan-300",
-  "from-cyan-400 to-green-300",
-  "from-slate-700 to-slate-500",
-  "from-gray-700 to-gray-500",
-  "from-neutral-600 to-neutral-400",
+  { tailwind: "from-purple-200/40 to-pink-100/20", css: "linear-gradient(to bottom right, rgba(216, 180, 254, 0.4), rgba(251, 228, 228, 0.2))" },
+  { tailwind: "from-blue-100/40 to-cyan-100/20", css: "linear-gradient(to bottom right, rgba(219, 234, 254, 0.4), rgba(206, 250, 254, 0.2))" },
+  { tailwind: "from-yellow-100/40 to-orange-100/20", css: "linear-gradient(to bottom right, rgba(254, 243, 199, 0.4), rgba(254, 227, 198, 0.2))" },
+  { tailwind: "from-green-100/40 to-emerald-100/20", css: "linear-gradient(to bottom right, rgba(220, 252, 231, 0.4), rgba(209, 250, 229, 0.2))" },
+  // Premium modern gradients
+  { tailwind: "from-red-500 to-orange-400", css: "linear-gradient(to bottom right, #ef4444, #fb923c)" },
+  { tailwind: "from-orange-500 to-amber-400", css: "linear-gradient(to bottom right, #f97316, #fbbf24)" },
+  { tailwind: "from-pink-500 to-rose-400", css: "linear-gradient(to bottom right, #ec4899, #f43f5e)" },
+  { tailwind: "from-pink-400 to-red-300", css: "linear-gradient(to bottom right, #ec4899, #fca5a5)" },
+  { tailwind: "from-rose-400 to-pink-200", css: "linear-gradient(to bottom right, #f43f5e, #fbcfe8)" },
+  { tailwind: "from-orange-300 to-yellow-200", css: "linear-gradient(to bottom right, #fdba74, #fef08a)" },
+  { tailwind: "from-yellow-200 to-orange-100", css: "linear-gradient(to bottom right, #fbbf24, #fef3c7)" },
+  { tailwind: "from-cyan-300 to-blue-100", css: "linear-gradient(to bottom right, #67e8f9, #3b82f6)" },
+  { tailwind: "from-blue-500 to-purple-400", css: "linear-gradient(to bottom right, #3b82f6, #a855f7)" },
+  { tailwind: "from-blue-400 to-indigo-300", css: "linear-gradient(to bottom right, #60a5fa, #818cf8)" },
+  { tailwind: "from-purple-500 to-pink-400", css: "linear-gradient(to bottom right, #a855f7, #ec4899)" },
+  { tailwind: "from-purple-400 to-blue-300", css: "linear-gradient(to bottom right, #a78bfa, #60a5fa)" },
+  { tailwind: "from-indigo-500 to-purple-300", css: "linear-gradient(to bottom right, #6366f1, #a78bfa)" },
+  { tailwind: "from-cyan-500 to-blue-400", css: "linear-gradient(to bottom right, #06b6d4, #3b82f6)" },
+  { tailwind: "from-green-500 to-emerald-400", css: "linear-gradient(to bottom right, #22c55e, #10b981)" },
+  { tailwind: "from-green-400 to-cyan-400", css: "linear-gradient(to bottom right, #4ade80, #06b6d4)" },
+  { tailwind: "from-emerald-500 to-teal-400", css: "linear-gradient(to bottom right, #10b981, #14b8a6)" },
+  { tailwind: "from-lime-500 to-green-400", css: "linear-gradient(to bottom right, #84cc16, #22c55e)" },
+  { tailwind: "from-teal-500 to-cyan-300", css: "linear-gradient(to bottom right, #14b8a6, #67e8f9)" },
+  { tailwind: "from-cyan-400 to-green-300", css: "linear-gradient(to bottom right, #06b6d4, #86efac)" },
+  { tailwind: "from-slate-700 to-slate-500", css: "linear-gradient(to bottom right, #475569, #64748b)" },
+  { tailwind: "from-gray-700 to-gray-500", css: "linear-gradient(to bottom right, #525252, #737373)" },
+  { tailwind: "from-neutral-600 to-neutral-400", css: "linear-gradient(to bottom right, #6b7280, #9ca3af)" },
+  // Additional gradients from templates
+  { tailwind: "from-red-500 to-pink-500", css: "linear-gradient(to bottom right, #ef4444, #ec4899)" },
+  { tailwind: "from-purple-400 to-pink-400", css: "linear-gradient(to bottom right, #a78bfa, #f472b6)" },
+  { tailwind: "from-gray-100 to-white", css: "linear-gradient(to bottom right, #f3f4f6, #ffffff)" },
+  { tailwind: "from-green-100 to-green-50", css: "linear-gradient(to bottom right, #dcfce7, #f0fdf4)" },
 ];
+
+// Extract arrays for backward compatibility
+const gradients = gradientMap.map(g => g.tailwind);
+const gradientCSSMap = gradientMap.map(g => g.css);
 
 const solidColors = [
   // Dark colors
@@ -178,56 +188,7 @@ const getNoiseSVG = (noiseLevel: number, bgColor?: string): string => {
   return `url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' seed='1' result='noise'/%3E%3C/filter%3E%3Crect width='100' height='100' fill='${noiseColor}' opacity='${noiseOpacity}' filter='url(%23n)'/%3E%3C/svg%3E")`;
 };
 
-// CSS Gradient mapping for color picker display
-const gradientCSSMap = [
-  "linear-gradient(to bottom right, rgba(59, 130, 246, 0.3), rgba(147, 51, 234, 0.1))",
-  "linear-gradient(to bottom right, rgba(59, 130, 246, 0.4), rgba(59, 130, 246, 0.05))",
-  "linear-gradient(to bottom right, rgba(147, 51, 234, 0.2), rgba(59, 130, 246, 0.1))",
-  "linear-gradient(to bottom right, rgba(59, 130, 246, 0.2), rgb(24, 24, 27), rgba(147, 51, 234, 0.2))",
-  "linear-gradient(to bottom right, rgba(147, 112, 219, 0.3), rgba(37, 99, 235, 0.1))",
-  "linear-gradient(to bottom right, rgba(249, 115, 22, 0.2), rgba(233, 64, 87, 0.1))",
-  "linear-gradient(to bottom right, rgba(16, 185, 129, 0.2), rgba(34, 197, 94, 0.1))",
-  "linear-gradient(to bottom right, rgba(244, 63, 94, 0.2), rgba(251, 146, 60, 0.1))",
-  "linear-gradient(to bottom right, rgba(37, 99, 235, 0.3), rgba(34, 197, 94, 0.2))",
-  "linear-gradient(to bottom right, rgba(79, 70, 229, 0.3), rgba(126, 34, 206, 0.2))",
-  "linear-gradient(to bottom right, rgba(236, 72, 153, 0.3), rgba(244, 63, 94, 0.2))",
-  "linear-gradient(to bottom right, rgba(251, 146, 60, 0.3), rgba(249, 115, 22, 0.2))",
-  "linear-gradient(to bottom right, rgba(34, 197, 94, 0.3), rgba(16, 185, 129, 0.2))",
-  "linear-gradient(to bottom right, rgba(20, 184, 166, 0.3), rgba(34, 211, 238, 0.2))",
-  "linear-gradient(to bottom right, rgba(109, 40, 217, 0.3), rgba(79, 70, 229, 0.2))",
-  "linear-gradient(to bottom right, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.2))",
-  // Light gradients
-  "linear-gradient(to bottom right, rgba(216, 180, 254, 0.4), rgba(251, 228, 228, 0.2))",
-  "linear-gradient(to bottom right, rgba(219, 234, 254, 0.4), rgba(206, 250, 254, 0.2))",
-  "linear-gradient(to bottom right, rgba(254, 243, 199, 0.4), rgba(254, 227, 198, 0.2))",
-  "linear-gradient(to bottom right, rgba(220, 252, 231, 0.4), rgba(209, 250, 229, 0.2))",
-  // Premium modern gradients
-  "linear-gradient(to bottom right, #ef4444, #fb923c)",
-  "linear-gradient(to bottom right, #f97316, #fbbf24)",
-  "linear-gradient(to bottom right, #ec4899, #f43f5e)",
-  "linear-gradient(to bottom right, #ec4899, #fca5a5)",
-  "linear-gradient(to bottom right, #f43f5e, #fbcfe8)",
-  "linear-gradient(to bottom right, #fdba74, #fef08a)",
-  "linear-gradient(to bottom right, #fbbf24, #fef3c7)",
-  "linear-gradient(to bottom right, #67e8f9, #3b82f6)",
-  "linear-gradient(to bottom right, #3b82f6, #a855f7)",
-  "linear-gradient(to bottom right, #60a5fa, #818cf8)",
-  "linear-gradient(to bottom right, #a855f7, #ec4899)",
-  "linear-gradient(to bottom right, #a78bfa, #60a5fa)",
-  "linear-gradient(to bottom right, #6366f1, #a78bfa)",
-  "linear-gradient(to bottom right, #06b6d4, #3b82f6)",
-  "linear-gradient(to bottom right, #22c55e, #10b981)",
-  "linear-gradient(to bottom right, #4ade80, #06b6d4)",
-  "linear-gradient(to bottom right, #10b981, #14b8a6)",
-  "linear-gradient(to bottom right, #84cc16, #22c55e)",
-  "linear-gradient(to bottom right, #14b8a6, #67e8f9)",
-  "linear-gradient(to bottom right, #06b6d4, #86efac)",
-  "linear-gradient(to bottom right, #475569, #64748b)",
-  "linear-gradient(to bottom right, #525252, #737373)",
-  "linear-gradient(to bottom right, #6b7280, #9ca3af)",
-];
-
-// Light background detection
+// Color hex mapping for Tailwind classes
 const isLightBackground = (backgroundType: string, selectedGradient: number, selectedSolidColor: string | null): boolean => {
   if (backgroundType === "gradient") {
     // Light gradients are indices 16-19
@@ -239,10 +200,29 @@ const isLightBackground = (backgroundType: string, selectedGradient: number, sel
 };
 
 const Editor = () => {
-  const [title, setTitle] = useState("Your Amazing Blog Title");
-  const [subtitle, setSubtitle] = useState("A compelling description that captures attention");
+  // Get URL parameters for template loading
+  const searchParams = new URLSearchParams(window.location.search);
+  
+  // Extract parameters at component level
+  const templateTitle = searchParams.get("title") || "Your Amazing Blog Title";
+  const templateSubtitle = searchParams.get("subtitle") || "A compelling description that captures attention";
+  const templateGradient = searchParams.get("gradient");
+  const templateLogo = searchParams.get("logo");
+  const templateImage = searchParams.get("image");
+  const templateImagePosition = searchParams.get("imagePosition");
+  const templateLogoPosition = searchParams.get("logoPosition");
+  
+  // Helper function to get initial gradient index
+  const getInitialGradient = () => {
+    if (!templateGradient) return 0;
+    const foundIndex = gradients.findIndex(g => g === templateGradient);
+    return foundIndex !== -1 ? foundIndex : 0;
+  };
+  
+  const [title, setTitle] = useState(templateTitle);
+  const [subtitle, setSubtitle] = useState(templateSubtitle);
   const [author, setAuthor] = useState("Author Name");
-  const [selectedGradient, setSelectedGradient] = useState(0);
+  const [selectedGradient, setSelectedGradient] = useState(getInitialGradient());
   const [selectedSolidColor, setSelectedSolidColor] = useState<string | null>(null);
   const [backgroundType, setBackgroundType] = useState<"gradient" | "solid">("gradient");
   const [noiseLevel, setNoiseLevel] = useState(0); // 0-100 range
@@ -258,6 +238,61 @@ const Editor = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
+  // Load template data from URL parameters
+  useEffect(() => {
+    if (templateLogo && templateLogo.trim()) {
+      // Load logo from template
+      fetch(templateLogo)
+        .then(res => res.blob())
+        .then(blob => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            setLogo(e.target?.result as string);
+          };
+          reader.readAsDataURL(blob);
+        })
+        .catch(err => console.log("Logo load skipped:", err));
+    }
+    
+    if (templateImage && templateImage.trim()) {
+      // Load template image
+      fetch(templateImage)
+        .then(res => res.blob())
+        .then(blob => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            // Parse position data from URL or use defaults
+            let imageX = 50, imageY = 50, imageWidth = 200, imageHeight = 150;
+            
+            if (templateImagePosition) {
+              try {
+                const pos = JSON.parse(templateImagePosition);
+                imageX = pos.x || imageX;
+                imageY = pos.y || imageY;
+                imageWidth = pos.width || imageWidth;
+                imageHeight = pos.height || imageHeight;
+              } catch (err) {
+                console.log("Could not parse image position:", err);
+              }
+            }
+            
+            const newImage: CanvasImage = {
+              id: `template-img-${Date.now()}`,
+              src: e.target?.result as string,
+              x: imageX,
+              y: imageY,
+              width: imageWidth,
+              height: imageHeight,
+            };
+            setImages([newImage]);
+            setSelectedImage(newImage.id);
+          };
+          reader.readAsDataURL(blob);
+        })
+        .catch(err => console.log("Image load skipped:", err));
+    }
+  }, [templateLogo, templateImage, templateImagePosition]);
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
@@ -266,13 +301,16 @@ const Editor = () => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const src = event.target?.result as string;
+        
+        // Smart default positioning for uploaded images
+        // Place at centered-bottom position (common layout pattern)
         const newImage: CanvasImage = {
           id: `img-${Date.now()}-${Math.random()}`,
           src,
-          x: 50,
-          y: 50,
-          width: 200,
-          height: 150,
+          x: 300,      // Centered horizontally (900-300=600, 600/2=300)
+          y: 380,      // Bottom area (with spacing from bottom edge)
+          width: 300,
+          height: 230,
         };
         setImages([...images, newImage]);
         setSelectedImage(newImage.id);
@@ -328,6 +366,65 @@ const Editor = () => {
   const deleteImage = (id: string) => {
     setImages((prev) => prev.filter((img) => img.id !== id));
     setSelectedImage(null);
+  };
+
+  // Calculate optimal text position to avoid image overlap
+  const getTextPositioning = () => {
+    if (images.length === 0) {
+      return { position: "absolute" as const, top: "50%", left: "50%", transform: "translate(-50%, -50%)", maxWidth: "100%" };
+    }
+
+    const image = images[0]; // Get first image
+    const textHeight = 200; // Approximate text height
+    const textMargin = 40;
+
+    // Image at bottom (y >= 300) - center text at top
+    if (image.y >= 300) {
+      return {
+        position: "absolute" as const,
+        top: `${textMargin}px`,
+        left: "50%",
+        transform: "translateX(-50%)",
+        maxWidth: "90%",
+        textAlign: "center" as const,
+      };
+    }
+
+    // Image on right side (x > 500) - move text to left
+    if (image.x > 500) {
+      const textWidth = 350;
+      return {
+        position: "absolute" as const,
+        top: "50%",
+        left: `${textMargin}px`,
+        transform: "translateY(-50%)",
+        maxWidth: `${textWidth}px`,
+        textAlign: "left" as const,
+      };
+    }
+
+    // Image on left side (x < 300) - move text to right
+    if (image.x < 300) {
+      const textWidth = 350;
+      return {
+        position: "absolute" as const,
+        top: "50%",
+        right: `${textMargin}px`,
+        transform: "translateY(-50%)",
+        maxWidth: `${textWidth}px`,
+        textAlign: "right" as const,
+      };
+    }
+
+    // Default: center
+    return {
+      position: "absolute" as const,
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      maxWidth: "90%",
+      textAlign: "center" as const,
+    };
   };
 
   const handleExport = () => {
@@ -568,7 +665,14 @@ const Editor = () => {
             )}
 
             {/* Text Content */}
-            <div className="text-center p-8 md:p-12 space-y-4 relative z-10">
+            <div
+              style={{
+                ...getTextPositioning(),
+                zIndex: 10,
+                padding: "2rem",
+              }}
+              className="space-y-4"
+            >
               <h2
                 className={`font-bold leading-tight ${
                   isLightBackground(backgroundType, selectedGradient, selectedSolidColor)
@@ -588,7 +692,9 @@ const Editor = () => {
               >
                 {subtitle}
               </p>
-              <div className="flex items-center justify-center gap-2 pt-4">
+              <div className="flex items-center gap-2 pt-4" style={{
+                justifyContent: getTextPositioning().textAlign === "center" ? "center" : getTextPositioning().textAlign === "left" ? "flex-start" : "flex-end"
+              }}>
                 <div
                   className="w-7 h-7 rounded-full"
                   style={{

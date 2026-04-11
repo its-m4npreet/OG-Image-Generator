@@ -1,0 +1,32 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer circle -->
+  <circle cx="100" cy="100" r="95" fill="none" stroke="url(#grad)" stroke-width="2" opacity="0.8"/>
+  
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="fillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.2" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:0.2" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="url(#fillGrad)"/>
+  
+  <!-- Inner geometric shapes -->
+  <rect x="60" y="60" width="80" height="80" rx="8" fill="none" stroke="url(#grad)" stroke-width="1.5" opacity="0.6"/>
+  
+  <!-- Center accent -->
+  <circle cx="100" cy="100" r="30" fill="none" stroke="url(#grad)" stroke-width="2" opacity="0.4"/>
+  <circle cx="100" cy="100" r="20" fill="url(#fillGrad)" stroke="url(#grad)" stroke-width="1"/>
+  
+  <!-- Decorative dots -->
+  <circle cx="70" cy="70" r="3" fill="url(#grad)" opacity="0.8"/>
+  <circle cx="130" cy="70" r="3" fill="url(#grad)" opacity="0.8"/>
+  <circle cx="70" cy="130" r="3" fill="url(#grad)" opacity="0.8"/>
+  <circle cx="130" cy="130" r="3" fill="url(#grad)" opacity="0.8"/>
+</svg>
