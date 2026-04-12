@@ -3,12 +3,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
 import {
   Hexagon, Download, Share2, ArrowLeft, Type, Palette,
   ChevronLeft, ChevronRight, ChevronDown, Wand2, Link2, Image as ImageIcon, Trash2,
 } from "lucide-react";
-import { toPng, toJpeg, toWebp } from "html-to-image";
+import { toPng, toJpeg } from "html-to-image";
 
 interface CanvasImage {
   id: string;
@@ -249,6 +257,8 @@ const Editor = () => {
   const [logo, setLogo] = useState<string | null>(null);
   const [exportFormat, setExportFormat] = useState<"png" | "jpg" | "webp">("png");
   const [exportSize, setExportSize] = useState<"800x420" | "1200x630" | "1920x1008">("1200x630");
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [logoProps, setLogoProps] = useState<LogoProperties>({
     x: 16,
     y: 16,
@@ -453,9 +463,47 @@ const Editor = () => {
     };
   };
 
-  const handleExport = async () => {
+  // Helper function to convert image to WebP format
+  const convertToWebP = (imageDataUrl: string, quality: number = 0.8): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        
+        if (!ctx) {
+          reject(new Error("Failed to get canvas context"));
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("Failed to convert to WebP"));
+            }
+          },
+          "image/webp",
+          quality
+        );
+      };
+      img.onerror = () => reject(new Error("Failed to load image"));
+      img.src = imageDataUrl;
+    });
+  };
+
+  const handleExport = () => {
+    setShowExportDialog(true);
+  };
+
+  const performExport = async () => {
     if (!canvasRef.current) return;
 
+    setIsExporting(true);
     try {
       // Wait for fonts to load
       if (document.fonts) {
@@ -468,8 +516,19 @@ const Editor = () => {
       // Parse export size
       const [width, height] = exportSize.split("x").map(Number);
       
+      // Clone the canvas element to avoid aspect ratio constraints
+      const canvasClone = canvasRef.current.cloneNode(true) as HTMLDivElement;
+      
+      // Remove aspect ratio constraint and set explicit dimensions
+      canvasClone.style.width = `${width}px`;
+      canvasClone.style.height = `${height}px`;
+      canvasClone.style.maxWidth = 'none';
+      
+      // Temporarily add to DOM to ensure proper rendering
+      document.body.appendChild(canvasClone);
+      
       // Get the appropriate export function based on format
-      let dataUrl: string;
+      let blob: Blob;
       const exportOptions = {
         pixelRatio: 2,
         cacheBust: true,
@@ -478,23 +537,38 @@ const Editor = () => {
       };
 
       if (exportFormat === "png") {
-        dataUrl = await toPng(canvasRef.current, exportOptions);
+        const dataUrl = await toPng(canvasClone, exportOptions);
+        const response = await fetch(dataUrl);
+        blob = await response.blob();
       } else if (exportFormat === "jpg") {
-        dataUrl = await toJpeg(canvasRef.current, { ...exportOptions, quality: 0.95 });
+        const dataUrl = await toJpeg(canvasClone, { ...exportOptions, quality: 0.95 });
+        const response = await fetch(dataUrl);
+        blob = await response.blob();
       } else {
-        dataUrl = await toWebp(canvasRef.current, exportOptions);
+        // For WebP: first generate PNG, then convert to WebP
+        const pngDataUrl = await toPng(canvasClone, exportOptions);
+        blob = await convertToWebP(pngDataUrl, 0.8);
       }
       
-      // Create a temporary link element and trigger download
+      // Remove clone from DOM
+      document.body.removeChild(canvasClone);
+      
+      // Create a temporary URL and trigger download
+      const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.href = dataUrl;
+      link.href = blobUrl;
       link.download = `og-image-${Date.now()}.${exportFormat}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+
+      setShowExportDialog(false);
     } catch (error) {
       console.error("Failed to export image:", error);
       alert("Failed to export image. Please try again.");
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -1167,37 +1241,53 @@ const Editor = () => {
             </div>
 
             <Separator className="bg-border" />
-
-            {/* Export Options */}
-            <div className="bg-background rounded-lg p-3 border border-border space-y-3">
-              <div>
-                <Label className="text-xs text-muted-foreground">Format</Label>
-                <select
-                  value={exportFormat}
-                  onChange={(e) => setExportFormat(e.target.value as "png" | "jpg" | "webp")}
-                  className="w-full mt-1 px-3 py-2 bg-card border border-border rounded text-xs text-foreground"
-                >
-                  <option value="png">PNG</option>
-                  <option value="jpg">JPG</option>
-                  <option value="webp">WebP</option>
-                </select>
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Size</Label>
-                <select
-                  value={exportSize}
-                  onChange={(e) => setExportSize(e.target.value as "800x420" | "1200x630" | "1920x1008")}
-                  className="w-full mt-1 px-3 py-2 bg-card border border-border rounded text-xs text-foreground"
-                >
-                  <option value="800x420">800 × 420 (Small)</option>
-                  <option value="1200x630">1200 × 630 (Standard)</option>
-                  <option value="1920x1008">1920 × 1008 (Large)</option>
-                </select>
-              </div>
-            </div>
           </div>
         </div>
       </div>
+
+      {/* Export Dialog */}
+      <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Export Image</DialogTitle>
+            <DialogDescription>Choose your preferred format and size.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm font-medium">Format</Label>
+              <select
+                value={exportFormat}
+                onChange={(e) => setExportFormat(e.target.value as "png" | "jpg" | "webp")}
+                className="w-full mt-2 px-3 py-2 bg-card border border-border rounded text-sm text-foreground"
+              >
+                <option value="png">PNG (Recommended)</option>
+                <option value="jpg">JPG</option>
+                <option value="webp">WebP</option>
+              </select>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Size</Label>
+              <select
+                value={exportSize}
+                onChange={(e) => setExportSize(e.target.value as "800x420" | "1200x630" | "1920x1008")}
+                className="w-full mt-2 px-3 py-2 bg-card border border-border rounded text-sm text-foreground"
+              >
+                <option value="800x420">800 × 420 (Small)</option>
+                <option value="1200x630">1200 × 630 (Standard)</option>
+                <option value="1920x1008">1920 × 1008 (Large)</option>
+              </select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowExportDialog(false)}>
+              Cancel
+            </Button>
+            <Button variant="hero" onClick={performExport} disabled={isExporting}>
+              {isExporting ? "Downloading..." : "Download"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

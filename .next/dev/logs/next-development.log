@@ -51,3 +51,6 @@
 {"timestamp":"01:24:40.687","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
 {"timestamp":"01:24:40.689","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
 {"timestamp":"01:24:40.710","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"01:29:46.544","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"01:29:46.545","source":"Server","level":"LOG","message":"[next-auth][debug][adapter_getSessionAndUser] {}"}
+{"timestamp":"01:29:46.562","source":"Server","level":"LOG","message":"✅ session callback: {}"}
