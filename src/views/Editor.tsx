@@ -6,8 +6,9 @@ import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router-dom";
 import {
   Hexagon, Download, Share2, ArrowLeft, Type, Palette,
-  ChevronLeft, ChevronRight, Wand2, Link2, Image as ImageIcon, Trash2,
+  ChevronLeft, ChevronRight, ChevronDown, Wand2, Link2, Image as ImageIcon, Trash2,
 } from "lucide-react";
+import { toPng, toJpeg, toWebp } from "html-to-image";
 
 interface CanvasImage {
   id: string;
@@ -16,6 +17,17 @@ interface CanvasImage {
   y: number;
   width: number;
   height: number;
+  borderRadius?: number; // 0-50 for border radius
+  borderWidth?: number; // 0-10 for border width
+  borderColor?: string; // border color hex
+}
+
+interface LogoProperties {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  borderRadius?: number;
 }
 
 // Unified gradient mapping - Tailwind class to CSS gradient
@@ -230,9 +242,20 @@ const Editor = () => {
   const [fontSize, setFontSize] = useState(40);
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
+  const [imageControlsOpen, setImageControlsOpen] = useState(false);
+  const [logoControlsOpen, setLogoControlsOpen] = useState(false);
   const [images, setImages] = useState<CanvasImage[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [logo, setLogo] = useState<string | null>(null);
+  const [exportFormat, setExportFormat] = useState<"png" | "jpg" | "webp">("png");
+  const [exportSize, setExportSize] = useState<"800x420" | "1200x630" | "1920x1008">("1200x630");
+  const [logoProps, setLogoProps] = useState<LogoProperties>({
+    x: 16,
+    y: 16,
+    width: 48,
+    height: 48,
+    borderRadius: 0,
+  });
   
   const canvasRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -311,6 +334,9 @@ const Editor = () => {
           y: 380,      // Bottom area (with spacing from bottom edge)
           width: 300,
           height: 230,
+          borderRadius: 0,
+          borderWidth: 0,
+          borderColor: "#000000",
         };
         setImages([...images, newImage]);
         setSelectedImage(newImage.id);
@@ -332,10 +358,10 @@ const Editor = () => {
         const updated = { ...img, ...updates };
         
         // Boundary constraints
-        updated.x = Math.max(0, Math.min(updated.x, 900 - updated.width));
-        updated.y = Math.max(0, Math.min(updated.y, 630 - updated.height));
-        updated.width = Math.max(50, Math.min(updated.width, 900));
-        updated.height = Math.max(50, Math.min(updated.height, 630));
+        updated.x = Math.min(updated.x, 900 - updated.width);
+        updated.y = Math.min(updated.y, 630 - updated.height);
+        updated.width = Math.max(0, Math.min(updated.width, 900));
+        updated.height = Math.max(0, Math.min(updated.height, 630));
         
         return updated;
       })
@@ -427,9 +453,49 @@ const Editor = () => {
     };
   };
 
-  const handleExport = () => {
-    // In a real app, this would use html-to-image or canvas
-    alert("Export feature would generate a 1200×630 PNG. Backend integration needed.");
+  const handleExport = async () => {
+    if (!canvasRef.current) return;
+
+    try {
+      // Wait for fonts to load
+      if (document.fonts) {
+        await document.fonts.ready;
+      }
+
+      // Small delay to ensure all styles are computed and rendered
+      await new Promise(resolve => setTimeout(resolve, 150));
+
+      // Parse export size
+      const [width, height] = exportSize.split("x").map(Number);
+      
+      // Get the appropriate export function based on format
+      let dataUrl: string;
+      const exportOptions = {
+        pixelRatio: 2,
+        cacheBust: true,
+        width,
+        height,
+      };
+
+      if (exportFormat === "png") {
+        dataUrl = await toPng(canvasRef.current, exportOptions);
+      } else if (exportFormat === "jpg") {
+        dataUrl = await toJpeg(canvasRef.current, { ...exportOptions, quality: 0.95 });
+      } else {
+        dataUrl = await toWebp(canvasRef.current, exportOptions);
+      }
+      
+      // Create a temporary link element and trigger download
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `og-image-${Date.now()}.${exportFormat}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Failed to export image:", error);
+      alert("Failed to export image. Please try again.");
+    }
   };
 
   return (
@@ -450,12 +516,12 @@ const Editor = () => {
             <Share2 className="h-4 w-4 mr-1" /> Share
           </Button>
           <Button variant="hero" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-1" /> Export PNG
+            <Download className="h-4 w-4 mr-1" /> Export {exportFormat.toUpperCase()}
           </Button>
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden h-full">
         {/* Left Panel */}
         <div className={`border-r border-border bg-card shrink-0 transition-all duration-200 ${leftOpen ? "w-72" : "w-0"} overflow-hidden h-full`}>
           <div 
@@ -609,10 +675,10 @@ const Editor = () => {
         </button>
 
         {/* Canvas */}
-        <div className="flex-1 flex items-center justify-center dot-grid overflow-auto p-8">
+        <div className="flex-1 flex items-center justify-center dot-grid overflow-auto p-8 h-full">
           <div
             ref={canvasRef}
-            className={`w-full max-w-[900px] aspect-[1200/630] rounded-xl border border-border shadow-2xl relative overflow-hidden flex items-center justify-center`}
+            className={`w-full max-w-[900px] aspect-[1200/630] border border-border shadow-2xl relative overflow-hidden flex items-center justify-center`}
             style={{
               fontFamily: fontOptions[selectedFont],
               ...(backgroundType === "gradient"
@@ -646,20 +712,37 @@ const Editor = () => {
                 <img
                   src={img.src}
                   alt="canvas element"
-                  className="w-full h-full object-cover rounded"
-                  style={{ userSelect: "none" }}
+                  className="w-full h-full object-cover"
+                  style={{
+                    userSelect: "none",
+                    borderRadius: `${img.borderRadius || 0}px`,
+                    border: img.borderWidth && img.borderWidth > 0 
+                      ? `${img.borderWidth}px solid ${img.borderColor || "#000000"}`
+                      : "none",
+                  }}
                 />
               </div>
             ))}
 
             {/* Logo */}
             {logo && (
-              <div className="absolute top-4 left-4 flex items-center justify-center">
+              <div
+                className="absolute flex items-center justify-center"
+                style={{
+                  left: `${logoProps.x}px`,
+                  top: `${logoProps.y}px`,
+                  width: `${logoProps.width}px`,
+                  height: `${logoProps.height}px`,
+                }}
+              >
                 <img
                   src={logo}
                   alt="logo"
-                  className="h-12 w-12 object-contain"
-                  style={{ userSelect: "none" }}
+                  className="w-full h-full object-contain"
+                  style={{
+                    userSelect: "none",
+                    borderRadius: `${logoProps.borderRadius || 0}px`,
+                  }}
                 />
               </div>
             )}
@@ -695,14 +778,14 @@ const Editor = () => {
               <div className="flex items-center gap-2 pt-4" style={{
                 justifyContent: getTextPositioning().textAlign === "center" ? "center" : getTextPositioning().textAlign === "left" ? "flex-start" : "flex-end"
               }}>
-                <div
+                {/* <div
                   className="w-7 h-7 rounded-full"
                   style={{
                     backgroundColor: isLightBackground(backgroundType, selectedGradient, selectedSolidColor)
                       ? "rgba(0, 0, 0, 0.2)"
                       : "rgba(59, 130, 246, 0.3)",
                   }}
-                />
+                /> */}
                 <span
                   className={`text-sm ${
                     isLightBackground(backgroundType, selectedGradient, selectedSolidColor)
@@ -735,75 +818,7 @@ const Editor = () => {
             } as React.CSSProperties}
           >
             <style>{`.no-scrollbar::-webkit-scrollbar { display: none; }`}</style>
-            {/* Image Controls */}
-            {selectedImage && images.find((img) => img.id === selectedImage) && (
-              <>
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                      <ImageIcon className="h-4 w-4" /> Image
-                    </h3>
-                    <button
-                      onClick={() => deleteImage(selectedImage)}
-                      className="p-1 hover:bg-destructive/20 rounded transition-colors"
-                    >
-                      <Trash2 className="h-3 w-3 text-destructive" />
-                    </button>
-                  </div>
-
-                  {/* Position & Size Controls */}
-                  <div className="bg-background rounded-lg p-3 border border-border space-y-3">
-                    <div>
-                      <Label className="text-xs text-muted-foreground">X Position</Label>
-                      <Input
-                        type="number"
-                        value={Math.round(images.find((img) => img.id === selectedImage)?.x || 0)}
-                        onChange={(e) =>
-                          updateImage(selectedImage, { x: Number(e.target.value) })
-                        }
-                        className="mt-1 bg-card border-border text-xs"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs text-muted-foreground">Y Position</Label>
-                      <Input
-                        type="number"
-                        value={Math.round(images.find((img) => img.id === selectedImage)?.y || 0)}
-                        onChange={(e) =>
-                          updateImage(selectedImage, { y: Number(e.target.value) })
-                        }
-                        className="mt-1 bg-card border-border text-xs"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs text-muted-foreground">Width</Label>
-                      <Input
-                        type="number"
-                        value={Math.round(images.find((img) => img.id === selectedImage)?.width || 0)}
-                        onChange={(e) =>
-                          updateImage(selectedImage, { width: Math.max(50, Number(e.target.value)) })
-                        }
-                        className="mt-1 bg-card border-border text-xs"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs text-muted-foreground">Height</Label>
-                      <Input
-                        type="number"
-                        value={Math.round(images.find((img) => img.id === selectedImage)?.height || 0)}
-                        onChange={(e) =>
-                          updateImage(selectedImage, { height: Math.max(50, Number(e.target.value)) })
-                        }
-                        className="mt-1 bg-card border-border text-xs"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <Separator className="bg-border" />
-              </>
-            )}
-
+            {/* Style / Colors - At Top */}
             <div>
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-3">
                 <Palette className="h-4 w-4" /> Style
@@ -894,6 +909,226 @@ const Editor = () => {
 
             <Separator className="bg-border" />
 
+            {/* Image Controls */}
+            {selectedImage && images.find((img) => img.id === selectedImage) && (
+              <>
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4" /> Image
+                    </h3>
+                    <button
+                      onClick={() => setImageControlsOpen(!imageControlsOpen)}
+                      className="p-1 hover:bg-accent rounded transition-all"
+                    >
+                      <ChevronDown
+                        className="h-4 w-4 text-muted-foreground transition-transform"
+                        style={{
+                          transform: imageControlsOpen ? "rotate(0deg)" : "rotate(-90deg)",
+                        }}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Position & Size Controls */}
+                  {imageControlsOpen && (
+                    <div className="bg-background rounded-lg p-3 border border-border space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">X Position</Label>
+                        <Input
+                          type="number"
+                          value={Math.round(images.find((img) => img.id === selectedImage)?.x || 0)}
+                          onChange={(e) =>
+                            updateImage(selectedImage, { x: Number(e.target.value) })
+                          }
+                          className="mt-1 bg-card border-border text-xs"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Y Position</Label>
+                        <Input
+                          type="number"
+                          value={Math.round(images.find((img) => img.id === selectedImage)?.y || 0)}
+                          onChange={(e) =>
+                            updateImage(selectedImage, { y: Number(e.target.value) })
+                          }
+                          className="mt-1 bg-card border-border text-xs"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Width</Label>
+                        <Input
+                          type="number"
+                          value={Math.round(images.find((img) => img.id === selectedImage)?.width || 0)}
+                          onChange={(e) =>
+                            updateImage(selectedImage, { width: Number(e.target.value) || 50 })
+                          }
+                          className="mt-1 bg-card border-border text-xs"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Height</Label>
+                        <Input
+                          type="number"
+                          value={Math.round(images.find((img) => img.id === selectedImage)?.height || 0)}
+                          onChange={(e) =>
+                            updateImage(selectedImage, { height: Number(e.target.value) || 50 })
+                          }
+                          className="mt-1 bg-card border-border text-xs"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Border Radius</Label>
+                      <div className="flex items-center gap-3 mt-2">
+                        <input
+                          type="range"
+                          min="0"
+                          max="50"
+                          value={images.find((img) => img.id === selectedImage)?.borderRadius || 0}
+                          onChange={(e) =>
+                            updateImage(selectedImage, { borderRadius: Number(e.target.value) })
+                          }
+                          className="flex-1 accent-primary"
+                        />
+                        <span className="text-xs text-muted-foreground w-8 text-right">
+                          {images.find((img) => img.id === selectedImage)?.borderRadius || 0}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Border Width</Label>
+                      <div className="flex items-center gap-3 mt-2">
+                        <input
+                          type="range"
+                          min="0"
+                          max="10"
+                          value={images.find((img) => img.id === selectedImage)?.borderWidth || 0}
+                          onChange={(e) =>
+                            updateImage(selectedImage, { borderWidth: Number(e.target.value) })
+                          }
+                          className="flex-1 accent-primary"
+                        />
+                        <span className="text-xs text-muted-foreground w-8 text-right">
+                          {images.find((img) => img.id === selectedImage)?.borderWidth || 0}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Border Color</Label>
+                      <Input
+                        type="color"
+                        value={images.find((img) => img.id === selectedImage)?.borderColor || "#000000"}
+                        onChange={(e) =>
+                          updateImage(selectedImage, { borderColor: e.target.value })
+                        }
+                        className="mt-1 bg-card border-border text-xs h-9"
+                      />
+                    </div>
+                  </div>
+                  )}
+                </div>
+
+                <Separator className="bg-border" />
+              </>
+            )}
+
+            {/* Logo Controls */}
+            {logo && (
+              <>
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      Logo Settings
+                    </h3>
+                    <button
+                      onClick={() => setLogoControlsOpen(!logoControlsOpen)}
+                      className="p-1 hover:bg-accent rounded transition-all"
+                    >
+                      <ChevronDown
+                        className="h-4 w-4 text-muted-foreground transition-transform"
+                        style={{
+                          transform: logoControlsOpen ? "rotate(0deg)" : "rotate(-90deg)",
+                        }}
+                      />
+                    </button>
+                  </div>
+
+                  {logoControlsOpen && (
+                    <div className="bg-background rounded-lg p-3 border border-border space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">X Position</Label>
+                        <Input
+                          type="number"
+                          value={logoProps.x}
+                          onChange={(e) =>
+                            setLogoProps({ ...logoProps, x: Math.max(0, Number(e.target.value)) })
+                          }
+                          className="mt-1 bg-card border-border text-xs"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Y Position</Label>
+                        <Input
+                          type="number"
+                          value={logoProps.y}
+                          onChange={(e) =>
+                            setLogoProps({ ...logoProps, y: Math.max(0, Number(e.target.value)) })
+                          }
+                          className="mt-1 bg-card border-border text-xs"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Width</Label>
+                        <Input
+                          type="number"
+                          value={logoProps.width}
+                          onChange={(e) =>
+                            setLogoProps({ ...logoProps, width: Number(e.target.value) || 20 })
+                          }
+                          className="mt-1 bg-card border-border text-xs"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Height</Label>
+                        <Input
+                          type="number"
+                          value={logoProps.height}
+                          onChange={(e) =>
+                            setLogoProps({ ...logoProps, height: Number(e.target.value) || 20 })
+                          }
+                          className="mt-1 bg-card border-border text-xs"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Border Radius</Label>
+                      <div className="flex items-center gap-3 mt-2">
+                        <input
+                          type="range"
+                          min="0"
+                          max="50"
+                          value={logoProps.borderRadius || 0}
+                          onChange={(e) =>
+                            setLogoProps({ ...logoProps, borderRadius: Number(e.target.value) })
+                          }
+                          className="flex-1 accent-primary"
+                        />
+                        <span className="text-xs text-muted-foreground w-8 text-right">
+                          {logoProps.borderRadius || 0}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  )}
+                </div>
+
+                <Separator className="bg-border" />
+              </>
+            )}
+
             {/* Font */}
             <div>
               <Label className="text-xs text-muted-foreground">Font Family</Label>
@@ -933,17 +1168,31 @@ const Editor = () => {
 
             <Separator className="bg-border" />
 
-            {/* Export info */}
-            <div className="bg-background rounded-lg p-3 border border-border">
-              <div className="text-xs text-muted-foreground space-y-1">
-                <div className="flex justify-between">
-                  <span>Format</span>
-                  <span className="text-foreground">PNG</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Size</span>
-                  <span className="text-foreground">1200 × 630</span>
-                </div>
+            {/* Export Options */}
+            <div className="bg-background rounded-lg p-3 border border-border space-y-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">Format</Label>
+                <select
+                  value={exportFormat}
+                  onChange={(e) => setExportFormat(e.target.value as "png" | "jpg" | "webp")}
+                  className="w-full mt-1 px-3 py-2 bg-card border border-border rounded text-xs text-foreground"
+                >
+                  <option value="png">PNG</option>
+                  <option value="jpg">JPG</option>
+                  <option value="webp">WebP</option>
+                </select>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Size</Label>
+                <select
+                  value={exportSize}
+                  onChange={(e) => setExportSize(e.target.value as "800x420" | "1200x630" | "1920x1008")}
+                  className="w-full mt-1 px-3 py-2 bg-card border border-border rounded text-xs text-foreground"
+                >
+                  <option value="800x420">800 × 420 (Small)</option>
+                  <option value="1200x630">1200 × 630 (Standard)</option>
+                  <option value="1920x1008">1920 × 1008 (Large)</option>
+                </select>
               </div>
             </div>
           </div>
