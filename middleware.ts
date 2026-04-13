@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 // Protected routes that require authentication
 const protectedRoutes = ["/dashboard"];
+const adminRoutes = ["/admin"];
 
 // Public routes that are always accessible
 const publicRoutes = ["/", "/login"];
@@ -20,6 +21,14 @@ export default withAuth(
     // Check if accessing protected route without authentication
     if (
       protectedRoutes.some((route) => pathname.startsWith(route)) &&
+      !token
+    ) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+
+    // Check if accessing admin route without authentication
+    if (
+      adminRoutes.some((route) => pathname.startsWith(route)) &&
       !token
     ) {
       return NextResponse.redirect(new URL("/login", request.url));

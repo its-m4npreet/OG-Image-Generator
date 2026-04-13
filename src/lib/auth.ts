@@ -81,7 +81,11 @@ export const authOptions: NextAuthOptions = {
 
     async session({ session, user }) {
       try {
-        console.log("✅ session callback:", { userId: user.id, email: user.email });
+        console.log("✅ session callback:", { 
+          userId: user.id, 
+          email: user.email,
+          role: (user as any).role 
+        });
         if (session.user) {
           const sessionUser = session.user as SessionUser;
           sessionUser.id = user.id;

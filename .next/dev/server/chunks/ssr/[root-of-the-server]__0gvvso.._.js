@@ -193,7 +193,8 @@ const authOptions = {
             try {
                 console.log("✅ session callback:", {
                     userId: user.id,
-                    email: user.email
+                    email: user.email,
+                    role: user.role
                 });
                 if (session.user) {
                     const sessionUser = session.user;
