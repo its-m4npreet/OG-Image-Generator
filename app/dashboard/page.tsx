@@ -5,7 +5,14 @@ import Link from "next/link";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { authOptions } from "../../src/lib/auth";
-import { pool } from "@/lib/postgres";
+
+type SessionUser = {
+  id?: string;
+  name?: string;
+  email?: string;
+  image?: string;
+  role?: string;
+};
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -16,25 +23,14 @@ export default async function DashboardPage() {
 
   const displayName = session.user?.name ?? session.user?.email ?? "User";
   const fallbackLetter = displayName.trim().charAt(0).toUpperCase();
+  const user = session.user as SessionUser;
+  const isAdmin = user.role === "admin";
 
-  // Fetch user role from database
-  let isAdmin = false;
-  const userEmail = session.user?.email;
-  
-  if (userEmail) {
-    try {
-      const result = await pool.query(
-        "SELECT role FROM users WHERE email = $1",
-        [userEmail]
-      );
-      
-      if (result.rows.length > 0 && result.rows[0].role === "admin") {
-        isAdmin = true;
-      }
-    } catch (error) {
-      console.error("Failed to fetch user role:", error);
-    }
-  }
+  console.log("📊 Dashboard - Session User:", {
+    email: user.email,
+    role: user.role,
+    isAdmin: isAdmin
+  });
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col items-center justify-center gap-6 p-6">
@@ -49,12 +45,12 @@ export default async function DashboardPage() {
       </div>
 
       <div className="flex flex-col gap-3 w-full max-w-xs">
-        <Button asChild className="w-full" variant="default">
+        <Button asChild className="w-full" variant="default" size="lg">
           <Link href="/editor">Create OG Image</Link>
         </Button>
 
         {isAdmin && (
-          <Button asChild className="w-full" variant="secondary">
+          <Button asChild className="w-full" variant="secondary" size="lg">
             <Link href="/admin/templates">📋 Manage Templates</Link>
           </Button>
         )}
@@ -62,3 +58,4 @@ export default async function DashboardPage() {
     </main>
   );
 }
+  

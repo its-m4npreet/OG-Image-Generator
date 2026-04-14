@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Hexagon, Search, Plus, LayoutGrid, LogOut, User as UserIcon, Settings } from "lucide-react";
+import { Hexagon, Search, Plus, LayoutGrid, LogOut, User as UserIcon, Settings, BookOpen } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 
 const categories = ["All", "Blog", "SaaS", "Portfolio", "Product Launch", "Social Media"] as const;
@@ -260,12 +260,17 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       navigate("/login");
     }
-  }, [status, navigate]);
+    // Check if user is admin from session
+    if (status === "authenticated" && (session?.user as any)?.role === "admin") {
+      setIsAdmin(true);
+    }
+  }, [status, session, navigate]);
 
   if (status === "loading") {
     return (
@@ -308,6 +313,14 @@ const Dashboard = () => {
               </Link>
             </Button>
 
+            {isAdmin && (
+              <Button variant="outline" size="sm" asChild className="hidden sm:flex">
+                <Link to="/admin/templates">
+                  <BookOpen className="h-4 w-4 mr-1" /> Manage Templates
+                </Link>
+              </Button>
+            )}
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
@@ -341,6 +354,17 @@ const Dashboard = () => {
                     <span>Settings</span>
                   </Link>
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/templates" className="cursor-pointer">
+                        <BookOpen className="mr-2 h-4 w-4" />
+                        <span>Manage Templates</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   className="text-destructive focus:text-destructive cursor-pointer"

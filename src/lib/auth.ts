@@ -7,6 +7,7 @@ import { pool } from "./postgres";
 type SessionUser = NonNullable<DefaultSession["user"]> & {
   id?: string;
   provider?: string;
+  role?: string;
 };
 
 if (!process.env.NEXTAUTH_SECRET) {
@@ -81,14 +82,23 @@ export const authOptions: NextAuthOptions = {
 
     async session({ session, user }) {
       try {
+        // Fetch the role from the database since the adapter doesn't automatically include custom columns
+        const result = await pool.query(
+          "SELECT role FROM users WHERE id = $1",
+          [user.id]
+        );
+        
+        const userRole = result.rows.length > 0 ? result.rows[0].role : "user";
+        
         console.log("✅ session callback:", { 
           userId: user.id, 
           email: user.email,
-          role: (user as any).role 
+          role: userRole 
         });
         if (session.user) {
           const sessionUser = session.user as SessionUser;
           sessionUser.id = user.id;
+          sessionUser.role = userRole;
         }
         return session;
       } catch (error) {

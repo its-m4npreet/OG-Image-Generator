@@ -215,14 +215,20 @@ const authOptions = {
         },
         async session ({ session, user }) {
             try {
+                // Fetch the role from the database since the adapter doesn't automatically include custom columns
+                const result = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$postgres$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query("SELECT role FROM users WHERE id = $1", [
+                    user.id
+                ]);
+                const userRole = result.rows.length > 0 ? result.rows[0].role : "user";
                 console.log("✅ session callback:", {
                     userId: user.id,
                     email: user.email,
-                    role: user.role
+                    role: userRole
                 });
                 if (session.user) {
                     const sessionUser = session.user;
                     sessionUser.id = user.id;
+                    sessionUser.role = userRole;
                 }
                 return session;
             } catch (error) {
