@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 10, "column": 0}, "map": {"version":3,"sources":["file:///home/manpreet/Documents/projects/og%20image%20generator/og-studio/app/providers.tsx"],"sourcesContent":["\"use client\";\n\nimport { SessionProvider } from \"next-auth/react\";\n\ntype ProvidersProps = {\n  children: React.ReactNode;\n};\n\nexport function Providers({ children }: ProvidersProps) {\n  return <SessionProvider>{children}</SessionProvider>;\n}\n"],"names":["Providers","children"],"mappings":";;;;;AAEA;AAFA;;;AAQO,SAASA,UAAU,EAAEC,QAAQ,EAAkB;IACpD,qBAAO,oZAAC,mXAAe;kBAAEA;;;;;;AAC3B"}}]
-}

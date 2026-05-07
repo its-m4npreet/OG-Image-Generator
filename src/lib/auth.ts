@@ -50,7 +50,7 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 
   session: {
-    strategy: "database",
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
   },
 
@@ -70,35 +70,40 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, user, account }) {
-      // For initial sign in
+      // For initial sign in, add user data to token
       if (user) {
         token.sub = user.id;
         token.email = user.email;
         token.name = user.name;
         token.picture = user.image;
+        
+        // Fetch role from database
+        try {
+          const result = await pool.query(
+            "SELECT role FROM users WHERE id = $1",
+            [user.id]
+          );
+          token.role = result.rows.length > 0 ? result.rows[0].role : "user";
+        } catch (error) {
+          console.error("❌ Error fetching user role:", error);
+          token.role = "user";
+        }
       }
+      
       return token;
     },
 
-    async session({ session, user }) {
+    async session({ session, token }) {
       try {
-        // Fetch the role from the database since the adapter doesn't automatically include custom columns
-        const result = await pool.query(
-          "SELECT role FROM users WHERE id = $1",
-          [user.id]
-        );
-        
-        const userRole = result.rows.length > 0 ? result.rows[0].role : "user";
-        
         console.log("✅ session callback:", { 
-          userId: user.id, 
-          email: user.email,
-          role: userRole 
+          userId: token.sub, 
+          email: token.email,
+          role: token.role 
         });
         if (session.user) {
           const sessionUser = session.user as SessionUser;
-          sessionUser.id = user.id;
-          sessionUser.role = userRole;
+          sessionUser.id = token.sub;
+          sessionUser.role = token.role as string;
         }
         return session;
       } catch (error) {
