@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 import {
   Hexagon, Download, Share2, ArrowLeft, Type, Palette,
   ChevronLeft, ChevronRight, ChevronDown, Wand2, Link2, Image as ImageIcon, Trash2,
+  Eye, EyeOff,
 } from "lucide-react";
 import { toPng, toJpeg } from "html-to-image";
 import {
@@ -38,6 +39,11 @@ interface CanvasImage {
   borderRadius?: number; // 0-50 for border radius
   borderWidth?: number; // 0-10 for border width
   borderColor?: string; // border color hex
+  rotation?: number; // 0-360 for rotation
+  shadowBlur?: number; // 0-50 for shadow blur
+  shadowSpread?: number; // 0-50 for shadow spread
+  shadowColor?: string; // shadow color hex
+  shadowOpacity?: number; // 0-100 for shadow opacity
 }
 
 interface LogoProperties {
@@ -73,6 +79,8 @@ const Editor = () => {
   const [title, setTitle] = useState(templateTitle);
   const [subtitle, setSubtitle] = useState(templateSubtitle);
   const [author, setAuthor] = useState("Author Name");
+  const [showSubtitle, setShowSubtitle] = useState(true);
+  const [showAuthor, setShowAuthor] = useState(true);
   const [selectedGradient, setSelectedGradient] = useState(getInitialGradient());
   const [selectedSolidColor, setSelectedSolidColor] = useState<string | null>(null);
   const [backgroundType, setBackgroundType] = useState<"gradient" | "solid">("gradient");
@@ -178,6 +186,11 @@ const Editor = () => {
           borderRadius: 0,
           borderWidth: 0,
           borderColor: "#000000",
+          rotation: 0,
+          shadowBlur: 0,
+          shadowSpread: 0,
+          shadowColor: "#000000",
+          shadowOpacity: 0,
         };
         setImages([...images, newImage]);
         setSelectedImage(newImage.id);
@@ -198,9 +211,9 @@ const Editor = () => {
         
         const updated = { ...img, ...updates };
         
-        // Boundary constraints
-        updated.x = Math.min(updated.x, 900 - updated.width);
-        updated.y = Math.min(updated.y, 630 - updated.height);
+        // Boundary constraints - X: negative to 700, Y: negative to 300
+        updated.x = Math.min(updated.x, 700);
+        updated.y = Math.min(updated.y, 300);
         updated.width = Math.max(0, Math.min(updated.width, 900));
         updated.height = Math.max(0, Math.min(updated.height, 630));
         
@@ -463,11 +476,37 @@ const Editor = () => {
                 <Input value={title} onChange={(e) => setTitle(e.target.value)} className="mt-1 bg-background border-border" />
               </div>
               <div>
-                <Label className="text-xs text-muted-foreground">Subtitle</Label>
+                <div className="flex items-center justify-between mb-1">
+                  <Label className="text-xs text-muted-foreground">Subtitle</Label>
+                  <button
+                    onClick={() => setShowSubtitle(!showSubtitle)}
+                    className={`p-1 rounded transition-all ${
+                      showSubtitle
+                        ? "bg-primary/20 text-primary hover:bg-primary/30"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                    title={showSubtitle ? "Hide subtitle" : "Show subtitle"}
+                  >
+                    {showSubtitle ? <Eye size={16} /> : <EyeOff size={16} />}
+                  </button>
+                </div>
                 <Input value={subtitle} onChange={(e) => setSubtitle(e.target.value)} className="mt-1 bg-background border-border" />
               </div>
               <div>
-                <Label className="text-xs text-muted-foreground">Author</Label>
+                <div className="flex items-center justify-between mb-1">
+                  <Label className="text-xs text-muted-foreground">Author</Label>
+                  <button
+                    onClick={() => setShowAuthor(!showAuthor)}
+                    className={`p-1 rounded transition-all ${
+                      showAuthor
+                        ? "bg-primary/20 text-primary hover:bg-primary/30"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                    title={showAuthor ? "Hide author" : "Show author"}
+                  >
+                    {showAuthor ? <Eye size={16} /> : <EyeOff size={16} />}
+                  </button>
+                </div>
                 <Input value={author} onChange={(e) => setAuthor(e.target.value)} className="mt-1 bg-background border-border" />
               </div>
             </div>
@@ -630,6 +669,7 @@ const Editor = () => {
                   width: `${(img.width / 900) * 100}%`,
                   height: `${(img.height / 630) * 100}%`,
                   cursor: "pointer",
+                  transform: `rotate(${img.rotation || 0}deg)`,
                 }}
                 onClick={() => setSelectedImage(img.id)}
               >
@@ -642,6 +682,9 @@ const Editor = () => {
                     borderRadius: `${img.borderRadius || 0}px`,
                     border: img.borderWidth && img.borderWidth > 0 
                       ? `${img.borderWidth}px solid ${img.borderColor || "#000000"}`
+                      : "none",
+                    boxShadow: img.shadowBlur || img.shadowSpread || (img.shadowOpacity && img.shadowOpacity > 0)
+                      ? `0 0 ${img.shadowBlur || 0}px ${img.shadowSpread || 0}px ${img.shadowColor}${Math.round((img.shadowOpacity || 0) * 2.55).toString(16).padStart(2, '0')}`
                       : "none",
                   }}
                 />
@@ -690,36 +733,40 @@ const Editor = () => {
               >
                 {title}
               </h2>
-              <p
-                className={`text-sm md:text-base max-w-lg mx-auto ${
-                  isLightBackground(backgroundType, selectedGradient, selectedSolidColor)
-                    ? "text-gray-800"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {subtitle}
-              </p>
-              <div className="flex items-center gap-2 pt-4" style={{
-                justifyContent: getTextPositioning().textAlign === "center" ? "center" : getTextPositioning().textAlign === "left" ? "flex-start" : "flex-end"
-              }}>
-                {/* <div
-                  className="w-7 h-7 rounded-full"
-                  style={{
-                    backgroundColor: isLightBackground(backgroundType, selectedGradient, selectedSolidColor)
-                      ? "rgba(0, 0, 0, 0.2)"
-                      : "rgba(59, 130, 246, 0.3)",
-                  }}
-                /> */}
-                <span
-                  className={`text-sm ${
+              {showSubtitle && (
+                <p
+                  className={`text-sm md:text-base max-w-lg mx-auto ${
                     isLightBackground(backgroundType, selectedGradient, selectedSolidColor)
                       ? "text-gray-800"
                       : "text-muted-foreground"
                   }`}
                 >
-                  {author}
-                </span>
-              </div>
+                  {subtitle}
+                </p>
+              )}
+              {showAuthor && (
+                <div className="flex items-center gap-2" style={{
+                  justifyContent: getTextPositioning().textAlign === "center" ? "center" : getTextPositioning().textAlign === "left" ? "flex-start" : "flex-end"
+                }}>
+                  {/* <div
+                    className="w-7 h-7 rounded-full"
+                    style={{
+                      backgroundColor: isLightBackground(backgroundType, selectedGradient, selectedSolidColor)
+                        ? "rgba(0, 0, 0, 0.2)"
+                        : "rgba(59, 130, 246, 0.3)",
+                    }}
+                  /> */}
+                  <span
+                    className={`text-sm ${
+                      isLightBackground(backgroundType, selectedGradient, selectedSolidColor)
+                        ? "text-gray-800"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {author}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -859,24 +906,32 @@ const Editor = () => {
                     <div className="bg-background rounded-lg p-3 border border-border space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label className="text-xs text-muted-foreground">X Position</Label>
+                        <Label className="text-xs text-muted-foreground">X Position (-∞ to 700)</Label>
                         <Input
                           type="number"
+                          max="700"
+                          step="1"
                           value={Math.round(images.find((img) => img.id === selectedImage)?.x || 0)}
-                          onChange={(e) =>
-                            updateImage(selectedImage, { x: Number(e.target.value) })
-                          }
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            const clamped = Math.min(700, isNaN(val) ? 0 : val);
+                            updateImage(selectedImage, { x: clamped });
+                          }}
                           className="mt-1 bg-card border-border text-xs"
                         />
                       </div>
                       <div>
-                        <Label className="text-xs text-muted-foreground">Y Position</Label>
+                        <Label className="text-xs text-muted-foreground">Y Position (-∞ to 300)</Label>
                         <Input
                           type="number"
+                          max="300"
+                          step="1"
                           value={Math.round(images.find((img) => img.id === selectedImage)?.y || 0)}
-                          onChange={(e) =>
-                            updateImage(selectedImage, { y: Number(e.target.value) })
-                          }
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            const clamped = Math.min(300, isNaN(val) ? 0 : val);
+                            updateImage(selectedImage, { y: clamped });
+                          }}
                           className="mt-1 bg-card border-border text-xs"
                         />
                       </div>
@@ -949,6 +1004,96 @@ const Editor = () => {
                         }
                         className="mt-1 bg-card border-border text-xs h-9"
                       />
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-muted-foreground mb-2 block">Rotation</Label>
+                      <div className="flex items-center gap-3 mt-2">
+                        <input
+                          type="range"
+                          min="0"
+                          max="360"
+                          value={images.find((img) => img.id === selectedImage)?.rotation || 0}
+                          onChange={(e) =>
+                            updateImage(selectedImage, { rotation: Number(e.target.value) })
+                          }
+                          className="flex-1 accent-primary"
+                        />
+                        <span className="text-xs text-muted-foreground w-10 text-right">
+                          {images.find((img) => img.id === selectedImage)?.rotation || 0}°
+                        </span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-muted-foreground mb-2 block">Box Shadow</Label>
+                      <div className="space-y-2">
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Blur</Label>
+                          <div className="flex items-center gap-3 mt-1">
+                            <input
+                              type="range"
+                              min="0"
+                              max="50"
+                              value={images.find((img) => img.id === selectedImage)?.shadowBlur || 0}
+                              onChange={(e) =>
+                                updateImage(selectedImage, { shadowBlur: Number(e.target.value) })
+                              }
+                              className="flex-1 accent-primary"
+                            />
+                            <span className="text-xs text-muted-foreground w-8 text-right">
+                              {images.find((img) => img.id === selectedImage)?.shadowBlur || 0}
+                            </span>
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Spread</Label>
+                          <div className="flex items-center gap-3 mt-1">
+                            <input
+                              type="range"
+                              min="0"
+                              max="50"
+                              value={images.find((img) => img.id === selectedImage)?.shadowSpread || 0}
+                              onChange={(e) =>
+                                updateImage(selectedImage, { shadowSpread: Number(e.target.value) })
+                              }
+                              className="flex-1 accent-primary"
+                            />
+                            <span className="text-xs text-muted-foreground w-8 text-right">
+                              {images.find((img) => img.id === selectedImage)?.shadowSpread || 0}
+                            </span>
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Color</Label>
+                          <Input
+                            type="color"
+                            value={images.find((img) => img.id === selectedImage)?.shadowColor || "#000000"}
+                            onChange={(e) =>
+                              updateImage(selectedImage, { shadowColor: e.target.value })
+                            }
+                            className="mt-1 bg-card border-border text-xs h-8"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Opacity</Label>
+                          <div className="flex items-center gap-3 mt-1">
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={images.find((img) => img.id === selectedImage)?.shadowOpacity || 0}
+                              onChange={(e) =>
+                                updateImage(selectedImage, { shadowOpacity: Number(e.target.value) })
+                              }
+                              className="flex-1 accent-primary"
+                            />
+                            <span className="text-xs text-muted-foreground w-8 text-right">
+                              {images.find((img) => img.id === selectedImage)?.shadowOpacity || 0}%
+                            </span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     <div>

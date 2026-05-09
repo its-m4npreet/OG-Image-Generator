@@ -32,7 +32,7 @@ export const templates = [
     hasLogo: true,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
-    imagePosition: { x: 175, y: 140, width: 550, height: 350 },
+    imagePosition: { x: 175, y: 280, width: 550, height: 350, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
     logoPosition: { x: 50, y: 50, width: 80, height: 80 },
     preview: {
       bg: "from-blue-600/30 to-cyan-500/20",
@@ -70,7 +70,7 @@ export const templates = [
     hasLogo: true,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
-    imagePosition: { x: 175, y: 140, width: 550, height: 350 },
+    imagePosition: { x: -100, y: 160, width: 550, height: 470, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
     logoPosition: { x: 40, y: 40, width: 100, height: 100 },
     preview: {
       bg: "from-purple-600/30 to-blue-600/10",
@@ -88,7 +88,7 @@ export const templates = [
     hasLogo: true,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
-    imagePosition: { x: 175, y: 140, width: 550, height: 350 },
+    imagePosition: { x: 350, y: 160, width: 550, height: 470, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
     logoPosition: { x: 50, y: 50, width: 90, height: 90 },
     preview: {
       bg: "from-orange-500/20 to-pink-600/10",
@@ -126,7 +126,7 @@ export const templates = [
     hasLogo: true,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
-    imagePosition: { x: 175, y: 140, width: 550, height: 350 },
+    imagePosition: { x: 175, y: 280, width: 550, height: 350, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
     logoPosition: { x: 60, y: 60, width: 110, height: 110 },
     preview: {
       bg: "from-pink-500/30 to-rose-500/20",
@@ -164,7 +164,7 @@ export const templates = [
     hasLogo: true,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
-    imagePosition: { x: 175, y: 140, width: 550, height: 350 },
+    imagePosition: { x: -100, y: 160, width: 550, height: 470, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
     logoPosition: { x: 45, y: 45, width: 95, height: 95 },
     preview: {
       bg: "from-violet-600/30 to-indigo-600/20",
@@ -182,7 +182,7 @@ export const templates = [
     hasLogo: true,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
-    imagePosition: { x: 175, y: 140, width: 550, height: 350 },
+    imagePosition: { x: 350, y: 160, width: 550, height: 470, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
     logoPosition: { x: 55, y: 55, width: 85, height: 85 },
     preview: {
       bg: "from-red-500 to-pink-500",
@@ -220,7 +220,7 @@ export const templates = [
     hasLogo: false,
     imageUrl: "/ogImage.png",
     logoUrl: "",
-    imagePosition: { x: 175, y: 140, width: 550, height: 350 },
+    imagePosition: { x: 700, y: 120, width: 430, height: 430, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
     logoPosition: undefined,
     preview: {
       bg: "from-yellow-100/40 to-orange-100/20",
@@ -238,8 +238,8 @@ export const templates = [
     hasLogo: true,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
-    imagePosition: { x: 175, y: 140, width: 550, height: 350 },
-    logoPosition: { x: 50, y: 50, width: 100, height: 100 },
+    imagePosition: { x: 480, y: 90, width: 500, height: 450, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
+    logoPosition: {  x: 70,  y: 60,  width: 72,  height: 72},
     preview: {
       bg: "from-purple-400 to-pink-400",
       text: "white",
