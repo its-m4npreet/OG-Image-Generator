@@ -50,6 +50,44 @@ export const gradientMap = [
   { tailwind: "from-purple-400 to-pink-400", css: "linear-gradient(to bottom right, #a78bfa, #f472b6)" },
   { tailwind: "from-gray-100 to-white", css: "linear-gradient(to bottom right, #f3f4f6, #ffffff)" },
   { tailwind: "from-green-100 to-green-50", css: "linear-gradient(to bottom right, #dcfce7, #f0fdf4)" },
+  
+  // New Premium Gradients (Blog)
+  { tailwind: "from-[#0F172A] via-[#111827] to-[#1E293B]", css: "linear-gradient(to bottom right, #0F172A, #111827, #1E293B)" },
+  { tailwind: "from-[#7C2D12] via-[#EA580C] to-[#FB923C]", css: "linear-gradient(to bottom right, #7C2D12, #EA580C, #FB923C)" },
+  { tailwind: "from-[#172554] via-[#1E3A8A] to-[#2563EB]", css: "linear-gradient(to bottom right, #172554, #1E3A8A, #2563EB)" },
+  { tailwind: "from-[#020617] via-[#111827] to-[#334155]", css: "linear-gradient(to bottom right, #020617, #111827, #334155)" },
+  
+  // New Premium Gradients (SaaS)
+  { tailwind: "from-[#312E81] via-[#4338CA] to-[#6366F1]", css: "linear-gradient(to bottom right, #312E81, #4338CA, #6366F1)" },
+  { tailwind: "from-[#7C2D12] via-[#C2410C] to-[#FB7185]", css: "linear-gradient(to bottom right, #7C2D12, #C2410C, #FB7185)" },
+  { tailwind: "from-[#083344] via-[#155E75] to-[#67E8F9]", css: "linear-gradient(to bottom right, #083344, #155E75, #67E8F9)" },
+  
+  // New Premium Gradients (Portfolio)
+  { tailwind: "from-[#4C1D95] via-[#7E22CE] to-[#DB2777]", css: "linear-gradient(to bottom right, #4C1D95, #7E22CE, #DB2777)" },
+  { tailwind: "from-[#064E3B] via-[#065F46] to-[#0F766E]", css: "linear-gradient(to bottom right, #064E3B, #065F46, #0F766E)" },
+  
+  // New Premium Gradients (Product Launch)
+  { tailwind: "from-[#2E1065] via-[#4C1D95] to-[#7C3AED]", css: "linear-gradient(to bottom right, #2E1065, #4C1D95, #7C3AED)" },
+  { tailwind: "from-[#7F1D1D] via-[#DC2626] to-[#F97316]", css: "linear-gradient(to bottom right, #7F1D1D, #DC2626, #F97316)" },
+  { tailwind: "from-[#E2E8F0] via-[#F8FAFC] to-[#FFFFFF]", css: "linear-gradient(to bottom right, #E2E8F0, #F8FAFC, #FFFFFF)" },
+  
+  // New Premium Gradients (Social Media)
+  { tailwind: "from-[#78350F] via-[#EA580C] to-[#FDBA74]", css: "linear-gradient(to bottom right, #78350F, #EA580C, #FDBA74)" },
+  { tailwind: "from-[#581C87] via-[#9333EA] to-[#EC4899]", css: "linear-gradient(to bottom right, #581C87, #9333EA, #EC4899)" },
+  { tailwind: "from-[#14532D] via-[#15803D] to-[#86EFAC]", css: "linear-gradient(to bottom right, #14532D, #15803D, #86EFAC)" },
+  
+  // New Premium Templates Gradients
+  { tailwind: "from-[#020617] via-[#0F172A] to-[#1E293B]", css: "linear-gradient(to bottom right, #020617, #0F172A, #1E293B)" },
+  { tailwind: "from-[#09090B] via-[#18181B] to-[#27272A]", css: "linear-gradient(to bottom right, #09090B, #18181B, #27272A)" },
+  { tailwind: "from-[#172554] via-[#1D4ED8] to-[#38BDF8]", css: "linear-gradient(to bottom right, #172554, #1D4ED8, #38BDF8)" },
+  { tailwind: "from-[#312E81] via-[#4338CA] to-[#818CF8]", css: "linear-gradient(to bottom right, #312E81, #4338CA, #818CF8)" },
+  { tailwind: "from-[#7C2D12] via-[#EA580C] to-[#FDBA74]", css: "linear-gradient(to bottom right, #7C2D12, #EA580C, #FDBA74)" },
+  { tailwind: "from-[#030712] via-[#111827] to-[#374151]", css: "linear-gradient(to bottom right, #030712, #111827, #374151)" },
+  
+  // New Mixed Social Gradients
+  { tailwind: "from-[#581C87] via-[#9333EA] to-[#D946EF]", css: "linear-gradient(to bottom right, #581C87, #9333EA, #D946EF)" },
+  { tailwind: "from-[#7F1D1D] via-[#DC2626] to-[#FB923C]", css: "linear-gradient(to bottom right, #7F1D1D, #DC2626, #FB923C)" },
+  { tailwind: "from-[#172554] via-[#2563EB] to-[#60A5FA]", css: "linear-gradient(to bottom right, #172554, #2563EB, #60A5FA)" },
 ];
 
 // Extract arrays for backward compatibility

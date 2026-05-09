@@ -56,6 +56,22 @@ interface LogoProperties {
 
 const fontOptions = ["Inter", "Georgia", "Arial"];
 
+// Helper function to convert hex color to rgba
+const hexToRgba = (hex: string, opacity: number): string => {
+  // Remove '#' if present
+  const cleanHex = hex.replace('#', '');
+  
+  // Parse hex to RGB
+  const r = parseInt(cleanHex.substring(0, 2), 16);
+  const g = parseInt(cleanHex.substring(2, 4), 16);
+  const b = parseInt(cleanHex.substring(4, 6), 16);
+  
+  // Convert opacity from 0-100 to 0-1
+  const alpha = opacity / 100;
+  
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 const Editor = () => {
   // Get URL parameters for template loading
   const searchParams = new URLSearchParams(window.location.search);
@@ -68,6 +84,7 @@ const Editor = () => {
   const templateImage = searchParams.get("image");
   const templateImagePosition = searchParams.get("imagePosition");
   const templateLogoPosition = searchParams.get("logoPosition");
+  const templateHasAuthor = searchParams.get("hasAuthor") !== "false"; // Default to true
   
   // Helper function to get initial gradient index
   const getInitialGradient = () => {
@@ -80,7 +97,7 @@ const Editor = () => {
   const [subtitle, setSubtitle] = useState(templateSubtitle);
   const [author, setAuthor] = useState("Author Name");
   const [showSubtitle, setShowSubtitle] = useState(true);
-  const [showAuthor, setShowAuthor] = useState(true);
+  const [showAuthor, setShowAuthor] = useState(templateHasAuthor);
   const [selectedGradient, setSelectedGradient] = useState(getInitialGradient());
   const [selectedSolidColor, setSelectedSolidColor] = useState<string | null>(null);
   const [backgroundType, setBackgroundType] = useState<"gradient" | "solid">("gradient");
@@ -135,14 +152,24 @@ const Editor = () => {
           reader.onload = (e) => {
             // Parse position data from URL or use defaults
             let imageX = 175, imageY = 140, imageWidth = 550, imageHeight = 350;
+            let rotation = 0, shadowBlur = 0, shadowSpread = 0, shadowColor = "#000000", shadowOpacity = 0;
+            let borderRadius = 0, borderWidth = 0, borderColor = "#000000";
             
             if (templateImagePosition) {
               try {
                 const pos = JSON.parse(templateImagePosition);
-                imageX = pos.x || imageX;
-                imageY = pos.y || imageY;
-                imageWidth = pos.width || imageWidth;
-                imageHeight = pos.height || imageHeight;
+                imageX = pos.x ?? imageX;
+                imageY = pos.y ?? imageY;
+                imageWidth = pos.width ?? imageWidth;
+                imageHeight = pos.height ?? imageHeight;
+                rotation = pos.rotation ?? rotation;
+                shadowBlur = pos.shadowBlur ?? shadowBlur;
+                shadowSpread = pos.shadowSpread ?? shadowSpread;
+                shadowColor = pos.shadowColor ?? shadowColor;
+                shadowOpacity = pos.shadowOpacity ?? shadowOpacity;
+                borderRadius = pos.borderRadius ?? borderRadius;
+                borderWidth = pos.borderWidth ?? borderWidth;
+                borderColor = pos.borderColor ?? borderColor;
               } catch (err) {
                 console.log("Could not parse image position:", err);
               }
@@ -155,6 +182,14 @@ const Editor = () => {
               y: imageY,
               width: imageWidth,
               height: imageHeight,
+              rotation,
+              shadowBlur,
+              shadowSpread,
+              shadowColor,
+              shadowOpacity,
+              borderRadius,
+              borderWidth,
+              borderColor,
             };
             setImages([newImage]);
             setSelectedImage(newImage.id);
@@ -492,7 +527,7 @@ const Editor = () => {
                 </div>
                 <Input value={subtitle} onChange={(e) => setSubtitle(e.target.value)} className="mt-1 bg-background border-border" />
               </div>
-              <div>
+             { showAuthor && ( <div>
                 <div className="flex items-center justify-between mb-1">
                   <Label className="text-xs text-muted-foreground">Author</Label>
                   <button
@@ -508,7 +543,9 @@ const Editor = () => {
                   </button>
                 </div>
                 <Input value={author} onChange={(e) => setAuthor(e.target.value)} className="mt-1 bg-background border-border" />
-              </div>
+              </div>)
+
+             }
             </div>
 
             <Separator className="bg-border" />
@@ -683,8 +720,8 @@ const Editor = () => {
                     border: img.borderWidth && img.borderWidth > 0 
                       ? `${img.borderWidth}px solid ${img.borderColor || "#000000"}`
                       : "none",
-                    boxShadow: img.shadowBlur || img.shadowSpread || (img.shadowOpacity && img.shadowOpacity > 0)
-                      ? `0 0 ${img.shadowBlur || 0}px ${img.shadowSpread || 0}px ${img.shadowColor}${Math.round((img.shadowOpacity || 0) * 2.55).toString(16).padStart(2, '0')}`
+                    boxShadow: ((img.shadowBlur || 0) > 0 || (img.shadowSpread || 0) > 0 || (img.shadowOpacity || 0) > 0)
+                      ? `0 0 ${img.shadowBlur || 0}px ${img.shadowSpread || 0}px ${hexToRgba(img.shadowColor || "#000000", img.shadowOpacity || 0)}`
                       : "none",
                   }}
                 />
@@ -1011,7 +1048,7 @@ const Editor = () => {
                       <div className="flex items-center gap-3 mt-2">
                         <input
                           type="range"
-                          min="0"
+                          min="-360"
                           max="360"
                           value={images.find((img) => img.id === selectedImage)?.rotation || 0}
                           onChange={(e) =>
