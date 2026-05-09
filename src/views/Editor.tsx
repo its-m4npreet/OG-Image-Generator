@@ -622,7 +622,7 @@ const Editor = () => {
               <div
                 key={img.id}
                 className={`absolute transition-all duration-200 ${
-                  selectedImage === img.id ? "ring-2 ring-primary shadow-xl" : "shadow-lg hover:shadow-2xl"
+                  selectedImage === img.id ? " shadow-xl" : "shadow-lg hover:shadow-2xl"
                 }`}
                 style={{
                   left: `${(img.x / 900) * 100}%`,
