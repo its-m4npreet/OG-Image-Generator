@@ -195,7 +195,7 @@ const Dashboard = () => {
               className="h-full"
             >
               <Link 
-                to={`/editor?template=${template.id}&title=${encodeURIComponent(template.title)}&subtitle=${encodeURIComponent(template.subtitle)}&gradient=${encodeURIComponent(template.gradient)}&logo=${template.hasLogo && template.logoUrl ? template.logoUrl : ''}&image=${template.hasImage && template.imageUrl ? template.imageUrl : ''}${template.imagePosition ? `&imagePosition=${encodeURIComponent(JSON.stringify(template.imagePosition))}` : ''}${template.logoPosition ? `&logoPosition=${encodeURIComponent(JSON.stringify(template.logoPosition))}` : ''}&hasAuthor=${template.hasAuthor}`}
+                to={`/editor?template=${template.id}&title=${encodeURIComponent(template.title)}&subtitle=${encodeURIComponent(template.subtitle)}&gradient=${encodeURIComponent(template.gradient)}&titleColor=${encodeURIComponent(template.titleColor)}&subtitleColor=${encodeURIComponent(template.subtitleColor)}&logo=${template.hasLogo && template.logoUrl ? template.logoUrl : ''}&image=${template.hasImage && template.imageUrl ? template.imageUrl : ''}${template.imagePosition ? `&imagePosition=${encodeURIComponent(JSON.stringify(template.imagePosition))}` : ''}${template.logoPosition ? `&logoPosition=${encodeURIComponent(JSON.stringify(template.logoPosition))}` : ''}&hasAuthor=${template.hasAuthor}`}
                 className="block group h-full"
               >
                 <div className="rounded-2xl border border-border bg-card overflow-hidden transition-all duration-150 hover:border-primary/30 hover:scale-[1.02] hover:shadow-xl h-full flex flex-col">

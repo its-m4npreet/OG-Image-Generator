@@ -84,6 +84,8 @@ const Editor = () => {
   const templateImage = searchParams.get("image");
   const templateImagePosition = searchParams.get("imagePosition");
   const templateLogoPosition = searchParams.get("logoPosition");
+  const templateTitleColor = searchParams.get("titleColor");
+  const templateSubtitleColor = searchParams.get("subtitleColor");
   const templateHasAuthor = searchParams.get("hasAuthor") !== "false"; // Default to true
   
   // Helper function to get initial gradient index
@@ -122,6 +124,19 @@ const Editor = () => {
     height: 48,
     borderRadius: 0,
   });
+
+  const getDefaultTitleColor = () => {
+    if (templateTitleColor) return templateTitleColor;
+    return isLightBackground(backgroundType, selectedGradient, selectedSolidColor) ? "#000000" : "#FFFFFF";
+  };
+
+  const getDefaultSubtitleColor = () => {
+    if (templateSubtitleColor) return templateSubtitleColor;
+    return isLightBackground(backgroundType, selectedGradient, selectedSolidColor) ? "#1F2937" : "#E5E7EB";
+  };
+
+  const [titleColor, setTitleColor] = useState(getDefaultTitleColor());
+  const [subtitleColor, setSubtitleColor] = useState(getDefaultSubtitleColor());
   
   const canvasRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -761,22 +776,15 @@ const Editor = () => {
               className="space-y-4"
             >
               <h2
-                className={`font-bold leading-tight ${
-                  isLightBackground(backgroundType, selectedGradient, selectedSolidColor)
-                    ? "text-black"
-                    : "text-foreground"
-                }`}
-                style={{ fontSize: `${fontSize * 0.6}px` }}
+                className="font-bold leading-tight"
+                style={{ fontSize: `${fontSize * 0.6}px`, color: titleColor }}
               >
                 {title}
               </h2>
               {showSubtitle && (
                 <p
-                  className={`text-sm md:text-base max-w-lg mx-auto ${
-                    isLightBackground(backgroundType, selectedGradient, selectedSolidColor)
-                      ? "text-gray-800"
-                      : "text-muted-foreground"
-                  }`}
+                  className="text-sm md:text-base max-w-lg mx-auto"
+                  style={{ color: subtitleColor }}
                 >
                   {subtitle}
                 </p>
@@ -785,20 +793,9 @@ const Editor = () => {
                 <div className="flex items-center gap-2" style={{
                   justifyContent: getTextPositioning().textAlign === "center" ? "center" : getTextPositioning().textAlign === "left" ? "flex-start" : "flex-end"
                 }}>
-                  {/* <div
-                    className="w-7 h-7 rounded-full"
-                    style={{
-                      backgroundColor: isLightBackground(backgroundType, selectedGradient, selectedSolidColor)
-                        ? "rgba(0, 0, 0, 0.2)"
-                        : "rgba(59, 130, 246, 0.3)",
-                    }}
-                  /> */}
                   <span
-                    className={`text-sm ${
-                      isLightBackground(backgroundType, selectedGradient, selectedSolidColor)
-                        ? "text-gray-800"
-                        : "text-muted-foreground"
-                    }`}
+                    className="text-sm"
+                    style={{ color: subtitleColor }}
                   >
                     {author}
                   </span>
@@ -912,6 +909,35 @@ const Editor = () => {
                   onChange={(e) => setNoiseLevel(Number(e.target.value))}
                   className="w-full h-2 bg-border rounded-lg appearance-none cursor-pointer accent-primary"
                 />
+              </div>
+
+              <Separator className="bg-border my-3" />
+
+              {/* Text Colors */}
+              <div>
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-3">
+                  <Type className="h-4 w-4" /> Text Colors
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Title Color</Label>
+                    <Input
+                      type="color"
+                      value={titleColor}
+                      onChange={(e) => setTitleColor(e.target.value)}
+                      className="mt-1 bg-card border-border text-xs h-9"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Subtitle / Author Color</Label>
+                    <Input
+                      type="color"
+                      value={subtitleColor}
+                      onChange={(e) => setSubtitleColor(e.target.value)}
+                      className="mt-1 bg-card border-border text-xs h-9"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 

@@ -1,34 +1,10 @@
-{"timestamp":"00:00:01.410","source":"Server","level":"WARN","message":"⚠ The \"middleware\" file convention is deprecated. Please use \"proxy\" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy"}
-{"timestamp":"00:00:01.698","source":"Server","level":"LOG","message":""}
-{"timestamp":"00:00:23.650","source":"Server","level":"WARN","message":"[next-auth][warn][DEBUG_ENABLED] \"\\nhttps://next-auth.js.org/warnings#debug_enabled\""}
-{"timestamp":"00:00:23.672","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"00:11:17.919","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:11:17.922","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"00:15:49.362","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:15:49.366","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"00:23:49.970","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:23:49.973","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"00:26:21.004","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:26:21.007","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"00:37:20.139","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:37:20.142","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"00:37:29.060","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:37:29.063","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"00:41:53.569","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:41:53.571","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"00:42:39.245","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:42:39.251","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"00:43:12.096","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:43:12.100","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"00:48:19.337","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:48:19.340","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"00:48:29.257","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:48:29.259","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"00:51:50.932","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:51:50.934","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"01:01:46.764","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"01:01:46.765","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"01:15:00.959","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"01:15:00.960","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"01:15:02.727","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"01:15:02.729","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:00:01.725","source":"Server","level":"WARN","message":"⚠ The \"middleware\" file convention is deprecated. Please use \"proxy\" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy"}
+{"timestamp":"00:00:02.016","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:00:44.187","source":"Server","level":"WARN","message":"[next-auth][warn][DEBUG_ENABLED] \"\\nhttps://next-auth.js.org/warnings#debug_enabled\""}
+{"timestamp":"00:00:44.197","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:07:07.352","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:07:07.356","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:12:41.036","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:12:41.039","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:17:20.834","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:17:20.837","source":"Server","level":"LOG","message":"✅ session callback: {}"}
