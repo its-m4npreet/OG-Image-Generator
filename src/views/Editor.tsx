@@ -808,26 +808,45 @@ const Editor = () => {
                 ...getTextPositioning(),
                 zIndex: 10,
                 padding: "2rem",
+                overflow: "hidden",
+                wordWrap: "break-word",
+                whiteSpace: "normal",
               }}
               className="space-y-4"
             >
               <h2
                 className="font-bold leading-tight"
-                style={{ fontSize: `${fontSize * 0.6}px`, color: titleColor }}
+                style={{ 
+                  fontSize: `${fontSize * 0.6}px`, 
+                  color: titleColor,
+                  wordWrap: "break-word",
+                  overflow: "hidden",
+                  whiteSpace: "normal",
+                  width: "100%",
+                }}
               >
                 {title}
               </h2>
               {showSubtitle && (
                 <p
-                  className="text-sm md:text-base max-w-lg mx-auto"
-                  style={{ color: subtitleColor }}
+                  className="text-sm md:text-base mx-auto"
+                  style={{ 
+                    color: subtitleColor,
+                    wordWrap: "break-word",
+                    overflow: "hidden",
+                    whiteSpace: "normal",
+                    width: "100%",
+                  }}
                 >
                   {subtitle}
                 </p>
               )}
               {showAuthor && (
                 <div className="flex items-center gap-2" style={{
-                  justifyContent: getTextPositioning().textAlign === "center" ? "center" : getTextPositioning().textAlign === "left" ? "flex-start" : "flex-end"
+                  justifyContent: getTextPositioning().textAlign === "center" ? "center" : getTextPositioning().textAlign === "left" ? "flex-start" : "flex-end",
+                  width: "100%",
+                  wordWrap: "break-word",
+                  overflow: "hidden",
                 }}>
                   <span
                     className="text-sm"
