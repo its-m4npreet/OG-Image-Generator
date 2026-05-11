@@ -534,10 +534,11 @@ const Editor = () => {
             <span className="font-semibold text-foreground text-sm">OG Studio</span>
           </div>
         </div>
+        <div className="font-semibold text-foreground text-sm ">Open Graph Design</div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm">
             <Share2 className="h-4 w-4 mr-1" /> Share
-          </Button>
+          </Button> 
           <Button variant="hero" size="sm" onClick={handleExport}>
             <Download className="h-4 w-4 mr-1" /> Export {exportFormat.toUpperCase()}
           </Button>
