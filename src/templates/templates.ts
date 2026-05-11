@@ -35,6 +35,12 @@ logoPosition: {
   width: 72,
   height: 72,
 },
+contentPosition: {
+  x: 70,
+  y: 180,
+  width: 340,
+  textAlign: 'left',
+},
     preview: {
       bg: "from-blue-600/30 to-cyan-500/20",
       text: "dark",
@@ -77,6 +83,12 @@ logoPosition: {
     logoUrl: "/ogImage.png",
     imagePosition: { x: 175, y: 280, width: 550, height: 350, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
     logoPosition: { x: 50, y: 50, width: 80, height: 80 },
+    contentPosition: {
+  x: 70,
+  y: 60,
+  width: 760,
+  textAlign: 'center',
+},
     preview: {
       bg: "from-blue-600/30 to-cyan-500/20",
       text: "dark",
@@ -121,6 +133,12 @@ logoPosition: {
     logoUrl: "/ogImage.png",
     imagePosition: { x: -100, y: 160, width: 550, height: 470, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
     logoPosition: { x: 40, y: 40, width: 100, height: 100 },
+    contentPosition: {
+  x: 520,
+  y: 200,
+  width: 340,
+  textAlign: 'left',
+},
     preview: {
       bg: "from-purple-600/30 to-blue-600/10",
       text: "dark",
@@ -142,6 +160,12 @@ logoPosition: {
     logoUrl: "/ogImage.png",
     imagePosition: { x: 350, y: 160, width: 550, height: 470, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
     logoPosition: { x: 50, y: 50, width: 90, height: 90 },
+    contentPosition: {
+  x: 70,
+  y: 200,
+  width: 300,
+  textAlign: 'left',
+},
     preview: {
       bg: "from-orange-500/20 to-pink-600/10",
       text: "dark",
@@ -189,6 +213,12 @@ logoPosition: {
   shadowColor: "#4F46E5",
   shadowOpacity: 0.35, },
     logoPosition: { x: 60, y: 60, width: 110, height: 110 },
+    contentPosition: {
+  x: 60,
+  y: 180,
+  width: 340,
+  textAlign: 'left',
+},
     preview: {
       bg: "from-pink-500/30 to-rose-500/20",
       text: "dark",
@@ -233,6 +263,12 @@ logoPosition: {
     logoUrl: "/ogImage.png",
     imagePosition: { x: -100, y: 160, width: 550, height: 470, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
     logoPosition: { x: 45, y: 45, width: 95, height: 95 },
+    contentPosition: {
+  x: 520,
+  y: 200,
+  width: 340,
+  textAlign: 'left',
+},
     preview: {
       bg: "from-violet-600/30 to-indigo-600/20",
       text: "light",
@@ -254,6 +290,12 @@ logoPosition: {
     logoUrl: "/ogImage.png",
     imagePosition: { x: 350, y: 160, width: 550, height: 470, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
     logoPosition: { x: 55, y: 55, width: 85, height: 85 },
+    contentPosition: {
+  x: 70,
+  y: 200,
+  width: 300,
+  textAlign: 'left',
+},
     preview: {
       bg: "from-red-500 to-pink-500",
       text: "white",
@@ -298,6 +340,12 @@ logoPosition: {
     logoUrl: "",
     imagePosition: { x: 700, y: 120, width: 430, height: 430, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
     logoPosition: undefined,
+    contentPosition: {
+  x: 70,
+  y: 180,
+  width: 340,
+  textAlign: 'left',
+},
     preview: {
       bg: "from-yellow-100/40 to-orange-100/20",
       text: "dark",
@@ -319,6 +367,12 @@ logoPosition: {
     logoUrl: "/ogImage.png",
     imagePosition: { x: 480, y: 90, width: 500, height: 450, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
     logoPosition: {  x: 70,  y: 60,  width: 72,  height: 72},
+    contentPosition: {
+  x: 60,
+  y: 180,
+  width: 340,
+  textAlign: 'left',
+},
     preview: {
       bg: "from-purple-400 to-pink-400",
       text: "white",
@@ -383,6 +437,13 @@ logoPosition: {
     height: 72,
   },
 
+  contentPosition: {
+    x: 520,
+    y: 200,
+    width: 340,
+    textAlign: 'left',
+  },
+
   preview: {
     bg: "from-[#0F172A] via-[#111827] to-[#1E293B]",
     text: "white",
@@ -423,6 +484,13 @@ logoPosition: {
     y: 60,
     width: 74,
     height: 74,
+  },
+
+  contentPosition: {
+    x: 70,
+    y: 500,
+    width: 760,
+    textAlign: 'center',
   },
 
   preview: {
@@ -467,6 +535,13 @@ logoPosition: {
     height: 82,
   },
 
+  contentPosition: {
+    x: 520,
+    y: 200,
+    width: 340,
+    textAlign: 'left',
+  },
+
   preview: {
     bg: "from-[#172554] via-[#1E3A8A] to-[#1D4ED8]",
     text: "white",
@@ -509,6 +584,13 @@ logoPosition: {
     height: 76,
   },
 
+  contentPosition: {
+    x: 70,
+    y: 510,
+    width: 760,
+    textAlign: 'center',
+  },
+
   preview: {
     bg: "from-[#312E81] via-[#4338CA] to-[#6366F1]",
     text: "white",
@@ -545,6 +627,13 @@ logoPosition: {
   },
 
   logoPosition: undefined,
+
+  contentPosition: {
+    x: 70,
+    y: 500,
+    width: 760,
+    textAlign: 'center',
+  },
 
   preview: {
     bg: "from-[#7C2D12] via-[#EA580C] to-[#FB923C]",
@@ -586,6 +675,13 @@ logoPosition: {
     y: 60,
     width: 70,
     height: 70,
+  },
+
+  contentPosition: {
+    x: 550,
+    y: 200,
+    width: 320,
+    textAlign: 'left',
   },
 
   preview: {
@@ -670,6 +766,13 @@ logoPosition: {
     height: 70,
   },
 
+  contentPosition: {
+    x: 70,
+    y: 500,
+    width: 760,
+    textAlign: 'center',
+  },
+
   preview: {
     bg:
       "from-[#7C3AED] via-[#9333EA] to-[#C026D3]",
@@ -745,6 +848,13 @@ logoPosition: {
   },
 
   logoPosition: undefined,
+
+  contentPosition: {
+    x: 500,
+    y: 200,
+    width: 360,
+    textAlign: 'left',
+  },
 
   preview: {
     bg:
@@ -831,6 +941,13 @@ logoPosition: {
     y: 60,
     width: 74,
     height: 74,
+  },
+
+  contentPosition: {
+    x: 70,
+    y: 500,
+    width: 760,
+    textAlign: 'center',
   },
 
   preview: {

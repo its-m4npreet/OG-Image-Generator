@@ -46,6 +46,13 @@ interface CanvasImage {
   shadowOpacity?: number; // 0-100 for shadow opacity
 }
 
+interface ContentPosition {
+  x: number;
+  y: number;
+  width: number;
+  textAlign: 'left' | 'center' | 'right';
+}
+
 interface LogoProperties {
   x: number;
   y: number;
@@ -84,6 +91,7 @@ const Editor = () => {
   const templateImage = searchParams.get("image");
   const templateImagePosition = searchParams.get("imagePosition");
   const templateLogoPosition = searchParams.get("logoPosition");
+  const templateContentPosition = searchParams.get("contentPosition");
   const templateTitleColor = searchParams.get("titleColor");
   const templateSubtitleColor = searchParams.get("subtitleColor");
   const templateHasAuthor = searchParams.get("hasAuthor") !== "false"; // Default to true
@@ -125,6 +133,8 @@ const Editor = () => {
     borderRadius: 0,
   });
 
+  const [contentPosition, setContentPosition] = useState<ContentPosition | null>(null);
+
   const getDefaultTitleColor = () => {
     if (templateTitleColor) return templateTitleColor;
     return isLightBackground(backgroundType, selectedGradient, selectedSolidColor) ? "#000000" : "#FFFFFF";
@@ -158,6 +168,22 @@ const Editor = () => {
         .catch(err => console.log("Logo load skipped:", err));
     }
     
+    if (templateContentPosition) {
+      try {
+        const pos = JSON.parse(templateContentPosition);
+        if (pos && pos.x !== undefined) {
+          setContentPosition({
+            x: pos.x,
+            y: pos.y ?? 200,
+            width: pos.width ?? 400,
+            textAlign: pos.textAlign ?? 'left',
+          });
+        }
+      } catch (err) {
+        console.log("Could not parse content position:", err);
+      }
+    }
+
     if (templateImage && templateImage.trim()) {
       // Load template image
       fetch(templateImage)
@@ -213,7 +239,7 @@ const Editor = () => {
         })
         .catch(err => console.log("Image load skipped:", err));
     }
-  }, [templateLogo, templateImage, templateImagePosition]);
+  }, [templateLogo, templateImage, templateImagePosition, templateContentPosition]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -300,12 +326,22 @@ const Editor = () => {
 
   // Calculate optimal text position to avoid image overlap
   const getTextPositioning = () => {
+    // If explicit contentPosition is set, use it
+    if (contentPosition) {
+      return {
+        position: "absolute" as const,
+        top: `${contentPosition.y}px`,
+        left: `${contentPosition.x}px`,
+        maxWidth: `${contentPosition.width}px`,
+        textAlign: contentPosition.textAlign,
+      };
+    }
+
     if (images.length === 0) {
       return { position: "absolute" as const, top: "50%", left: "50%", transform: "translate(-50%, -50%)", maxWidth: "100%" };
     }
 
     const image = images[0]; // Get first image
-    const textHeight = 200; // Approximate text height
     const textMargin = 30;
     const imageBottom = image.y + image.height;
 
@@ -1356,6 +1392,73 @@ const Editor = () => {
                 <Separator className="bg-border" />
               </>
             )}
+
+            {/* Content Position Controls */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <Type className="h-4 w-4" /> Content Position
+                </h3>
+              </div>
+              <div className="bg-background rounded-lg p-3 border border-border space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">X Position</Label>
+                    <Input
+                      type="number"
+                      value={contentPosition?.x ?? 0}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        setContentPosition(prev => prev ? { ...prev, x: isNaN(val) ? 0 : val } : { x: isNaN(val) ? 0 : val, y: 200, width: 400, textAlign: 'center' });
+                      }}
+                      className="mt-1 bg-card border-border text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Y Position</Label>
+                    <Input
+                      type="number"
+                      value={contentPosition?.y ?? 0}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        setContentPosition(prev => prev ? { ...prev, y: isNaN(val) ? 0 : val } : { x: 50, y: isNaN(val) ? 0 : val, width: 400, textAlign: 'center' });
+                      }}
+                      className="mt-1 bg-card border-border text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Max Width</Label>
+                    <Input
+                      type="number"
+                      value={contentPosition?.width ?? 400}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        setContentPosition(prev => prev ? { ...prev, width: isNaN(val) ? 400 : val } : { x: 50, y: 200, width: isNaN(val) ? 400 : val, textAlign: 'center' });
+                      }}
+                      className="mt-1 bg-card border-border text-xs"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-2 block">Text Alignment</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(['left', 'center', 'right'] as const).map((align) => (
+                      <Button
+                        key={align}
+                        variant="outline"
+                        size="sm"
+                        className={`text-xs h-8 ${contentPosition?.textAlign === align ? 'border-primary bg-primary/10 text-foreground' : ''}`}
+                        onClick={() => setContentPosition(prev => prev ? { ...prev, textAlign: align } : { x: 50, y: 200, width: 400, textAlign: align })}
+                      >
+                        {align.charAt(0).toUpperCase() + align.slice(1)}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Separator className="bg-border" />
 
             {/* Font */}
             <div>
