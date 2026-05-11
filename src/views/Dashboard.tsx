@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Link, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
@@ -13,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Hexagon, Search, Plus, LayoutGrid, LogOut, User as UserIcon, Settings, BookOpen } from "lucide-react";
+import { Hexagon, Search, SlidersHorizontal, LogOut, User as UserIcon, Settings, BookOpen } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { templates, categories } from "@/templates";
 import { 
@@ -46,10 +47,56 @@ const Dashboard = () => {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <Hexagon className="h-10 w-10 text-primary animate-pulse" />
-          <p className="text-muted-foreground animate-pulse">Loading dashboard...</p>
+      <div className="min-h-screen bg-background">
+        {/* Top bar skeleton */}
+        <div className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+          <div className="container flex items-center justify-between h-16 px-4">
+            <Skeleton className="h-6 w-32" />
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-9 w-32 hidden sm:block" />
+              <Skeleton className="h-9 w-32 hidden sm:block" />
+              <Skeleton className="h-9 w-9 rounded-full" />
+            </div>
+          </div>
+        </div>
+
+        <div className="container px-4 py-8 mx-auto">
+          {/* Heading skeleton */}
+          <div className="mb-8">
+            <Skeleton className="h-10 w-48 mb-2" />
+            <Skeleton className="h-4 w-80" />
+          </div>
+
+          {/* Filters skeleton */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
+            <Skeleton className="h-10 w-full max-w-sm" />
+            <div className="flex gap-2 flex-wrap">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Skeleton key={i} className="h-9 w-20" />
+              ))}
+            </div>
+          </div>
+
+          {/* Templates skeleton grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div key={i} className="h-full">
+                <div className="rounded-2xl border border-border bg-card overflow-hidden h-full flex flex-col">
+                  {/* Preview skeleton */}
+                  <Skeleton className="h-48 flex-shrink-0" />
+                  
+                  {/* Info section skeleton */}
+                  <div className="p-4 space-y-3 flex-1 flex flex-col">
+                    <div>
+                      <Skeleton className="h-5 w-32 mb-2" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
+                    <Skeleton className="h-10 w-full mt-auto rounded-md" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -71,26 +118,45 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+      <motion.header
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl"
+      >
         <div className="container flex items-center justify-between h-16 px-4">
-          <Link to="/" className="flex items-center gap-2 font-bold text-lg text-foreground">
-            <Hexagon className="h-6 w-6 text-primary" />
-            OG Studio
-          </Link>
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Link to="/" className="flex items-center gap-2 font-bold text-lg text-foreground hover:opacity-80 transition-opacity">
+              <Hexagon className="h-6 w-6 text-primary" />
+              OG Studio
+            </Link>
+          </motion.div>
           
           <div className="flex items-center gap-4">
-            <Button variant="hero" size="sm" asChild className="hidden sm:flex">
-              <Link to="/editor">
-                <Plus className="h-4 w-4 mr-1" /> New Image
-              </Link>
-            </Button>
-
-            {isAdmin && (
-              <Button variant="outline" size="sm" asChild className="hidden sm:flex">
-                <Link to="/admin/templates">
-                  <BookOpen className="h-4 w-4 mr-1" /> Manage Templates
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button variant="hero" size="sm" asChild className="hidden sm:flex">
+                <Link to="/editor">
+                  <SlidersHorizontal className="h-4 w-4 mr-1" /> Customize Image
                 </Link>
               </Button>
+            </motion.div>
+
+            {isAdmin && (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button variant="outline" size="sm" asChild className="hidden sm:flex">
+                  <Link to="/admin/templates">
+                    <BookOpen className="h-4 w-4 mr-1" /> Manage Templates
+                  </Link>
+                </Button>
+              </motion.div>
             )}
 
             <DropdownMenu>
@@ -149,17 +215,27 @@ const Dashboard = () => {
             </DropdownMenu>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       <div className="container px-4 py-8 mx-auto">
         {/* Heading */}
-        <div className="mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-8"
+        >
           <h1 className="text-3xl font-bold text-foreground mb-2">Templates</h1>
           <p className="text-muted-foreground">Pick a template and customize it in the editor.</p>
-        </div>
+        </motion.div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.6 }}
+          className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8"
+        >
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -169,20 +245,29 @@ const Dashboard = () => {
               className="pl-10 bg-card border-border"
             />
           </div>
-          <div className="flex gap-2 flex-wrap">
-            {categories.map((cat) => (
-              <Button
+          <motion.div
+            className="flex gap-2 flex-wrap"
+            layout
+          >
+            {categories.map((cat, i) => (
+              <motion.div
                 key={cat}
-                variant={activeCategory === cat ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setActiveCategory(cat)}
-                className="text-sm"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.05 }}
               >
-                {cat}
-              </Button>
+                <Button
+                  variant={activeCategory === cat ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setActiveCategory(cat)}
+                  className="text-sm"
+                >
+                  {cat}
+                </Button>
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -195,7 +280,7 @@ const Dashboard = () => {
               className="h-full"
             >
               <Link 
-                to={`/editor?template=${template.id}&title=${encodeURIComponent(template.title)}&subtitle=${encodeURIComponent(template.subtitle)}&gradient=${encodeURIComponent(template.gradient)}&titleColor=${encodeURIComponent(template.titleColor)}&subtitleColor=${encodeURIComponent(template.subtitleColor)}&logo=${template.hasLogo && template.logoUrl ? template.logoUrl : ''}&image=${template.hasImage && template.imageUrl ? template.imageUrl : ''}${template.imagePosition ? `&imagePosition=${encodeURIComponent(JSON.stringify(template.imagePosition))}` : ''}${template.logoPosition ? `&logoPosition=${encodeURIComponent(JSON.stringify(template.logoPosition))}` : ''}${template.contentPosition ? `&contentPosition=${encodeURIComponent(JSON.stringify(template.contentPosition))}` : ''}&hasAuthor=${template.hasAuthor}`}
+                to={`/editor?template=${template.id}&title=${encodeURIComponent(template.title)}&subtitle=${encodeURIComponent(template.subtitle)}&gradient=${encodeURIComponent(template.gradient)}&titleColor=${encodeURIComponent(template.titleColor)}&subtitleColor=${encodeURIComponent(template.subtitleColor)}&titleSize=${template.titleSize}&logo=${template.hasLogo && template.logoUrl ? template.logoUrl : ''}&image=${template.hasImage && template.imageUrl ? template.imageUrl : ''}${template.imagePosition ? `&imagePosition=${encodeURIComponent(JSON.stringify(template.imagePosition))}` : ''}${template.logoPosition ? `&logoPosition=${encodeURIComponent(JSON.stringify(template.logoPosition))}` : ''}${template.contentPosition ? `&contentPosition=${encodeURIComponent(JSON.stringify(template.contentPosition))}` : ''}&hasAuthor=${template.hasAuthor}`}
                 className="block group h-full"
               >
                 <div className="rounded-2xl border border-border bg-card overflow-hidden transition-all duration-150 hover:border-primary/30 hover:scale-[1.02] hover:shadow-xl h-full flex flex-col">
@@ -203,57 +288,62 @@ const Dashboard = () => {
                   <div className={`h-48 bg-gradient-to-br ${template.gradient} flex items-center justify-center relative overflow-hidden flex-shrink-0`}>
                     <div className="absolute inset-0 opacity-5 dot-grid" />
                     
-                    {/* Logo placeholder (top-left) */}
+                    {/* Logo - positioned at top-left */}
                     {template.hasLogo && (
-                      <div className="absolute top-2 left-2 w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center">
-                        <div className="w-6 h-6 rounded bg-white/40" />
+                      <div className="absolute top-3 left-3 z-20">
+                        {template.logoUrl ? (
+                          <img src={template.logoUrl} alt="logo" className="w-10 h-10 rounded-lg object-cover" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center">
+                            <div className="w-6 h-6 rounded bg-white/40" />
+                          </div>
+                        )}
                       </div>
                     )}
                     
-                    {/* Image placeholder - positioned according to template */}
-                    {template.hasImage && template.imagePosition && (
-                      <>
-                        {/* Scale the preview coordinates to fit the 192px height preview */}
-                        {template.imagePosition.y >= 300 ? (
-                          // Bottom placement - show at bottom
-                          <div 
-                            className="absolute w-12 h-16 bg-white/15 backdrop-blur-sm border border-white/25 rounded-lg opacity-70"
-                            style={{
-                              bottom: '4px',
-                              left: '50%',
-                              transform: 'translateX(-50%)'
-                            }}
-                          />
-                        ) : (
-                          // Right or left placement
-                          <div 
-                            className={`absolute w-12 h-20 bg-white/15 backdrop-blur-sm border border-white/25 rounded-lg opacity-70 ${
-                              template.imagePosition.x > 450 ? 'right-2' : 'left-2'
-                            }`}
-                            style={{
-                              top: '50%',
-                              transform: 'translateY(-50%)'
-                            }}
-                          />
-                        )}
-                      </>
-                    )}
-                    
-                    {/* Text content preview - positioned at top to avoid overlap */}
-                    <div className={`text-center relative z-10 max-w-xs px-3 ${template.hasImage && template.imagePosition?.y >= 300 ? 'pt-0' : 'pt-2'}`}>
-                      <h3 className={`text-sm font-bold mb-1 line-clamp-2 ${template.preview.text === 'white' ? 'text-white' : 'text-gray-900'}`}>
+                    {/* Main content area with title and subtitle */}
+                    <div className="text-center relative z-10 px-4 flex flex-col items-center justify-center h-full max-w-xs">
+                      <h3 
+                        className="font-bold line-clamp-2 mb-2 transition-all"
+                        style={{
+                          color: template.titleColor,
+                          fontSize: template.titleSize ? Math.min(template.titleSize / 12, 16) + 'px' : '14px',
+                          lineHeight: '1.2'
+                        }}
+                      >
                         {template.title}
                       </h3>
-                      <p className={`text-xs line-clamp-1 ${template.preview.text === 'white' ? 'text-white/70' : 'text-gray-700'}`}>
+                      <p 
+                        className="line-clamp-1 text-xs transition-all"
+                        style={{
+                          color: template.subtitleColor
+                        }}
+                      >
                         {template.subtitle}
                       </p>
                     </div>
+                    
+                    {/* Image placeholder - show subtle placeholder */}
+                    {template.hasImage && template.imageUrl && (
+                      <img 
+                        src={template.imageUrl} 
+                        alt="template" 
+                        className="absolute opacity-40 w-16 h-16 object-cover rounded-lg"
+                        style={{
+                          bottom: template.imagePosition?.y >= 300 ? '4px' : 'auto',
+                          top: template.imagePosition?.y >= 300 ? 'auto' : '50%',
+                          right: template.imagePosition?.x > 450 ? '4px' : 'auto',
+                          left: template.imagePosition?.x > 450 ? 'auto' : '4px',
+                          transform: template.imagePosition?.y >= 300 ? 'none' : 'translateY(-50%)'
+                        }}
+                      />
+                    )}
                   </div>
                   
                   {/* Info section - Flexible height */}
                   <div className="p-4 space-y-3 flex-1 flex flex-col">
                     <div>
-                      <div className="text-sm font-semibold text-foreground mb-1">{template.name}</div>
+                      <div className="text-sm font-semibold text-foreground mb-1 line-clamp-1">{template.name}</div>
                       <div className="text-xs text-muted-foreground">{template.category}</div>
                     </div>
                     

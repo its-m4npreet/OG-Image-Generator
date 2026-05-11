@@ -3,6 +3,38 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { motion } from "framer-motion";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6 } as const,
+  },
+} as const;
+
+const buttonVariants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.5 },
+  },
+  hover: { scale: 1.05 },
+  tap: { scale: 0.95 },
+};
 
 export default function LoginPage() {
   const { data: session, status } = useSession();
@@ -16,42 +48,63 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col items-center justify-center gap-6 p-6 text-center">
-      <h1 className="text-3xl font-bold">Authentication</h1>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="flex flex-col items-center gap-6 w-full"
+      >
+        <motion.h1 variants={itemVariants} className="text-3xl font-bold">
+          Authentication
+        </motion.h1>
 
-      {status === "loading" ? (
-        <p>Loading...</p>
-      ) : session ? (
-        <>
-          <p>
-            Signed in as <strong>{session.user?.email}</strong>
-          </p>
-          <button
-            className="rounded-md bg-black px-4 py-2 text-white"
-            onClick={() => signOut({ callbackUrl: "/" })}
-            type="button"
-          >
-            Sign out
-          </button>
-        </>
-      ) : (
-        <div className="flex flex-col gap-3">
-          <button
-            className="rounded-md bg-black px-4 py-2 text-white"
-            onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
-            type="button"
-          >
-            Sign in with GitHub
-          </button>
+        {status === "loading" ? (
+          <motion.div variants={itemVariants} className="flex flex-col items-center gap-4">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-neutral-200 border-t-black" />
+            <p className="text-neutral-600">Loading...</p>
+          </motion.div>
+        ) : session ? (
+          <>
+            <motion.p variants={itemVariants}>
+              Signed in as <strong>{session.user?.email}</strong>
+            </motion.p>
+            <motion.button
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
+              className="rounded-md bg-black px-4 py-2 text-white transition-transform"
+              onClick={() => signOut({ callbackUrl: "/" })}
+              type="button"
+            >
+              Sign out
+            </motion.button>
+          </>
+        ) : (
+          <motion.div variants={itemVariants} className="flex flex-col gap-3 w-full">
+            <motion.button
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
+              className="rounded-md bg-black px-4 py-2 text-white transition-transform"
+              onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
+              type="button"
+            >
+              Sign in with GitHub
+            </motion.button>
 
-          <button
-            className="rounded-md border border-black px-4 py-2 text-black"
-            onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-            type="button"
-          >
-            Sign in with Google
-          </button>
-        </div>
-      )}
+            <motion.button
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
+              className="rounded-md border border-black px-4 py-2 text-black transition-transform"
+              onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+              type="button"
+            >
+              Sign in with Google
+            </motion.button>
+          </motion.div>
+        )}
+      </motion.div>
     </main>
   );
 }

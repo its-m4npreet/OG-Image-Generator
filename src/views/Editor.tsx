@@ -94,6 +94,7 @@ const Editor = () => {
   const templateContentPosition = searchParams.get("contentPosition");
   const templateTitleColor = searchParams.get("titleColor");
   const templateSubtitleColor = searchParams.get("subtitleColor");
+  const templateTitleSize = searchParams.get("titleSize") ? Number(searchParams.get("titleSize")) : 40;
   const templateHasAuthor = searchParams.get("hasAuthor") !== "false"; // Default to true
   
   // Helper function to get initial gradient index
@@ -113,7 +114,7 @@ const Editor = () => {
   const [backgroundType, setBackgroundType] = useState<"gradient" | "solid">("gradient");
   const [noiseLevel, setNoiseLevel] = useState(0); // 0-100 range
   const [selectedFont, setSelectedFont] = useState(0);
-  const [fontSize, setFontSize] = useState(40);
+  const [fontSize, setFontSize] = useState(templateTitleSize);
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
   const [imageControlsOpen, setImageControlsOpen] = useState(false);
@@ -325,86 +326,98 @@ const Editor = () => {
   };
 
   // Calculate optimal text position to avoid image overlap
-  const getTextPositioning = () => {
-    // If explicit contentPosition is set, use it
-    if (contentPosition) {
-      return {
-        position: "absolute" as const,
-        top: `${contentPosition.y}px`,
-        left: `${contentPosition.x}px`,
-        maxWidth: `${contentPosition.width}px`,
-        textAlign: contentPosition.textAlign,
-      };
-    }
+  const getTextPositioning = (scaleX: number = 1, scaleY: number = 1) => {
+  // Base canvas dimensions
+  const BASE_W = 900;
+  const BASE_H = 630;
 
-    if (images.length === 0) {
-      return { position: "absolute" as const, top: "50%", left: "50%", transform: "translate(-50%, -50%)", maxWidth: "100%" };
-    }
+  // If explicit contentPosition is set, use % so it scales at any export size
+  if (contentPosition) {
+    return {
+      position: "absolute" as const,
+      top: `${(contentPosition.y / BASE_H) * 100}%`,
+      left: `${(contentPosition.x / BASE_W) * 100}%`,
+      maxWidth: `${(contentPosition.width / BASE_W) * 100}%`,
+      textAlign: contentPosition.textAlign,
+    };
+  }
 
-    const image = images[0]; // Get first image
-    const textMargin = 30;
-    const imageBottom = image.y + image.height;
+  const textMarginX = (30 / BASE_W) * 100;
+  const textMarginY = (30 / BASE_H) * 100;
 
-    // Image positioned at bottom (y >= 200) - place text at top
-    if (image.y >= 200) {
-      return {
-        position: "absolute" as const,
-        top: `${textMargin}px`,
-        left: "50%",
-        transform: "translateX(-50%)",
-        maxWidth: "85%",
-        textAlign: "center" as const,
-      };
-    }
-
-    // Image on right side (x > 500) - move text to left
-    if (image.x > 450) {
-      const textWidth = 350;
-      return {
-        position: "absolute" as const,
-        top: "50%",
-        left: `${textMargin}px`,
-        transform: "translateY(-50%)",
-        maxWidth: `${textWidth}px`,
-        textAlign: "left" as const,
-      };
-    }
-
-    // Image on left side (x < 300) - move text to right
-    if (image.x < 300) {
-      const textWidth = 350;
-      return {
-        position: "absolute" as const,
-        top: "50%",
-        right: `${textMargin}px`,
-        transform: "translateY(-50%)",
-        maxWidth: `${textWidth}px`,
-        textAlign: "right" as const,
-      };
-    }
-
-    // Image in center-top area - position text at bottom
-    if (imageBottom < 350) {
-      return {
-        position: "absolute" as const,
-        bottom: `${textMargin}px`,
-        left: "50%",
-        transform: "translateX(-50%)",
-        maxWidth: "85%",
-        textAlign: "center" as const,
-      };
-    }
-
-    // Default: center
+  if (images.length === 0) {
     return {
       position: "absolute" as const,
       top: "50%",
       left: "50%",
       transform: "translate(-50%, -50%)",
       maxWidth: "80%",
+    };
+  }
+
+  const image = images[0];
+  const imageBottom = image.y + image.height;
+  const imageRight = image.x + image.width;
+
+  // Image at bottom — text at top
+  if (image.y >= 200) {
+    return {
+      position: "absolute" as const,
+      top: `${textMarginY}%`,
+      left: "50%",
+      transform: "translateX(-50%)",
+      maxWidth: "85%",
       textAlign: "center" as const,
     };
+  }
+
+  // Image on right — text on left
+  if (image.x > 450) {
+    return {
+      position: "absolute" as const,
+      top: "50%",
+      left: `${textMarginX}%`,
+      transform: "translateY(-50%)",
+      maxWidth: `${(380 / BASE_W) * 100}%`,
+      textAlign: "left" as const,
+    };
+  }
+
+  // Image on left — text on right
+  if (image.x < 300) {
+    const rightEdge = BASE_W - (imageRight + 30);
+    return {
+      position: "absolute" as const,
+      top: "50%",
+      right: `${textMarginX}%`,
+      transform: "translateY(-50%)",
+      maxWidth: `${(rightEdge / BASE_W) * 100}%`,
+      textAlign: "right" as const,
+    };
+  }
+
+  // Image in center-top — text at bottom
+  if (imageBottom < 350) {
+    return {
+      position: "absolute" as const,
+      bottom: `${textMarginY}%`,
+      left: "50%",
+      transform: "translateX(-50%)",
+      maxWidth: "85%",
+      textAlign: "center" as const,
+    };
+  }
+
+  // Default: center
+  return {
+    position: "absolute" as const,
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    maxWidth: "80%",
+    textAlign: "center" as const,
   };
+};
 
   // Helper function to convert image to WebP format
   const convertToWebP = (imageDataUrl: string, quality: number = 0.8): Promise<Blob> => {
@@ -446,76 +459,67 @@ const Editor = () => {
   };
 
   const performExport = async () => {
-    if (!canvasRef.current) return;
+  if (!canvasRef.current) return;
 
-    setIsExporting(true);
-    try {
-      // Wait for fonts to load
-      if (document.fonts) {
-        await document.fonts.ready;
-      }
-
-      // Small delay to ensure all styles are computed and rendered
-      await new Promise(resolve => setTimeout(resolve, 150));
-
-      // Parse export size
-      const [width, height] = exportSize.split("x").map(Number);
-      
-      // Clone the canvas element to avoid aspect ratio constraints
-      const canvasClone = canvasRef.current.cloneNode(true) as HTMLDivElement;
-      
-      // Remove aspect ratio constraint and set explicit dimensions
-      canvasClone.style.width = `${width}px`;
-      canvasClone.style.height = `${height}px`;
-      canvasClone.style.maxWidth = 'none';
-      
-      // Temporarily add to DOM to ensure proper rendering
-      document.body.appendChild(canvasClone);
-      
-      // Get the appropriate export function based on format
-      let blob: Blob;
-      const exportOptions = {
-        pixelRatio: 2,
-        cacheBust: true,
-        width,
-        height,
-      };
-
-      if (exportFormat === "png") {
-        const dataUrl = await toPng(canvasClone, exportOptions);
-        const response = await fetch(dataUrl);
-        blob = await response.blob();
-      } else if (exportFormat === "jpg") {
-        const dataUrl = await toJpeg(canvasClone, { ...exportOptions, quality: 0.95 });
-        const response = await fetch(dataUrl);
-        blob = await response.blob();
-      } else {
-        // For WebP: first generate PNG, then convert to WebP
-        const pngDataUrl = await toPng(canvasClone, exportOptions);
-        blob = await convertToWebP(pngDataUrl, 0.8);
-      }
-      
-      // Remove clone from DOM
-      document.body.removeChild(canvasClone);
-      
-      // Create a temporary URL and trigger download
-      const blobUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = `og-image-${Date.now()}.${exportFormat}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(blobUrl);
-
-      setShowExportDialog(false);
-    } catch (error) {
-      console.error("Failed to export image:", error);
-      alert("Failed to export image. Please try again.");
-    } finally {
-      setIsExporting(false);
+  setIsExporting(true);
+  try {
+    if (document.fonts) {
+      await document.fonts.ready;
     }
-  };
+
+    await new Promise(resolve => setTimeout(resolve, 150));
+
+    const [width, height] = exportSize.split("x").map(Number);
+
+    // Get the actual rendered size of the preview canvas
+    const rect = canvasRef.current.getBoundingClientRect();
+    const scaleX = width / rect.width;
+    const scaleY = height / rect.height;
+
+    const exportOptions = {
+      width,
+      height,
+      // Scale the canvas up to export dimensions instead of cloning + manual rescaling
+      style: {
+        transform: `scale(${scaleX}, ${scaleY})`,
+        transformOrigin: "top left",
+        width: `${rect.width}px`,
+        height: `${rect.height}px`,
+      },
+      pixelRatio: 1,
+      cacheBust: true,
+    };
+
+    let blob: Blob;
+
+    if (exportFormat === "png") {
+      const dataUrl = await toPng(canvasRef.current, exportOptions);
+      blob = await (await fetch(dataUrl)).blob();
+    } else if (exportFormat === "jpg") {
+      const dataUrl = await toJpeg(canvasRef.current, { ...exportOptions, quality: 0.95 });
+      blob = await (await fetch(dataUrl)).blob();
+    } else {
+      const pngDataUrl = await toPng(canvasRef.current, exportOptions);
+      blob = await convertToWebP(pngDataUrl, 0.8);
+    }
+
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = `og-image-${Date.now()}.${exportFormat}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(blobUrl);
+
+    setShowExportDialog(false);
+  } catch (error) {
+    console.error("Failed to export image:", error);
+    alert("Failed to export image. Please try again.");
+  } finally {
+    setIsExporting(false);
+  }
+};
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">

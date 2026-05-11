@@ -3,7 +3,7 @@
 
 export const templates = [
   // Blog Templates
-   {
+  {
     id: 0,
     name: "Blog with Hero Image",
     category: "Blog",
@@ -12,35 +12,36 @@ export const templates = [
     subtitle: "Exploring new patterns and best practices",
     titleColor: "#FFFFFF",
     subtitleColor: "#E5E7EB",
+    titleSize: 48,
     hasImage: true,
     hasLogo: true,
     hasAuthor: true,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
-   imagePosition: {
-  x: 460,
-  y: 90,
-  width: 664,
-  height: 430,
-  rotation: -10,
-  shadowBlur: 60,
-  shadowSpread: 10,
-  shadowColor: "#000000",
-  shadowOpacity: 0.25,
-},
+    imagePosition: {
+      x: 460,
+      y: 90,
+      width: 664,
+      height: 430,
+      rotation: -10,
+      shadowBlur: 60,
+      shadowSpread: 10,
+      shadowColor: "#000000",
+      shadowOpacity: 0.25,
+    },
 
-logoPosition: {
-  x: 70,
-  y: 60,
-  width: 72,
-  height: 72,
-},
-contentPosition: {
-  x: 70,
-  y: 110,
-  width: 340,
-  textAlign: 'left',
-},
+    logoPosition: {
+      x: 70,
+      y: 60,
+      width: 72,
+      height: 72,
+    },
+    contentPosition: {
+      x: 70,
+      y: 180,
+      width: 360,
+      textAlign: "left",
+    },
     preview: {
       bg: "from-blue-600/30 to-cyan-500/20",
       text: "dark",
@@ -55,6 +56,7 @@ contentPosition: {
     subtitle: "A compelling description that captures attention",
     titleColor: "#FFFFFF",
     subtitleColor: "#F3F4F6",
+    titleSize: 56,
     hasImage: false,
     hasLogo: false,
     hasAuthor: true,
@@ -62,6 +64,12 @@ contentPosition: {
     logoUrl: "",
     imagePosition: undefined,
     logoPosition: undefined,
+    contentPosition: {
+      x: 200,
+      y: 200,
+      width: 1060,
+      textAlign: "center",
+    },
     preview: {
       bg: "from-red-500 to-orange-400",
       text: "white",
@@ -76,19 +84,30 @@ contentPosition: {
     subtitle: "Exploring new patterns and best practices",
     titleColor: "#FFFFFF",
     subtitleColor: "#E0E7FF",
+    titleSize: 44,
     hasImage: true,
     hasLogo: true,
     hasAuthor: false,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
-    imagePosition: { x: 175, y: 280, width: 550, height: 350, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
+    imagePosition: {
+      x: 175,
+      y: 280,
+      width: 550,
+      height: 350,
+      rotation: 0,
+      shadowBlur: 0,
+      shadowSpread: 0,
+      shadowColor: "#000000",
+      shadowOpacity: 0,
+    },
     logoPosition: { x: 50, y: 50, width: 80, height: 80 },
     contentPosition: {
-  x: 70,
-  y: 60,
-  width: 760,
-  textAlign: 'center',
-},
+      x: 210,
+      y: 60,
+      width: 760,
+      textAlign: "center",
+    },
     preview: {
       bg: "from-blue-600/30 to-cyan-500/20",
       text: "dark",
@@ -103,6 +122,7 @@ contentPosition: {
     subtitle: "Speed up your website with these proven techniques",
     titleColor: "#FFFFFF",
     subtitleColor: "#CBD5E1",
+    titleSize: 52,
     hasImage: false,
     hasLogo: false,
     hasAuthor: false,
@@ -110,6 +130,12 @@ contentPosition: {
     logoUrl: "",
     imagePosition: undefined,
     logoPosition: undefined,
+    contentPosition: {
+      x: 200,
+      y: 200,
+      width: 1060,
+      textAlign: "center",
+    },
     preview: {
       bg: "from-slate-700 to-slate-500",
       text: "white",
@@ -126,19 +152,30 @@ contentPosition: {
     subtitle: "The faster way to build modern applications",
     titleColor: "#FFFFFF",
     subtitleColor: "#E0E7FF",
+    titleSize: 56,
     hasImage: true,
     hasLogo: true,
     hasAuthor: false,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
-    imagePosition: { x: -100, y: 160, width: 550, height: 470, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
+    imagePosition: {
+      x: -100,
+      y: 160,
+      width: 550,
+      height: 470,
+      rotation: 0,
+      shadowBlur: 0,
+      shadowSpread: 0,
+      shadowColor: "#000000",
+      shadowOpacity: 0,
+    },
     logoPosition: { x: 40, y: 40, width: 100, height: 100 },
     contentPosition: {
-  x: 520,
-  y: 200,
-  width: 340,
-  textAlign: 'left',
-},
+      x: 480,
+      y: 170,
+      width: 470,
+      textAlign: "left",
+    },
     preview: {
       bg: "from-purple-600/30 to-blue-600/10",
       text: "dark",
@@ -153,19 +190,30 @@ contentPosition: {
     subtitle: "Understand your data like never before",
     titleColor: "#FFFFFF",
     subtitleColor: "#F3E8FF",
+    titleSize: 64,
     hasImage: true,
     hasLogo: true,
     hasAuthor: false,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
-    imagePosition: { x: 350, y: 160, width: 550, height: 470, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
+    imagePosition: {
+      x: 350,
+      y: 250,
+      width: 550,
+      height: 470,
+      rotation: 0,
+      shadowBlur: 0,
+      shadowSpread: 0,
+      shadowColor: "#000000",
+      shadowOpacity: 0,
+    },
     logoPosition: { x: 50, y: 50, width: 90, height: 90 },
     contentPosition: {
-  x: 70,
-  y: 200,
-  width: 300,
-  textAlign: 'left',
-},
+      x: 30,
+      y: 90,
+      width: 350,
+      textAlign: "left",
+    },
     preview: {
       bg: "from-orange-500/20 to-pink-600/10",
       text: "dark",
@@ -180,6 +228,7 @@ contentPosition: {
     subtitle: "Enterprise-grade tool for everyone",
     titleColor: "#1F2937",
     subtitleColor: "#374151",
+    titleSize: 54,
     hasImage: false,
     hasLogo: false,
     hasAuthor: false,
@@ -187,6 +236,12 @@ contentPosition: {
     logoUrl: "",
     imagePosition: undefined,
     logoPosition: undefined,
+    contentPosition: {
+      x: 200,
+      y: 200,
+      width: 1060,
+      textAlign: "center",
+    },
     preview: {
       bg: "from-cyan-300 to-blue-100",
       text: "dark",
@@ -203,22 +258,30 @@ contentPosition: {
     subtitle: "Transforming ideas into reality",
     titleColor: "#FFFFFF",
     subtitleColor: "#F3E8FF",
+    titleSize: 46,
     hasImage: true,
     hasLogo: true,
     hasAuthor: true,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
-    imagePosition: { x: 600, y: 90, width: 420, height: 420, rotation: -8,shadowBlur: 90,
-  shadowSpread: 20,
-  shadowColor: "#4F46E5",
-  shadowOpacity: 0.35, },
+    imagePosition: {
+      x: 400,
+      y: 90,
+      width: 550,
+      height: 420,
+      rotation: -8,
+      shadowBlur: 90,
+      shadowSpread: 20,
+      shadowColor: "#4F46E5",
+      shadowOpacity: 0.35,
+    },
     logoPosition: { x: 60, y: 60, width: 110, height: 110 },
     contentPosition: {
-  x: 60,
-  y: 180,
-  width: 340,
-  textAlign: 'left',
-},
+      x: 60,
+      y: 130,
+      width: 340,
+      textAlign: "left",
+    },
     preview: {
       bg: "from-pink-500/30 to-rose-500/20",
       text: "dark",
@@ -233,6 +296,7 @@ contentPosition: {
     subtitle: "Award-winning design work",
     titleColor: "#FFFFFF",
     subtitleColor: "#D1FAE5",
+    titleSize: 50,
     hasImage: false,
     hasLogo: false,
     hasAuthor: true,
@@ -240,6 +304,12 @@ contentPosition: {
     logoUrl: "",
     imagePosition: undefined,
     logoPosition: undefined,
+    contentPosition: {
+      x: 300,
+      y: 200,
+      width: 1060,
+      textAlign: "center",
+    },
     preview: {
       bg: "from-emerald-500/20 to-cyan-500/10",
       text: "dark",
@@ -256,19 +326,30 @@ contentPosition: {
     subtitle: "Sync. Collaborate. Thrive.",
     titleColor: "#FFFFFF",
     subtitleColor: "#E9D5FF",
+    titleSize: 48,
     hasImage: true,
     hasLogo: true,
     hasAuthor: false,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
-    imagePosition: { x: -100, y: 160, width: 550, height: 470, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
+    imagePosition: {
+      x: -100,
+      y: 160,
+      width: 550,
+      height: 470,
+      rotation: 0,
+      shadowBlur: 0,
+      shadowSpread: 0,
+      shadowColor: "#000000",
+      shadowOpacity: 0,
+    },
     logoPosition: { x: 45, y: 45, width: 95, height: 95 },
     contentPosition: {
-  x: 520,
-  y: 200,
-  width: 340,
-  textAlign: 'left',
-},
+      x: 520,
+      y: 200,
+      width: 340,
+      textAlign: "left",
+    },
     preview: {
       bg: "from-violet-600/30 to-indigo-600/20",
       text: "light",
@@ -283,19 +364,30 @@ contentPosition: {
     subtitle: "Faster, smarter, more powerful",
     titleColor: "#FFFFFF",
     subtitleColor: "#FEE2E2",
+    titleSize: 52,
     hasImage: true,
     hasLogo: true,
     hasAuthor: false,
     imageUrl: "/ogImage.png",
-    logoUrl: "/ogImage.png",
-    imagePosition: { x: 350, y: 160, width: 550, height: 470, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
+    logoUrl: undefined,
+    imagePosition: {
+      x: 350,
+      y: 160,
+      width: 550,
+      height: 470,
+      rotation: 0,
+      shadowBlur: 0,
+      shadowSpread: 0,
+      shadowColor: "#000000",
+      shadowOpacity: 0,
+    },
     logoPosition: { x: 55, y: 55, width: 85, height: 85 },
     contentPosition: {
-  x: 70,
-  y: 200,
-  width: 300,
-  textAlign: 'left',
-},
+      x: 30,
+      y: 110,
+      width: 300,
+      textAlign: "left",
+    },
     preview: {
       bg: "from-red-500 to-pink-500",
       text: "white",
@@ -310,6 +402,7 @@ contentPosition: {
     subtitle: "What happens next will change everything",
     titleColor: "#1F2937",
     subtitleColor: "#4B5563",
+    titleSize: 56,
     hasImage: false,
     hasLogo: false,
     hasAuthor: false,
@@ -317,6 +410,12 @@ contentPosition: {
     logoUrl: "",
     imagePosition: undefined,
     logoPosition: undefined,
+    contentPosition: {
+      x: 250,
+      y: 200,
+      width: 1060,
+      textAlign: "center",
+    },
     preview: {
       bg: "from-gray-100 to-white",
       text: "dark",
@@ -333,19 +432,30 @@ contentPosition: {
     subtitle: "Join the conversation",
     titleColor: "#FFFFFF",
     subtitleColor: "#FEF3C7",
+    titleSize: 44,
     hasImage: true,
     hasLogo: false,
     hasAuthor: false,
     imageUrl: "/ogImage.png",
     logoUrl: "",
-    imagePosition: { x: 700, y: 120, width: 430, height: 430, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
+    imagePosition: {
+      x: 350,
+      y: 120,
+      width: 520,
+      height: 430,
+      rotation: 0,
+      shadowBlur: 0,
+      shadowSpread: 0,
+      shadowColor: "#000000",
+      shadowOpacity: 0,
+    },
     logoPosition: undefined,
     contentPosition: {
-  x: 70,
-  y: 180,
-  width: 340,
-  textAlign: 'left',
-},
+      x: 25,
+      y: 180,
+      width: 340,
+      textAlign: "left",
+    },
     preview: {
       bg: "from-yellow-100/40 to-orange-100/20",
       text: "dark",
@@ -360,19 +470,30 @@ contentPosition: {
     subtitle: "Amazing content coming soon",
     titleColor: "#FFFFFF",
     subtitleColor: "#F3E8FF",
+    titleSize: 46,
     hasImage: true,
     hasLogo: true,
     hasAuthor: false,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
-    imagePosition: { x: 480, y: 90, width: 500, height: 450, rotation: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: "#000000", shadowOpacity: 0 },
-    logoPosition: {  x: 70,  y: 60,  width: 72,  height: 72},
+    imagePosition: {
+      x: 480,
+      y: 90,
+      width: 500,
+      height: 450,
+      rotation: 0,
+      shadowBlur: 0,
+      shadowSpread: 0,
+      shadowColor: "#000000",
+      shadowOpacity: 0,
+    },
+    logoPosition: { x: 70, y: 60, width: 72, height: 72 },
     contentPosition: {
-  x: 60,
-  y: 180,
-  width: 340,
-  textAlign: 'left',
-},
+      x: 60,
+      y: 180,
+      width: 340,
+      textAlign: "left",
+    },
     preview: {
       bg: "from-purple-400 to-pink-400",
       text: "white",
@@ -387,13 +508,30 @@ contentPosition: {
     subtitle: "Learn something new today",
     titleColor: "#1F2937",
     subtitleColor: "#374151",
+    titleSize: 48,
     hasImage: false,
     hasLogo: false,
     hasAuthor: false,
-    imageUrl: "",
+    imageUrl: "/ogImage.png",
     logoUrl: "",
-    imagePosition: undefined,
+    imagePosition:{
+        x: 425,
+      y: 200,
+      width: 400,
+      height: 240,
+      rotation: 0,
+      shadowBlur: 0,
+      shadowSpread: 0,
+      shadowColor: "#000000",
+      shadowOpacity: 0,
+    },
     logoPosition: undefined,
+    contentPosition: {
+      x: 70,
+      y: 200,
+      width: 1060,
+      textAlign: "center",
+    },
     preview: {
       bg: "from-green-100 to-green-50",
       text: "dark",
@@ -401,561 +539,538 @@ contentPosition: {
   },
   // NEW PREMIUM TEMPLATES
 
-{
-  id: 15,
-  name: "Editorial Left Hero",
-  category: "Blog",
-  gradient: "from-[#020617] via-[#0F172A] to-[#1E293B]",
-  title: "Design Systems That Scale",
-  subtitle: "Building modern interfaces with consistency",
-  titleColor: "#FFFFFF",
-  subtitleColor: "#E5E7EB",
-  hasImage: true,
-  hasLogo: true,
-  hasAuthor: true,
-  imageUrl: "/ogImage.png",
-  logoUrl: "/ogImage.png",
+  {
+    id: 15,
+    name: "Editorial Left Hero",
+    category: "Blog",
+    gradient: "from-[#020617] via-[#0F172A] to-[#1E293B]",
+    title: "Design Systems That Scale",
+    subtitle: "Building modern interfaces with consistency",
+    titleColor: "#FFFFFF",
+    subtitleColor: "#E5E7EB",
+    titleSize: 50,
+    hasImage: true,
+    hasLogo: true,
+    hasAuthor: true,
+    imageUrl: "/ogImage.png",
+    logoUrl: "",
 
-  // LEFT FOCUS
-  imagePosition: {
-    x: -120,
-    y: 90,
-    width: 600,
-    height: 430,
-    rotation: 8,
+    // LEFT FOCUS
+    imagePosition: {
+      x: -120,
+      y: 90,
+      width: 600,
+      height: 430,
+      rotation: 8,
 
-    shadowBlur: 80,
-    shadowSpread: 20,
-    shadowColor: "#000000",
-    shadowOpacity: 0.35,
+      shadowBlur: 80,
+      shadowSpread: 20,
+      shadowColor: "#000000",
+      shadowOpacity: 0.35,
+    },
+
+    logoPosition: {
+      x: 980,
+      y: 60,
+      width: 72,
+      height: 72,
+    },
+
+    contentPosition: {
+      x: 520,
+      y: 190,
+      width: 340,
+      textAlign: "left",
+    },
+
+    preview: {
+      bg: "from-[#0F172A] via-[#111827] to-[#1E293B]",
+      text: "white",
+    },
   },
 
-  logoPosition: {
-    x: 980,
-    y: 60,
-    width: 72,
-    height: 72,
+  {
+    id: 16,
+    name: "Centered Product Reveal",
+    category: "Product Launch",
+    gradient: "from-[#09090B] via-[#18181B] to-[#27272A]",
+    title: "Meet Nova AI",
+    subtitle: "Your next-gen productivity assistant",
+    titleColor: "#FFFFFF",
+    subtitleColor: "#E5E7EB",
+    titleSize: 52,
+    hasImage: true,
+    hasLogo: true,
+    hasAuthor: false,
+    imageUrl: "/ogImage.png",
+    logoUrl: "/ogImage.png",
+
+    // CENTER HERO
+    imagePosition: {
+      x: 420,
+      y: 120,
+      width: 540,
+      height: 360,
+      rotation: -4,
+
+      shadowBlur: 100,
+      shadowSpread: 25,
+      shadowColor: "#A855F7",
+      shadowOpacity: 0.35,
+    },
+
+    logoPosition: {
+      x: 70,
+      y: 60,
+      width: 74,
+      height: 74,
+    },
+
+    contentPosition: {
+      x: 40,
+      y: 200,
+      width: 760,
+      textAlign: "center",
+    },
+
+    preview: {
+      bg: "from-[#18181B] via-[#27272A] to-[#09090B]",
+      text: "white",
+    },
   },
 
-  contentPosition: {
-    x: 520,
-    y: 200,
-    width: 340,
-    textAlign: 'left',
+  {
+    id: 17,
+    name: "Portfolio Showcase Left",
+    category: "Portfolio",
+    gradient: "from-[#172554] via-[#1D4ED8] to-[#38BDF8]",
+    title: "Crafting Digital Experiences",
+    subtitle: "Interactive products with modern aesthetics",
+    titleColor: "#FFFFFF",
+    subtitleColor: "#DBEAFE",
+    titleSize: 48,
+    hasImage: true,
+    hasLogo: true,
+    hasAuthor: true,
+    imageUrl: "/ogImage.png",
+    logoUrl: "/ogImage.png",
+
+    imagePosition: {
+      x: -80,
+      y: 150,
+      width: 560,
+      height: 340,
+      rotation: 0,
+
+      shadowBlur: 90,
+      shadowSpread: 18,
+      shadowColor: "#2563EB",
+      shadowOpacity: 0.28,
+    },
+
+    logoPosition: {
+      x: 980,
+      y: 60,
+      width: 82,
+      height: 82,
+    },
+
+    contentPosition: {
+      x: 520,
+      y: 150,
+      width: 340,
+      textAlign: "left",
+    },
+
+    preview: {
+      bg: "from-[#172554] via-[#1E3A8A] to-[#1D4ED8]",
+      text: "white",
+    },
   },
 
-  preview: {
-    bg: "from-[#0F172A] via-[#111827] to-[#1E293B]",
-    text: "white",
+  // {
+  //   id: 18,
+  //   name: "Glassmorphism SaaS",
+  //   category: "SaaS",
+  //   gradient: "from-[#312E81] via-[#4338CA] to-[#818CF8]",
+  //   title: "Manage Everything Faster",
+  //   subtitle: "Built for modern high-performance teams",
+  //   titleColor: "#FFFFFF",
+  //   subtitleColor: "#E0E7FF",
+  //   titleSize: 50,
+  //   hasImage: true,
+  //   hasLogo: true,
+  //   hasAuthor: false,
+  //   imageUrl: "/ogImage.png",
+  //   logoUrl: "/ogImage.png",
+
+  //   // CENTER GLASS CARD
+  //   imagePosition: {
+  //     x: 300,
+  //     y: 100,
+  //     width: 600,
+  //     height: 400,
+  //     rotation: 3,
+
+  //     shadowBlur: 120,
+  //     shadowSpread: 25,
+  //     shadowColor: "#4338CA",
+  //     shadowOpacity: 0.4,
+  //   },
+
+  //   logoPosition: {
+  //     x: 80,
+  //     y: 60,
+  //     width: 76,
+  //     height: 76,
+  //   },
+
+  //   contentPosition: {
+  //     x: 70,
+  //     y: 510,
+  //     width: 760,
+  //     textAlign: "center",
+  //   },
+
+  //   preview: {
+  //     bg: "from-[#312E81] via-[#4338CA] to-[#6366F1]",
+  //     text: "white",
+  //   },
+  // },
+
+  // {
+  //   id: 19,
+  //   name: "Social Card Centered",
+  //   category: "Social Media",
+  //   gradient: "from-[#7C2D12] via-[#EA580C] to-[#FDBA74]",
+  //   title: "Big Announcement Tomorrow",
+  //   subtitle: "Something exciting is coming soon",
+  //   titleColor: "#FFFFFF",
+  //   subtitleColor: "#FEF3C7",
+  //   titleSize: 46,
+  //   hasImage: true,
+  //   hasLogo: false,
+  //   hasAuthor: false,
+  //   imageUrl: "/ogImage.png",
+  //   logoUrl: "",
+
+  //   // CENTER SOCIAL STYLE
+  //   imagePosition: {
+  //     x: 350,
+  //     y: 110,
+  //     width: 500,
+  //     height: 350,
+  //     rotation: -3,
+
+  //     shadowBlur: 70,
+  //     shadowSpread: 16,
+  //     shadowColor: "#EA580C",
+  //     shadowOpacity: 0.3,
+  //   },
+
+  //   logoPosition: undefined,
+
+  //   contentPosition: {
+  //     x: 70,
+  //     y: 500,
+  //     width: 760,
+  //     textAlign: "center",
+  //   },
+
+  //   preview: {
+  //     bg: "from-[#7C2D12] via-[#EA580C] to-[#FB923C]",
+  //     text: "white",
+  //   },
+  // },
+
+  {
+    id: 20,
+    name: "Cinematic Launch",
+    category: "Product Launch",
+    gradient: "from-[#030712] via-[#111827] to-[#374151]",
+    title: "The Future Starts Today",
+    subtitle: "Reimagining the way teams build products",
+    titleColor: "#FFFFFF",
+    subtitleColor: "#D1D5DB",
+    titleSize: 54,
+    hasImage: true,
+    hasLogo: true,
+    hasAuthor: false,
+    imageUrl: "/ogImage.png",
+    logoUrl: "",
+
+    // MASSIVE LEFT BLEED
+    imagePosition: {
+      x: -180,
+      y: 40,
+      width: 720,
+      height: 520,
+      rotation: 10,
+
+      shadowBlur: 130,
+      shadowSpread: 30,
+      shadowColor: "#000000",
+      shadowOpacity: 0.45,
+    },
+
+    logoPosition: {
+      x: 980,
+      y: 60,
+      width: 70,
+      height: 70,
+    },
+
+    contentPosition: {
+      x: 550,
+      y: 200,
+      width: 320,
+      textAlign: "left",
+    },
+
+    preview: {
+      bg: "from-[#111827] via-[#1F2937] to-[#374151]",
+      text: "white",
+    },
   },
-},
+  // MIXED SOCIAL MEDIA TEMPLATES
+  // includes both image + non-image layouts
 
-{
-  id: 16,
-  name: "Centered Product Reveal",
-  category: "Product Launch",
-  gradient: "from-[#09090B] via-[#18181B] to-[#27272A]",
-  title: "Meet Nova AI",
-  subtitle: "Your next-gen productivity assistant",
-  titleColor: "#FFFFFF",
-  subtitleColor: "#E5E7EB",
-  hasImage: true,
-  hasLogo: true,
-  hasAuthor: false,
-  imageUrl: "/ogImage.png",
-  logoUrl: "/ogImage.png",
+  {
+    id: 26,
+    name: "Minimal Quote Post",
+    category: "Social Media",
 
-  // CENTER HERO
-  imagePosition: {
-    x: 330,
-    y: 120,
-    width: 540,
-    height: 360,
-    rotation: -4,
+    gradient: "from-[#020617] via-[#111827] to-[#334155]",
 
-    shadowBlur: 100,
-    shadowSpread: 25,
-    shadowColor: "#A855F7",
-    shadowOpacity: 0.35,
-  },
+    title: "Consistency beats motivation.",
+    subtitle: "Small improvements compound faster than hype.",
+    titleColor: "#FFFFFF",
+    subtitleColor: "#CBD5E1",
+    titleSize: 52,
 
-  logoPosition: {
-    x: 70,
-    y: 60,
-    width: 74,
-    height: 74,
-  },
+    hasImage: false,
+    hasLogo: false,
+    hasAuthor: true,
 
-  contentPosition: {
-    x: 70,
-    y: 500,
-    width: 760,
-    textAlign: 'center',
-  },
+    imageUrl: "",
+    logoUrl: "",
 
-  preview: {
-    bg: "from-[#18181B] via-[#27272A] to-[#09090B]",
-    text: "white",
-  },
-},
+    imagePosition: undefined,
+    logoPosition: undefined,
+    contentPosition: {
+      x: 200,
+      y: 200,
+      width: 1060,
+      textAlign: "center",
+    },
 
-{
-  id: 17,
-  name: "Portfolio Showcase Left",
-  category: "Portfolio",
-  gradient: "from-[#172554] via-[#1D4ED8] to-[#38BDF8]",
-  title: "Crafting Digital Experiences",
-  subtitle: "Interactive products with modern aesthetics",
-  titleColor: "#FFFFFF",
-  subtitleColor: "#DBEAFE",
-  hasImage: true,
-  hasLogo: true,
-  hasAuthor: true,
-  imageUrl: "/ogImage.png",
-  logoUrl: "/ogImage.png",
-
-  // LARGE LEFT CARD
-  imagePosition: {
-    x: -80,
-    y: 130,
-    width: 560,
-    height: 340,
-    rotation: -7,
-
-    shadowBlur: 90,
-    shadowSpread: 18,
-    shadowColor: "#2563EB",
-    shadowOpacity: 0.28,
-  },
-
-  logoPosition: {
-    x: 980,
-    y: 60,
-    width: 82,
-    height: 82,
-  },
-
-  contentPosition: {
-    x: 520,
-    y: 200,
-    width: 340,
-    textAlign: 'left',
-  },
-
-  preview: {
-    bg: "from-[#172554] via-[#1E3A8A] to-[#1D4ED8]",
-    text: "white",
-  },
-},
-
-{
-  id: 18,
-  name: "Glassmorphism SaaS",
-  category: "SaaS",
-  gradient: "from-[#312E81] via-[#4338CA] to-[#818CF8]",
-  title: "Manage Everything Faster",
-  subtitle: "Built for modern high-performance teams",
-  titleColor: "#FFFFFF",
-  subtitleColor: "#E0E7FF",
-  hasImage: true,
-  hasLogo: true,
-  hasAuthor: false,
-  imageUrl: "/ogImage.png",
-  logoUrl: "/ogImage.png",
-
-  // CENTER GLASS CARD
-  imagePosition: {
-    x: 300,
-    y: 100,
-    width: 600,
-    height: 400,
-    rotation: 3,
-
-    shadowBlur: 120,
-    shadowSpread: 25,
-    shadowColor: "#4338CA",
-    shadowOpacity: 0.4,
-  },
-
-  logoPosition: {
-    x: 80,
-    y: 60,
-    width: 76,
-    height: 76,
-  },
-
-  contentPosition: {
-    x: 70,
-    y: 510,
-    width: 760,
-    textAlign: 'center',
-  },
-
-  preview: {
-    bg: "from-[#312E81] via-[#4338CA] to-[#6366F1]",
-    text: "white",
-  },
-},
-
-{
-  id: 19,
-  name: "Social Card Centered",
-  category: "Social Media",
-  gradient: "from-[#7C2D12] via-[#EA580C] to-[#FDBA74]",
-  title: "Big Announcement Tomorrow",
-  subtitle: "Something exciting is coming soon",
-  titleColor: "#FFFFFF",
-  subtitleColor: "#FEF3C7",
-  hasImage: true,
-  hasLogo: false,
-  hasAuthor: false,
-  imageUrl: "/ogImage.png",
-  logoUrl: "",
-
-  // CENTER SOCIAL STYLE
-  imagePosition: {
-    x: 350,
-    y: 110,
-    width: 500,
-    height: 350,
-    rotation: -3,
-
-    shadowBlur: 70,
-    shadowSpread: 16,
-    shadowColor: "#EA580C",
-    shadowOpacity: 0.3,
-  },
-
-  logoPosition: undefined,
-
-  contentPosition: {
-    x: 70,
-    y: 500,
-    width: 760,
-    textAlign: 'center',
+    preview: {
+      bg: "from-[#0F172A] via-[#111827] to-[#1E293B]",
+      text: "white",
+    },
   },
 
-  preview: {
-    bg: "from-[#7C2D12] via-[#EA580C] to-[#FB923C]",
-    text: "white",
-  },
-},
+  // {
+  //   id: 27,
+  //   name: "Creator Drop",
+  //   category: "Social Media",
 
-{
-  id: 20,
-  name: "Cinematic Launch",
-  category: "Product Launch",
-  gradient: "from-[#030712] via-[#111827] to-[#374151]",
-  title: "The Future Starts Today",
-  subtitle: "Reimagining the way teams build products",
-  titleColor: "#FFFFFF",
-  subtitleColor: "#D1D5DB",
-  hasImage: true,
-  hasLogo: true,
-  hasAuthor: false,
-  imageUrl: "/ogImage.png",
-  logoUrl: "/ogImage.png",
+  //   gradient: "from-[#581C87] via-[#9333EA] to-[#D946EF]",
 
-  // MASSIVE LEFT BLEED
-  imagePosition: {
-    x: -180,
-    y: 40,
-    width: 720,
-    height: 520,
-    rotation: 10,
+  //   title: "New Project Launching Tomorrow",
+  //   subtitle: "Built for developers, creators, and startups.",
+  //   titleColor: "#FFFFFF",
+  //   subtitleColor: "#F3E8FF",
+  //   titleSize: 48,
 
-    shadowBlur: 130,
-    shadowSpread: 30,
-    shadowColor: "#000000",
-    shadowOpacity: 0.45,
-  },
+  //   hasImage: true,
+  //   hasLogo: true,
+  //   hasAuthor: true,
 
-  logoPosition: {
-    x: 980,
-    y: 60,
-    width: 70,
-    height: 70,
-  },
+  //   imageUrl: "/ogImage.png",
+  //   logoUrl: "/ogImage.png",
 
-  contentPosition: {
-    x: 550,
-    y: 200,
-    width: 320,
-    textAlign: 'left',
-  },
+  //   // CENTER FLOAT
+  //   imagePosition: {
+  //     x: 350,
+  //     y: 120,
+  //     width: 500,
+  //     height: 340,
 
-  preview: {
-    bg: "from-[#111827] via-[#1F2937] to-[#374151]",
-    text: "white",
-  },
-},
-// MIXED SOCIAL MEDIA TEMPLATES
-// includes both image + non-image layouts
+  //     rotation: -5,
 
-{
-  id: 26,
-  name: "Minimal Quote Post",
-  category: "Social Media",
+  //     shadowBlur: 100,
+  //     shadowSpread: 25,
+  //     shadowColor: "#9333EA",
+  //     shadowOpacity: 0.35,
+  //   },
 
-  gradient:
-    "from-[#020617] via-[#111827] to-[#334155]",
+  //   logoPosition: {
+  //     x: 80,
+  //     y: 60,
+  //     width: 70,
+  //     height: 70,
+  //   },
 
-  title: "Consistency beats motivation.",
-  subtitle:
-    "Small improvements compound faster than hype.",
-  titleColor: "#FFFFFF",
-  subtitleColor: "#CBD5E1",
+  //   contentPosition: {
+  //     x: 70,
+  //     y: 500,
+  //     width: 760,
+  //     textAlign: "center",
+  //   },
 
-  hasImage: false,
-  hasLogo: false,
-  hasAuthor: true,
+  //   preview: {
+  //     bg: "from-[#7C3AED] via-[#9333EA] to-[#C026D3]",
+  //     text: "white",
+  //   },
+  // },
 
-  imageUrl: "",
-  logoUrl: "",
+  {
+    id: 29,
+    name: "Viral Product Post",
+    category: "Social Media",
 
-  imagePosition: undefined,
-  logoPosition: undefined,
+    gradient: "from-[#7F1D1D] via-[#DC2626] to-[#FB923C]",
 
-  preview: {
-    bg:
-      "from-[#0F172A] via-[#111827] to-[#1E293B]",
-    text: "white",
-  },
-},
+    title: "We Just Shipped v2 🚀",
+    subtitle: "Faster performance. Cleaner UI. Better workflows.",
+    titleColor: "#FFFFFF",
+    subtitleColor: "#FEE2E2",
+    titleSize: 48,
 
-{
-  id: 27,
-  name: "Creator Drop",
-  category: "Social Media",
+    hasImage: true,
+    hasLogo: false,
+    hasAuthor: false,
 
-  gradient:
-    "from-[#581C87] via-[#9333EA] to-[#D946EF]",
+    imageUrl: "/ogImage.png",
+    logoUrl: "",
 
-  title: "New Project Launching Tomorrow",
-  subtitle:
-    "Built for developers, creators, and startups.",
-  titleColor: "#FFFFFF",
-  subtitleColor: "#F3E8FF",
+    // LEFT BLEED
+    imagePosition: {
+      x: -90,
+      y: 100,
+      width: 580,
+      height: 380,
 
-  hasImage: true,
-  hasLogo: true,
-  hasAuthor: true,
+      rotation: 7,
 
-  imageUrl: "/ogImage.png",
-  logoUrl: "/ogImage.png",
+      shadowBlur: 120,
+      shadowSpread: 30,
+      shadowColor: "#DC2626",
+      shadowOpacity: 0.42,
+    },
 
-  // CENTER FLOAT
-  imagePosition: {
-    x: 350,
-    y: 120,
-    width: 500,
-    height: 340,
+    logoPosition: undefined,
 
-    rotation: -5,
+    contentPosition: {
+      x: 500,
+      y: 200,
+      width: 360,
+      textAlign: "left",
+    },
 
-    shadowBlur: 100,
-    shadowSpread: 25,
-    shadowColor: "#9333EA",
-    shadowOpacity: 0.35,
+    preview: {
+      bg: "from-[#7F1D1D] via-[#DC2626] to-[#F97316]",
+      text: "white",
+    },
   },
 
-  logoPosition: {
-    x: 80,
-    y: 60,
-    width: 70,
-    height: 70,
+  {
+    id: 30,
+    name: "Twitter Style Text Card",
+    category: "Social Media",
+
+    gradient: "from-[#030712] via-[#111827] to-[#374151]",
+
+    title: "Hot take:",
+    subtitle:
+      "Most SaaS products don't fail because of code. They fail because nobody cares.",
+    titleColor: "#FFFFFF",
+    subtitleColor: "#D1D5DB",
+    titleSize: 44,
+
+    hasImage: false,
+    hasLogo: true,
+    hasAuthor: true,
+
+    imageUrl: "",
+    logoUrl: "/ogImage.png",
+
+    imagePosition: undefined,
+
+    logoPosition: {
+      x: 80,
+      y: 60,
+      width: 68,
+      height: 68,
+    },
+    contentPosition: {
+      x: 100,
+      y: 200,
+      width: 1060,
+      textAlign: "center",
+    },
+
+    preview: {
+      bg: "from-[#111827] via-[#1F2937] to-[#374151]",
+      text: "white",
+    },
   },
 
-  contentPosition: {
-    x: 70,
-    y: 500,
-    width: 760,
-    textAlign: 'center',
-  },
+  // {
+  //   id: 31,
+  //   name: "Centered Announcement",
+  //   category: "Social Media",
 
-  preview: {
-    bg:
-      "from-[#7C3AED] via-[#9333EA] to-[#C026D3]",
-    text: "white",
-  },
-},
+  //   gradient: "from-[#172554] via-[#2563EB] to-[#60A5FA]",
 
-{
-  id: 28,
-  name: "Clean Creator Thoughts",
-  category: "Social Media",
+  //   title: "Big Announcement Coming Soon",
+  //   subtitle: "Stay tuned for the reveal.",
+  //   titleColor: "#FFFFFF",
+  //   subtitleColor: "#DBEAFE",
+  //   titleSize: 50,
 
-  gradient:
-    "from-[#E2E8F0] via-[#F8FAFC] to-[#FFFFFF]",
+  //   hasImage: true,
+  //   hasLogo: true,
+  //   hasAuthor: false,
 
-  title: "Most people quit too early.",
-  subtitle:
-    "The boring phase is where momentum is built.",
-  titleColor: "#1F2937",
-  subtitleColor: "#4B5563",
+  //   imageUrl: "/ogImage.png",
+  //   logoUrl: "/ogImage.png",
 
-  hasImage: false,
-  hasLogo: false,
-  hasAuthor: true,
+  //   // CENTER CARD
+  //   imagePosition: {
+  //     x: 300,
+  //     y: 100,
+  //     width: 600,
+  //     height: 390,
 
-  imageUrl: "",
-  logoUrl: "",
+  //     rotation: -3,
 
-  imagePosition: undefined,
-  logoPosition: undefined,
+  //     shadowBlur: 90,
+  //     shadowSpread: 20,
+  //     shadowColor: "#2563EB",
+  //     shadowOpacity: 0.32,
+  //   },
 
-  preview: {
-    bg:
-      "from-[#F8FAFC] via-[#E2E8F0] to-[#CBD5E1]",
-    text: "dark",
-  },
-},
+  //   logoPosition: {
+  //     x: 80,
+  //     y: 60,
+  //     width: 74,
+  //     height: 74,
+  //   },
 
-{
-  id: 29,
-  name: "Viral Product Post",
-  category: "Social Media",
+  //   contentPosition: {
+  //     x: 70,
+  //     y: 500,
+  //     width: 760,
+  //     textAlign: "center",
+  //   },
 
-  gradient:
-    "from-[#7F1D1D] via-[#DC2626] to-[#FB923C]",
-
-  title: "We Just Shipped v2 🚀",
-  subtitle:
-    "Faster performance. Cleaner UI. Better workflows.",
-  titleColor: "#FFFFFF",
-  subtitleColor: "#FEE2E2",
-
-  hasImage: true,
-  hasLogo: false,
-  hasAuthor: false,
-
-  imageUrl: "/ogImage.png",
-  logoUrl: "",
-
-  // LEFT BLEED
-  imagePosition: {
-    x: -90,
-    y: 100,
-    width: 580,
-    height: 380,
-
-    rotation: 7,
-
-    shadowBlur: 120,
-    shadowSpread: 30,
-    shadowColor: "#DC2626",
-    shadowOpacity: 0.42,
-  },
-
-  logoPosition: undefined,
-
-  contentPosition: {
-    x: 500,
-    y: 200,
-    width: 360,
-    textAlign: 'left',
-  },
-
-  preview: {
-    bg:
-      "from-[#7F1D1D] via-[#DC2626] to-[#F97316]",
-    text: "white",
-  },
-},
-
-{
-  id: 30,
-  name: "Twitter Style Text Card",
-  category: "Social Media",
-
-  gradient:
-    "from-[#030712] via-[#111827] to-[#374151]",
-
-  title: "Hot take:",
-  subtitle:
-    "Most SaaS products don't fail because of code. They fail because nobody cares.",
-  titleColor: "#FFFFFF",
-  subtitleColor: "#D1D5DB",
-
-  hasImage: false,
-  hasLogo: true,
-  hasAuthor: true,
-
-  imageUrl: "",
-  logoUrl: "/ogImage.png",
-
-  imagePosition: undefined,
-
-  logoPosition: {
-    x: 80,
-    y: 60,
-    width: 68,
-    height: 68,
-  },
-
-  preview: {
-    bg:
-      "from-[#111827] via-[#1F2937] to-[#374151]",
-    text: "white",
-  },
-},
-
-{
-  id: 31,
-  name: "Centered Announcement",
-  category: "Social Media",
-
-  gradient:
-    "from-[#172554] via-[#2563EB] to-[#60A5FA]",
-
-  title: "Big Announcement Coming Soon",
-  subtitle:
-    "Stay tuned for the reveal.",
-  titleColor: "#FFFFFF",
-  subtitleColor: "#DBEAFE",
-
-  hasImage: true,
-  hasLogo: true,
-  hasAuthor: false,
-
-  imageUrl: "/ogImage.png",
-  logoUrl: "/ogImage.png",
-
-  // CENTER CARD
-  imagePosition: {
-    x: 300,
-    y: 100,
-    width: 600,
-    height: 390,
-
-    rotation: -3,
-
-    shadowBlur: 90,
-    shadowSpread: 20,
-    shadowColor: "#2563EB",
-    shadowOpacity: 0.32,
-  },
-
-  logoPosition: {
-    x: 80,
-    y: 60,
-    width: 74,
-    height: 74,
-  },
-
-  contentPosition: {
-    x: 70,
-    y: 500,
-    width: 760,
-    textAlign: 'center',
-  },
-
-  preview: {
-    bg:
-      "from-[#172554] via-[#1E3A8A] to-[#2563EB]",
-    text: "white",
-  },
-},
+  //   preview: {
+  //     bg: "from-[#172554] via-[#1E3A8A] to-[#2563EB]",
+  //     text: "white",
+  //   },
+  // },
 ] as const;
 
 export const categories = [

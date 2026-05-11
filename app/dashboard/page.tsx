@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { authOptions } from "../../src/lib/auth";
+import DashboardContent from "../../src/components/DashboardContent";
 
 type SessionUser = {
   id?: string;
@@ -34,20 +35,16 @@ export default async function DashboardPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col items-center justify-center gap-6 p-6">
-      <div className="flex flex-col items-center gap-3 text-center">
-        <Avatar className="h-16 w-16">
-          <AvatarImage alt={displayName} src={session.user?.image ?? ""} />
-          <AvatarFallback>{fallbackLetter}</AvatarFallback>
-        </Avatar>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p>Welcome, {displayName}</p>
-        <p className="text-sm text-neutral-500">You are authenticated with NextAuth.</p>
-      </div>
-
-      <div className="flex flex-col gap-3 w-full max-w-xs">
-        <Button asChild className="w-full" variant="default" size="lg">
-          <Link href="/editor">Create OG Image</Link>
-        </Button>
+      <DashboardContent 
+        displayName={displayName}
+        fallbackLetter={fallbackLetter}
+        userImage={session.user?.image}
+        email={user.email}
+        isAdmin={isAdmin}
+      />
+    </main>
+  );
+}
 
         {isAdmin && (
           <Button asChild className="w-full" variant="secondary" size="lg">

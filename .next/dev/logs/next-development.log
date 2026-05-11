@@ -1,4 +1,46 @@
-{"timestamp":"00:00:01.451","source":"Server","level":"WARN","message":"⚠ The \"middleware\" file convention is deprecated. Please use \"proxy\" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy"}
-{"timestamp":"00:00:01.776","source":"Server","level":"LOG","message":""}
-{"timestamp":"00:00:49.488","source":"Server","level":"WARN","message":"[next-auth][warn][DEBUG_ENABLED] \"\\nhttps://next-auth.js.org/warnings#debug_enabled\""}
-{"timestamp":"00:00:49.497","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:00:01.374","source":"Server","level":"WARN","message":"⚠ The \"middleware\" file convention is deprecated. Please use \"proxy\" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy"}
+{"timestamp":"00:00:01.580","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:02:24.495","source":"Server","level":"WARN","message":"[next-auth][warn][DEBUG_ENABLED] \"\\nhttps://next-auth.js.org/warnings#debug_enabled\""}
+{"timestamp":"00:02:24.504","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:07:03.418","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:07:03.453","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:08:40.727","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:08:40.729","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:22:28.368","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:22:28.371","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:24:53.849","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:24:53.861","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:25:46.573","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:25:46.577","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:29:08.004","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:29:08.007","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:38:45.447","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:38:45.450","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:42:45.643","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:42:45.649","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:55:55.610","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:55:55.612","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:56:15.813","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:56:15.818","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:56:55.783","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:56:55.788","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:57:19.037","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:57:19.039","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"01:05:43.639","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"01:05:43.643","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"01:07:20.185","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"01:07:20.187","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"01:16:35.935","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"01:16:35.937","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"01:20:29.055","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"01:20:29.058","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"01:21:54.790","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"01:21:54.792","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"01:22:11.467","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"01:22:11.472","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"01:26:52.185","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"01:26:52.186","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"01:28:09.704","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"01:28:09.705","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"01:37:11.762","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"01:37:11.763","source":"Server","level":"LOG","message":"✅ session callback: {}"}
