@@ -37,7 +37,7 @@ logoPosition: {
 },
 contentPosition: {
   x: 70,
-  y: 180,
+  y: 110,
   width: 340,
   textAlign: 'left',
 },
