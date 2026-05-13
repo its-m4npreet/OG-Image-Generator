@@ -283,75 +283,109 @@ const Dashboard = () => {
                 to={`/editor?template=${template.id}&title=${encodeURIComponent(template.title)}&subtitle=${encodeURIComponent(template.subtitle)}&gradient=${encodeURIComponent(template.gradient)}&titleColor=${encodeURIComponent(template.titleColor)}&subtitleColor=${encodeURIComponent(template.subtitleColor)}&titleSize=${template.titleSize}&logo=${template.hasLogo && template.logoUrl ? template.logoUrl : ''}&image=${template.hasImage && template.imageUrl ? template.imageUrl : ''}${template.imagePosition ? `&imagePosition=${encodeURIComponent(JSON.stringify(template.imagePosition))}` : ''}${template.logoPosition ? `&logoPosition=${encodeURIComponent(JSON.stringify(template.logoPosition))}` : ''}${template.contentPosition ? `&contentPosition=${encodeURIComponent(JSON.stringify(template.contentPosition))}` : ''}&hasAuthor=${template.hasAuthor}`}
                 className="block group h-full"
               >
-                <div className="rounded-2xl border border-border bg-card overflow-hidden transition-all duration-150 hover:border-primary/30 hover:scale-[1.02] hover:shadow-xl h-full flex flex-col">
-                  {/* Preview - Fixed Height */}
-                  <div className={`h-48 bg-gradient-to-br ${template.gradient} flex items-center justify-center relative overflow-hidden flex-shrink-0`}>
-                    <div className="absolute inset-0 opacity-5 dot-grid" />
-                    
-                    {/* Logo - positioned at top-left */}
-                    {template.hasLogo && (
-                      <div className="absolute top-3 left-3 z-20">
-                        {template.logoUrl ? (
-                          <img src={template.logoUrl} alt="logo" className="w-10 h-10 rounded-lg object-cover" />
-                        ) : (
-                          <div className="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center">
-                            <div className="w-6 h-6 rounded bg-white/40" />
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    
-                    {/* Main content area with title and subtitle */}
-                    <div className="text-center relative z-10 px-4 flex flex-col items-center justify-center h-full max-w-xs">
-                      <h3 
-                        className="font-bold line-clamp-2 mb-2 transition-all"
-                        style={{
-                          color: template.titleColor,
-                          fontSize: template.titleSize ? Math.min(template.titleSize / 12, 16) + 'px' : '14px',
-                          lineHeight: '1.2'
-                        }}
-                      >
-                        {template.title}
-                      </h3>
-                      <p 
-                        className="line-clamp-1 text-xs transition-all"
-                        style={{
-                          color: template.subtitleColor
-                        }}
-                      >
-                        {template.subtitle}
-                      </p>
-                    </div>
-                    
-                    {/* Image placeholder - show subtle placeholder */}
-                    {template.hasImage && template.imageUrl && (
-                      <img 
-                        src={template.imageUrl} 
-                        alt="template" 
-                        className="absolute opacity-40 w-16 h-16 object-cover rounded-lg"
-                        style={{
-                          bottom: template.imagePosition?.y >= 300 ? '4px' : 'auto',
-                          top: template.imagePosition?.y >= 300 ? 'auto' : '50%',
-                          right: template.imagePosition?.x > 450 ? '4px' : 'auto',
-                          left: template.imagePosition?.x > 450 ? 'auto' : '4px',
-                          transform: template.imagePosition?.y >= 300 ? 'none' : 'translateY(-50%)'
-                        }}
-                      />
-                    )}
-                  </div>
-                  
-                  {/* Info section - Flexible height */}
-                  <div className="p-4 space-y-3 flex-1 flex flex-col">
-                    <div>
-                      <div className="text-sm font-semibold text-foreground mb-1 line-clamp-1">{template.name}</div>
-                      <div className="text-xs text-muted-foreground">{template.category}</div>
-                    </div>
-                    
-                    <Button variant="default" size="sm" className="w-full text-xs mt-auto">
-                      Use Template
-                    </Button>
-                  </div>
-                </div>
+                {/* Replace the entire preview div inside the Link with this: */}
+
+<div className="h-48 relative overflow-hidden flex-shrink-0">
+  {/* Scale wrapper: 550×350 template scaled down to fit card width */}
+  <div
+    className="absolute top-0 left-0 origin-top-left"
+    style={{
+      width: 550,
+      height: 350,
+      transform: `scale(${192 / 350})`, // 192px = h-48, scale height to fit
+      background: template.gradient.startsWith("from-")
+        ? undefined
+        : template.gradient,
+    }}
+  >
+    {/* Apply Tailwind gradient if it's a Tailwind class string */}
+    <div
+      className={`absolute inset-0 bg-gradient-to-br ${template.gradient}`}
+    />
+
+    {/* Image */}
+    {template.hasImage && template.imageUrl && template.imagePosition && (
+      <img
+        src={template.imageUrl}
+        alt=""
+        style={{
+          position: "absolute",
+          left: template.imagePosition.x,
+          top: template.imagePosition.y,
+          width: template.imagePosition.width * 0.75,
+          height: template.imagePosition.height * 0.75,
+          transform: `rotate(${template.imagePosition.rotation ?? 0}deg)`,
+          borderRadius: 8,
+          filter:
+            template.imagePosition.shadowBlur > 0
+              ? `drop-shadow(0 0 ${template.imagePosition.shadowBlur}px ${template.imagePosition.shadowColor ?? "#000"})`
+              : "none",
+          objectFit: "cover",
+        }}
+      />
+    )}
+
+    {/* Logo */}
+    {template.hasLogo && template.logoUrl && template.logoPosition && (
+      <img
+        src={template.logoUrl}
+        alt=""
+        style={{
+          position: "absolute",
+          left: template.logoPosition.x,
+          top: template.logoPosition.y,
+          width: template.logoPosition.width,
+          height: template.logoPosition.height,
+          borderRadius: 10,
+          objectFit: "cover",
+        }}
+      />
+    )}
+
+    {/* Text content */}
+{template.contentPosition && (() => {
+  const cp = template.contentPosition;
+  const scale = 192 / 350; // same scale as the container
+  const isCenter = cp.textAlign === "center";
+  const left = isCenter ? (550 - cp.width) / 2 : cp.x;
+  const fontSizeMultiplier = template.hasImage ? 0.50 : 0.35; // smaller if no image
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left,
+        top: cp.y,
+        width: cp.width,
+        textAlign: cp.textAlign as any,
+      }}
+    >
+      <div
+        style={{
+          fontSize: Math.round(template.titleSize / scale * fontSizeMultiplier),
+          fontWeight: 700,
+          lineHeight: 1.15,
+          color: template.titleColor,
+          marginBottom: Math.round(template.titleSize * 0.3 * fontSizeMultiplier),
+          wordBreak: "break-word",
+        }}
+      >
+        {template.title}
+      </div>
+      <div
+        style={{
+          fontSize: Math.round((template.titleSize * 0.36) / scale * fontSizeMultiplier),
+          color: template.subtitleColor,
+          lineHeight: 1.4,
+          wordBreak: "break-word",
+        }}
+      >
+        {template.subtitle}
+      </div>
+    </div>
+  );
+})()}
+  </div>
+</div>
               </Link>
             </motion.div>
           ))}

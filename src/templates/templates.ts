@@ -103,7 +103,7 @@ export const templates = [
     },
     logoPosition: { x: 50, y: 50, width: 80, height: 80 },
     contentPosition: {
-      x: 210,
+      x: 250,
       y: 60,
       width: 760,
       textAlign: "center",

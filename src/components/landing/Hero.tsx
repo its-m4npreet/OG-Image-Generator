@@ -68,13 +68,8 @@ const Hero = () => {
           <div className="glass rounded-2xl p-1.5">
             <div className="bg-card rounded-xl overflow-hidden">
               <div className="aspect-[1200/630] bg-gradient-to-br from-primary/20 via-card to-secondary/10 flex items-center justify-center relative dot-grid">
-                <div className="text-center space-y-3 p-8">
-                  <div className="text-3xl md:text-5xl font-bold text-foreground">Your Blog Title</div>
-                  <div className="text-lg text-muted-foreground">A compelling description for your article</div>
-                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground pt-2">
-                    <div className="w-8 h-8 rounded-full bg-primary/30" />
-                    <span>Author Name</span>
-                  </div>
+                <div className="text-center space-y-3 ">
+                  <img src="/public/og.png" alt="ogImage" />
                 </div>
               </div>
             </div>

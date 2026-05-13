@@ -152,6 +152,12 @@ const Editor = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const dragRef = useRef<{
+    id: string;
+    offsetX: number;
+    offsetY: number;
+  } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Load template data from URL parameters
   useEffect(() => {
@@ -241,6 +247,46 @@ const Editor = () => {
         .catch(err => console.log("Image load skipped:", err));
     }
   }, [templateLogo, templateImage, templateImagePosition, templateContentPosition]);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!dragRef.current || !canvasRef.current) return;
+
+      const rect = canvasRef.current.getBoundingClientRect();
+      const scaleX = 900 / rect.width;
+      const scaleY = 630 / rect.height;
+
+      const mouseBaseX = (e.clientX - rect.left) * scaleX;
+      const mouseBaseY = (e.clientY - rect.top) * scaleY;
+
+      const newX = mouseBaseX - dragRef.current.offsetX;
+      const newY = mouseBaseY - dragRef.current.offsetY;
+
+      setImages((prev) =>
+        prev.map((img) => {
+          if (img.id !== dragRef.current?.id) return img;
+          return {
+            ...img,
+            x: Math.min(Math.max(-500, newX), 700),
+            y: Math.min(Math.max(-500, newY), 300),
+          };
+        })
+      );
+    };
+
+    const handleMouseUp = () => {
+      dragRef.current = null;
+      setIsDragging(false);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -753,7 +799,7 @@ const Editor = () => {
             {images.map((img) => (
               <div
                 key={img.id}
-                className={`absolute transition-all duration-200 ${
+                className={`absolute ${isDragging ? "" : "transition-all duration-200"} ${
                   selectedImage === img.id ? " shadow-xl" : "shadow-lg hover:shadow-2xl"
                 }`}
                 style={{
@@ -761,10 +807,31 @@ const Editor = () => {
                   top: `${(img.y / 630) * 100}%`,
                   width: `${(img.width / 900) * 100}%`,
                   height: `${(img.height / 630) * 100}%`,
-                  cursor: "pointer",
+                  cursor: isDragging ? "grabbing" : "grab",
                   transform: `rotate(${img.rotation || 0}deg)`,
+                  touchAction: "none",
                 }}
                 onClick={() => setSelectedImage(img.id)}
+                onMouseDown={(e) => {
+                  if (!canvasRef.current) return;
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSelectedImage(img.id);
+
+                  const rect = canvasRef.current.getBoundingClientRect();
+                  const scaleX = 900 / rect.width;
+                  const scaleY = 630 / rect.height;
+
+                  const mouseBaseX = (e.clientX - rect.left) * scaleX;
+                  const mouseBaseY = (e.clientY - rect.top) * scaleY;
+
+                  dragRef.current = {
+                    id: img.id,
+                    offsetX: mouseBaseX - img.x,
+                    offsetY: mouseBaseY - img.y,
+                  };
+                  setIsDragging(true);
+                }}
               >
                 <img
                   src={img.src}
