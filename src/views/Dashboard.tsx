@@ -21,7 +21,6 @@ import {
   LogOut,
   User as UserIcon,
   Settings,
-  BookOpen,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { templates, categories } from "@/templates";
@@ -36,20 +35,12 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       navigate("/login");
     }
-    // Check if user is admin from session
-    if (
-      status === "authenticated" &&
-      (session?.user as any)?.role === "admin"
-    ) {
-      setIsAdmin(true);
-    }
-  }, [status, session, navigate]);
+  }, [status, navigate]);
 
   if (status === "loading") {
     return (
@@ -160,24 +151,6 @@ const Dashboard = () => {
               </Button>
             </motion.div>
 
-            {isAdmin && (
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  className="hidden sm:flex"
-                >
-                  <Link to="/admin/templates">
-                    <BookOpen className="h-4 w-4 mr-1" /> Manage Templates
-                  </Link>
-                </Button>
-              </motion.div>
-            )}
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -219,17 +192,6 @@ const Dashboard = () => {
                     <span>Settings</span>
                   </Link>
                 </DropdownMenuItem>
-                {isAdmin && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin/templates" className="cursor-pointer">
-                        <BookOpen className="mr-2 h-4 w-4" />
-                        <span>Manage Templates</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  </>
-                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-destructive focus:text-destructive cursor-pointer"

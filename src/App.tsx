@@ -11,7 +11,6 @@ import Editor from "./views/Editor.tsx";
 import Auth from "./views/Auth.tsx";
 import Settings from "./views/Settings.tsx";
 import Profile from "./views/Profile.tsx";
-import AdminTemplates from "./views/AdminTemplates.tsx";
 import NotFound from "./views/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -29,7 +28,6 @@ const App = () => (
               <Route path="/login" element={<Auth />} />
               <Route path="/signup" element={<Auth />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/admin/templates" element={<AdminTemplates />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/editor" element={<Editor />} />

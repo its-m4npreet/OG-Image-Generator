@@ -41,7 +41,6 @@ interface DashboardContentProps {
   fallbackLetter: string;
   userImage?: string | null;
   email?: string;
-  isAdmin?: boolean;
 }
 
 export default function DashboardContent({
@@ -49,7 +48,6 @@ export default function DashboardContent({
   fallbackLetter,
   userImage,
   email,
-  isAdmin,
 }: DashboardContentProps) {
   return (
     <motion.div
@@ -77,12 +75,6 @@ export default function DashboardContent({
         You are authenticated with NextAuth.
       </motion.p>
 
-      {isAdmin && (
-        <motion.p variants={itemVariants} className="text-sm text-primary font-semibold">
-          ✨ Admin Access Enabled
-        </motion.p>
-      )}
-
       <motion.div variants={itemVariants} className="flex flex-col gap-3 w-full max-w-xs pt-4">
         <motion.div
           whileHover="hover"
@@ -93,18 +85,6 @@ export default function DashboardContent({
             <Link href="/editor">Create OG Image</Link>
           </Button>
         </motion.div>
-
-        {isAdmin && (
-          <motion.div
-            whileHover="hover"
-            whileTap="tap"
-            variants={buttonVariants}
-          >
-            <Button asChild className="w-full" variant="outline" size="lg">
-              <Link href="/admin/templates">Manage Templates</Link>
-            </Button>
-          </motion.div>
-        )}
       </motion.div>
     </motion.div>
   );

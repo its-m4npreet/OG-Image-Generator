@@ -25,12 +25,10 @@ export default async function DashboardPage() {
   const displayName = session.user?.name ?? session.user?.email ?? "User";
   const fallbackLetter = displayName.trim().charAt(0).toUpperCase();
   const user = session.user as SessionUser;
-  const isAdmin = user.role === "admin";
 
   console.log("📊 Dashboard - Session User:", {
     email: user.email,
-    role: user.role,
-    isAdmin: isAdmin
+    role: user.role
   });
 
   return (
@@ -40,19 +38,8 @@ export default async function DashboardPage() {
         fallbackLetter={fallbackLetter}
         userImage={session.user?.image}
         email={user.email}
-        isAdmin={isAdmin}
       />
     </main>
-  );
-}
-
-        {isAdmin && (
-          <Button asChild className="w-full" variant="secondary" size="lg">
-            <Link href="/admin/templates">📋 Manage Templates</Link>
-          </Button>
-        )}
-      </div>
-    </main>
-  );
+  );}
 }
   
