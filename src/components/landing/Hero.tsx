@@ -69,7 +69,7 @@ const Hero = () => {
             <div className="bg-card rounded-xl overflow-hidden">
               <div className="aspect-[1200/630] bg-gradient-to-br from-primary/20 via-card to-secondary/10 flex items-center justify-center relative dot-grid">
                 <div className="text-center space-y-3 ">
-                  <img src="/public/og.png" alt="ogImage" />
+                  <img src="/og.png" alt="ogImage" />
                 </div>
               </div>
             </div>
