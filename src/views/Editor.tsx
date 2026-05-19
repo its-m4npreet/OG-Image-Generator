@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { ColorRow } from "@/components/ColorPicker";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -11,11 +13,12 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import {
   Hexagon, Download, Share2, ArrowLeft, Type, Palette,
   ChevronLeft, ChevronRight, ChevronDown, Wand2, Link2, Image as ImageIcon, Trash2,
-  Eye, EyeOff,
+  Eye, EyeOff, CircleUserRound, Move,
 } from "lucide-react";
 import { toPng, toJpeg } from "html-to-image";
 import {
@@ -94,6 +97,7 @@ const Editor = () => {
   const templateContentPosition = searchParams.get("contentPosition");
   const templateTitleColor = searchParams.get("titleColor");
   const templateSubtitleColor = searchParams.get("subtitleColor");
+  const templateAuthorColor = searchParams.get("authorColor");
   const templateTitleSize = searchParams.get("titleSize") ? Number(searchParams.get("titleSize")) : 40;
   const templateHasAuthor = searchParams.get("hasAuthor") !== "false"; // Default to true
   
@@ -107,8 +111,10 @@ const Editor = () => {
   const [title, setTitle] = useState(templateTitle);
   const [subtitle, setSubtitle] = useState(templateSubtitle);
   const [author, setAuthor] = useState("Author Name");
+  const [avatar, setAvatar] = useState<string | null>(null);
   const [showSubtitle, setShowSubtitle] = useState(true);
   const [showAuthor, setShowAuthor] = useState(templateHasAuthor);
+  const [showAvatar, setShowAvatar] = useState(true);
   const [selectedGradient, setSelectedGradient] = useState(getInitialGradient());
   const [selectedSolidColor, setSelectedSolidColor] = useState<string | null>(null);
   const [backgroundType, setBackgroundType] = useState<"gradient" | "solid">("gradient");
@@ -135,6 +141,9 @@ const Editor = () => {
   });
 
   const [contentPosition, setContentPosition] = useState<ContentPosition | null>(null);
+  const [rightTab, setRightTab] = useState<"design" | "templates" | "library">("design");
+  const [zoom, setZoom] = useState(90);
+  const [selectedTool, setSelectedTool] = useState<"move" | "text" | "draw" | "color" | null>(null);
 
   const getDefaultTitleColor = () => {
     if (templateTitleColor) return templateTitleColor;
@@ -146,18 +155,46 @@ const Editor = () => {
     return isLightBackground(backgroundType, selectedGradient, selectedSolidColor) ? "#1F2937" : "#E5E7EB";
   };
 
+  const getDefaultAuthorColor = () => {
+    if (templateAuthorColor) return templateAuthorColor;
+    return isLightBackground(backgroundType, selectedGradient, selectedSolidColor) ? "#4B5563" : "#9CA3AF";
+  };
+
   const [titleColor, setTitleColor] = useState(getDefaultTitleColor());
   const [subtitleColor, setSubtitleColor] = useState(getDefaultSubtitleColor());
-  
+  const [authorColor, setAuthorColor] = useState(getDefaultAuthorColor());
+
   const canvasRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const dragRef = useRef<{
     id: string;
     offsetX: number;
     offsetY: number;
   } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  // Handle keyboard zoom shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === "+" || e.key === "=") {
+          e.preventDefault();
+          setZoom(prev => Math.min(prev + 10, 200));
+        } else if (e.key === "-") {
+          e.preventDefault();
+          setZoom(prev => Math.max(prev - 10, 50));
+        } else if (e.key === "0") {
+          e.preventDefault();
+          setZoom(90);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // Load template data from URL parameters
   useEffect(() => {
@@ -289,37 +326,36 @@ const Editor = () => {
   }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const src = event.target?.result as string;
-        
-        // Smart default positioning for uploaded images
-        // Place at centered position with default size
-        const newImage: CanvasImage = {
-          id: `img-${Date.now()}-${Math.random()}`,
-          src,
-          x: 175,      // Centered horizontally on canvas (900px width)
-          y: 140,      // Centered vertically on canvas (630px height)
-          width: 550,  // Default width
-          height: 350, // Default height
-          borderRadius: 0,
-          borderWidth: 0,
-          borderColor: "#000000",
-          rotation: 0,
-          shadowBlur: 0,
-          shadowSpread: 0,
-          shadowColor: "#000000",
-          shadowOpacity: 0,
-        };
-        setImages([...images, newImage]);
-        setSelectedImage(newImage.id);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const src = event.target?.result as string;
+      
+      // Smart default positioning for uploaded images
+      // Place at centered position with default size
+      const newImage: CanvasImage = {
+        id: `img-${Date.now()}-${Math.random()}`,
+        src,
+        x: 175,      // Centered horizontally on canvas (900px width)
+        y: 140,      // Centered vertically on canvas (630px height)
+        width: 550,  // Default width
+        height: 350, // Default height
+        borderRadius: 0,
+        borderWidth: 0,
+        borderColor: "#000000",
+        rotation: 0,
+        shadowBlur: 0,
+        shadowSpread: 0,
+        shadowColor: "#000000",
+        shadowOpacity: 0,
       };
-      reader.readAsDataURL(file);
-    });
+      // Replace the image instead of adding multiple
+      setImages([newImage]);
+      setSelectedImage(newImage.id);
+    };
+    reader.readAsDataURL(file);
 
     // Reset input
     if (fileInputRef.current) {
@@ -360,6 +396,27 @@ const Editor = () => {
     if (logoInputRef.current) {
       logoInputRef.current.value = "";
     }
+  };
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const src = event.target?.result as string;
+      setAvatar(src);
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input
+    if (avatarInputRef.current) {
+      avatarInputRef.current.value = "";
+    }
+  };
+
+  const deleteAvatar = () => {
+    setAvatar(null);
   };
 
   const deleteLogo = () => {
@@ -504,6 +561,37 @@ const Editor = () => {
     setShowExportDialog(true);
   };
 
+  const handleShare = async () => {
+  const shareParams = new URLSearchParams({
+    title,
+    subtitle,
+    gradient: gradients[selectedGradient] || "",
+    hasAuthor: showAuthor.toString(),
+  });
+
+  const shareUrl = `${window.location.origin}${window.location.pathname}?${shareParams.toString()}`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: "OG Image Design", url: shareUrl });
+    } catch (error) {
+      // User dismissed the share sheet — silently ignore
+      if ((error as Error).name !== "AbortError") {
+        console.error("Share failed:", error);
+      }
+    }
+    return;
+  }
+
+  // Fallback: desktop browsers don't support navigator.share
+  try {
+    await navigator.clipboard.writeText(shareUrl);
+    toast.success("Link copied to clipboard!");
+  } catch {
+    toast.error("Failed to copy link. Please try again.");
+  }
+};
+
   const performExport = async () => {
   if (!canvasRef.current) return;
 
@@ -570,7 +658,7 @@ const Editor = () => {
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Top Bar */}
-      <header className="h-14 border-b border-border bg-card/80 backdrop-blur-xl flex items-center justify-between px-4 shrink-0">
+      <header className="h-14 border-b border-border bg-card/80 backdrop-blur-xl flex items-center justify-between px-6 shrink-0">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" asChild>
             <Link to="/dashboard"><ArrowLeft className="h-4 w-4" /></Link>
@@ -579,21 +667,49 @@ const Editor = () => {
             <Hexagon className="h-5 w-5 text-primary" />
             <span className="font-semibold text-foreground text-sm">OG Studio</span>
           </div>
+          {/* Zoom Controls */}
+          <div className="flex items-center gap-2 ml-6 pl-4 border-l border-border/50">
+            <button
+              onClick={() => setZoom(prev => Math.max(prev - 10, 50))}
+              className="p-1.5 hover:bg-accent rounded transition-colors text-muted-foreground hover:text-foreground"
+              title="Zoom out (Ctrl -)"
+            >
+              −
+            </button>
+            <span className="text-xs font-medium text-muted-foreground min-w-10 text-center">{zoom}%</span>
+            <button
+              onClick={() => setZoom(prev => Math.min(prev + 10, 200))}
+              className="p-1.5 hover:bg-accent rounded transition-colors text-muted-foreground hover:text-foreground"
+              title="Zoom in (Ctrl +)"
+            >
+              +
+            </button>
+            <button
+              onClick={() => setZoom(90)}
+              className="px-2 py-1 text-xs hover:bg-accent rounded transition-colors text-muted-foreground hover:text-foreground"
+              title="Reset zoom (Ctrl 0)"
+            >
+              Reset
+            </button>
+          </div>
         </div>
-        <div className="font-semibold text-foreground text-sm ">Open Graph Design</div>
+        <div className="flex items-center gap-2 flex-1 justify-center">
+          <span className="font-semibold text-foreground text-sm">Open Graph Design</span>
+          <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-semibold">Pro</span>
+        </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" onClick={handleShare}>
             <Share2 className="h-4 w-4 mr-1" /> Share
           </Button> 
           <Button variant="hero" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-1" /> Export {exportFormat.toUpperCase()}
+            <Download className="h-4 w-4 mr-1" /> Export PNG
           </Button>
         </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden h-full">
         {/* Left Panel */}
-        <div className={`border-r border-border bg-card shrink-0 transition-all duration-200 ${leftOpen ? "w-72" : "w-0"} overflow-hidden h-full`}>
+        <div className="border-r border-border bg-card shrink-0 w-72 h-full overflow-hidden">
           <div 
             className="p-4 space-y-6 w-72 overflow-y-auto no-scrollbar h-full"
             style={{
@@ -602,9 +718,10 @@ const Editor = () => {
             } as React.CSSProperties}
           >
             <style>{`.no-scrollbar::-webkit-scrollbar { display: none; }`}</style>
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <Type className="h-4 w-4" /> Content
+            <div className="pb-4 border-b border-border/30">
+              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                <span className="inline-flex items-center justify-center w-5 h-5 bg-primary text-primary-foreground rounded text-[10px] font-bold">T</span>
+                Content
               </h3>
             </div>
             <div className="space-y-4">
@@ -629,7 +746,7 @@ const Editor = () => {
                 </div>
                 <Input value={subtitle} onChange={(e) => setSubtitle(e.target.value)} className="mt-1 bg-background border-border" />
               </div>
-             { showAuthor && ( <div>
+              <div>
                 <div className="flex items-center justify-between mb-1">
                   <Label className="text-xs text-muted-foreground">Author</Label>
                   <button
@@ -645,9 +762,66 @@ const Editor = () => {
                   </button>
                 </div>
                 <Input value={author} onChange={(e) => setAuthor(e.target.value)} className="mt-1 bg-background border-border" />
-              </div>)
-
-             }
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="text-xs text-muted-foreground">Avatar</Label>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setShowAvatar(!showAvatar)}
+                      className={`p-1 rounded transition-all ${
+                        showAvatar
+                          ? "bg-primary/20 text-primary hover:bg-primary/30"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                      title={showAvatar ? "Hide avatar" : "Show avatar"}
+                    >
+                      {showAvatar ? <Eye size={16} /> : <EyeOff size={16} />}
+                    </button>
+                    {avatar && (
+                      <button
+                        onClick={deleteAvatar}
+                        className="p-1 rounded transition-all bg-destructive/20 text-destructive hover:bg-destructive/30"
+                        title="Delete avatar"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                />
+                {avatar ? (
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={avatar} />
+                      <AvatarFallback>AU</AvatarFallback>
+                    </Avatar>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => avatarInputRef.current?.click()}
+                      className="text-xs"
+                    >
+                      Change
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => avatarInputRef.current?.click()}
+                    className="w-full text-xs"
+                  >
+                    Upload Avatar
+                  </Button>
+                )}
+              </div>
             </div>
 
             <Separator className="bg-border" />
@@ -707,77 +881,75 @@ const Editor = () => {
             {/* Image Upload Section */}
             <div>
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-3">
-                <ImageIcon className="h-4 w-4" /> Images
+                <ImageIcon className="h-4 w-4" /> Image
               </h3>
               <input
                 ref={fileInputRef}
                 type="file"
-                multiple
                 accept="image/*"
                 onChange={handleImageUpload}
                 className="hidden"
               />
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full text-xs mb-3"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                + Add Image
-              </Button>
-
-              {/* Images List */}
-              {images.length > 0 && (
-                <div className="space-y-2 max-h-32 overflow-y-auto">
-                  {images.map((img) => (
-                    <div
-                      key={img.id}
-                      className={`flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer ${
-                        selectedImage === img.id
-                          ? "border-primary bg-primary/10"
-                          : "border-border hover:border-muted-foreground"
-                      }`}
-                      onClick={() => setSelectedImage(img.id)}
-                    >
-                      <img
-                        src={img.src}
-                        alt="canvas"
-                        className="w-6 h-6 rounded object-cover"
-                      />
-                      <span className="text-xs text-muted-foreground flex-1 truncate">
-                        Image
-                      </span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteImage(img.id);
-                        }}
-                        className="p-0.5 hover:bg-destructive/20 rounded transition-colors"
-                      >
-                        <Trash2 className="h-3 w-3 text-destructive" />
-                      </button>
-                    </div>
-                  ))}
+              
+              {images.length === 0 ? (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-border bg-background/50 rounded-lg p-6 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all"
+                >
+                  <div className="flex items-center justify-center w-8 h-8 rounded bg-primary/20 text-primary">
+                    <ImageIcon className="h-4 w-4" />
+                  </div>
+                  <span className="text-sm font-medium text-foreground">Add Image</span>
+                  <span className="text-xs text-muted-foreground">PNG, JPG or WEBP (Max. 5MB)</span>
                 </div>
+              ) : (
+                <div className="bg-background rounded-lg p-3 border border-border flex items-center justify-between">
+                  <img src={images[0].src} alt="image" className="h-12 w-12 object-cover rounded" />
+                  <div className="flex-1 ml-3">
+                    <p className="text-xs font-medium text-foreground">Image uploaded</p>
+                    <p className="text-xs text-muted-foreground">Click to replace</p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteImage(images[0].id);
+                    }}
+                    className="p-1 hover:bg-destructive/20 rounded transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </button>
+                </div>
+              )}
+              
+              {images.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-xs mt-3"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  Change Image
+                </Button>
               )}
             </div>
           </div>
         </div>
 
-        {/* Left toggle */}
-        <button
-          onClick={() => setLeftOpen(!leftOpen)}
-          className="w-5 shrink-0 flex items-center justify-center border-r border-border bg-card hover:bg-accent transition-colors"
-        >
-          {leftOpen ? <ChevronLeft className="h-3 w-3 text-muted-foreground" /> : <ChevronRight className="h-3 w-3 text-muted-foreground" />}
-        </button>
+
 
         {/* Canvas */}
-        <div className="flex-1 flex items-center justify-center dot-grid overflow-auto p-8 h-full">
-          <div
-            ref={canvasRef}
-            className={`w-full max-w-[900px] aspect-[1200/630] shadow-2xl relative overflow-hidden flex items-center justify-center`}
-            style={{
+        <div className="flex-1 flex flex-col items-center justify-center dot-grid overflow-hidden h-full min-w-0 relative">
+          {/* Canvas Wrapper with Zoom */}
+          <div className="flex-1 flex items-center justify-center overflow-auto w-full p-8">
+            <div
+              ref={canvasRef}
+              className={`flex-shrink-0 shadow-2xl relative overflow-hidden flex items-center justify-center`}
+              style={{
+                width: "900px",
+                aspectRatio: "1200 / 630",
+                transform: `scale(${zoom / 100})`,
+                transformOrigin: "center",
+                transition: "transform 0.2s ease-out",
               fontFamily: fontOptions[selectedFont],
               ...(backgroundType === "gradient"
                 ? {
@@ -807,13 +979,13 @@ const Editor = () => {
                   top: `${(img.y / 630) * 100}%`,
                   width: `${(img.width / 900) * 100}%`,
                   height: `${(img.height / 630) * 100}%`,
-                  cursor: isDragging ? "grabbing" : "grab",
+                  cursor: selectedTool === "move" ? "move" : "auto",
                   transform: `rotate(${img.rotation || 0}deg)`,
                   touchAction: "none",
                 }}
                 onClick={() => setSelectedImage(img.id)}
                 onMouseDown={(e) => {
-                  if (!canvasRef.current) return;
+                  if (!canvasRef.current || selectedTool !== "move") return;
                   e.preventDefault();
                   e.stopPropagation();
                   setSelectedImage(img.id);
@@ -920,48 +1092,181 @@ const Editor = () => {
                   wordWrap: "break-word",
                   overflow: "hidden",
                 }}>
+                  {showAvatar && (avatar ? (
+                    <img
+                      src={avatar}
+                      alt="author avatar"
+                      style={{
+                        width: "24px",
+                        height: "24px",
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    <CircleUserRound
+                      size={24}
+                      strokeWidth={1}
+                      style={{ color: authorColor, flexShrink: 0 }}
+                    />
+                  ))}
                   <span
                     className="text-sm"
-                    style={{ color: subtitleColor }}
+                    style={{ color: authorColor }}
                   >
                     {author}
                   </span>
                 </div>
               )}
             </div>
+            </div>
           </div>
+
+          {/* Bottom Toolbar */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center justify-center gap-4 py-3 px-8 bg-card/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <div className="relative group">
+              <button 
+                onClick={() => setSelectedTool(selectedTool === "move" ? null : "move")}
+                className={`p-2 rounded-lg transition-all cursor-pointer ${
+                  selectedTool === "move"
+                    ? "bg-primary/20 text-primary"
+                    : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                } active:bg-primary/30`}
+                title="Move Tool"
+              >
+                <Move className="w-5 h-5" />
+              </button>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <div className="bg-foreground text-background text-xs rounded px-2 py-1 whitespace-nowrap">Move Tool</div>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-foreground"></div>
+              </div>
+            </div>
+            
+            <div className="w-px h-6 bg-border" />
+            
+            <div className="relative group">
+              <button 
+                onClick={() => setSelectedTool(selectedTool === "text" ? null : "text")}
+                className={`p-2 rounded-lg transition-all cursor-pointer ${
+                  selectedTool === "text"
+                    ? "bg-primary/20 text-primary"
+                    : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                } active:bg-primary/30`}
+                title="Text Tool"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 13.125C3 12.504 3.504 12 4.125 12h15.75c.621 0 1.125.504 1.125 1.125v6.75C21 20.496 20.496 21 19.875 21H4.125A1.125 1.125 0 013 19.875v-6.75z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7.5h18M5 5.25h2m2 0h2m2 0h2m2 0h2" />
+                </svg>
+              </button>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <div className="bg-foreground text-background text-xs rounded px-2 py-1 whitespace-nowrap">Text Tool</div>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-foreground"></div>
+              </div>
+            </div>
+            
+            <div className="relative group">
+              <button 
+                onClick={() => setSelectedTool(selectedTool === "draw" ? null : "draw")}
+                className={`p-2 rounded-lg transition-all cursor-pointer ${
+                  selectedTool === "draw"
+                    ? "bg-primary/20 text-primary"
+                    : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                } active:bg-primary/30`}
+                title="Draw Tool"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </button>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <div className="bg-foreground text-background text-xs rounded px-2 py-1 whitespace-nowrap">Draw Tool</div>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-foreground"></div>
+              </div>
+            </div>
+
+            <div className="relative group">
+              <button 
+                onClick={() => setSelectedTool(selectedTool === "color" ? null : "color")}
+                className={`p-2 rounded-lg transition-all cursor-pointer ${
+                  selectedTool === "color"
+                    ? "bg-primary/20 text-primary"
+                    : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                } active:bg-primary/30`}
+                title="Color Picker"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="9" strokeWidth={2} />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 7v5m0 0v5" />
+                </svg>
+              </button>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <div className="bg-foreground text-background text-xs rounded px-2 py-1 whitespace-nowrap">Color Picker</div>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-foreground"></div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        {/* Right toggle */}
-        <button
-          onClick={() => setRightOpen(!rightOpen)}
-          className="w-5 shrink-0 flex items-center justify-center border-l border-border bg-card hover:bg-accent transition-colors"
-        >
-          {rightOpen ? <ChevronRight className="h-3 w-3 text-muted-foreground" /> : <ChevronLeft className="h-3 w-3 text-muted-foreground" />}
-        </button>
+
 
         {/* Right Panel */}
-        <div className={`border-l border-border bg-card shrink-0 transition-all duration-200 ${rightOpen ? "w-80" : "w-0"} overflow-hidden h-full`}>
+        <div className="border-l border-border bg-card shrink-0 w-80 h-full flex flex-col overflow-hidden">
+          {/* Tabs */}
+          <div className="flex border-b border-border bg-background/30">
+            <button
+              onClick={() => setRightTab("design")}
+              className={`flex-1 py-3 px-4 text-xs font-medium border-b-2 transition-all ${
+                rightTab === "design"
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              DESIGN
+            </button>
+            <button
+              onClick={() => setRightTab("templates")}
+              className={`flex-1 py-3 px-4 text-xs font-medium border-b-2 transition-all ${
+                rightTab === "templates"
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              TEMPLATES
+            </button>
+            <button
+              onClick={() => setRightTab("library")}
+              className={`flex-1 py-3 px-4 text-xs font-medium border-b-2 transition-all ${
+                rightTab === "library"
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              LIBRARY
+            </button>
+          </div>
+
+          {/* Tab Content */}
           <div 
-            className="p-4 space-y-6 w-80 overflow-y-auto no-scrollbar h-full"
-            style={{
-              scrollbarWidth: "none",
-              msOverflowStyle: "none",
-            } as React.CSSProperties}
+            className="flex-1 p-4 space-y-6 w-80 overflow-y-auto"
           >
-            <style>{`.no-scrollbar::-webkit-scrollbar { display: none; }`}</style>
-            {/* Style / Colors - At Top */}
+
+            {/* DESIGN Tab */}
+            {rightTab === "design" && (
             <div>
-              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-3">
-                <Palette className="h-4 w-4" /> Style
-              </h3>
+              {/* Style / Colors - At Top */}
+              <div>
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-3">
+                  <Palette className="h-4 w-4" /> Background
+                </h3>
 
               {/* Background Type Toggle */}
               <Label className="text-xs text-muted-foreground mb-2 block">Background</Label>
               <div className="flex gap-2 mb-3">
                 <button
                   onClick={() => setBackgroundType("gradient")}
-                  className={`flex-1 py-1.5 px-2 text-xs rounded-lg border transition-all duration-150 ${
+                  className={`flex-1 py-1.5 px-2 text-xs rounded-sm border transition-all duration-150 ${
                     backgroundType === "gradient"
                       ? "border-primary bg-primary/10 text-foreground font-medium"
                       : "border-border text-muted-foreground hover:border-muted-foreground"
@@ -971,7 +1276,7 @@ const Editor = () => {
                 </button>
                 <button
                   onClick={() => setBackgroundType("solid")}
-                  className={`flex-1 py-1.5 px-2 text-xs rounded-lg border transition-all duration-150 ${
+                  className={`flex-1 py-1.5 px-2 text-xs rounded-sm border transition-all duration-150 ${
                     backgroundType === "solid"
                       ? "border-primary bg-primary/10 text-foreground font-medium"
                       : "border-border text-muted-foreground hover:border-muted-foreground"
@@ -1045,25 +1350,10 @@ const Editor = () => {
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-3">
                   <Type className="h-4 w-4" /> Text Colors
                 </h3>
-                <div className="space-y-3">
-                  <div>
-                    <Label className="text-xs text-muted-foreground mb-1 block">Title Color</Label>
-                    <Input
-                      type="color"
-                      value={titleColor}
-                      onChange={(e) => setTitleColor(e.target.value)}
-                      className="mt-1 bg-card border-border text-xs h-9"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-muted-foreground mb-1 block">Subtitle / Author Color</Label>
-                    <Input
-                      type="color"
-                      value={subtitleColor}
-                      onChange={(e) => setSubtitleColor(e.target.value)}
-                      className="mt-1 bg-card border-border text-xs h-9"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <ColorRow label="Title Color" value={titleColor} onChange={setTitleColor} />
+                  <ColorRow label="Subtitle Color" value={subtitleColor} onChange={setSubtitleColor} />
+                  <ColorRow label="Author Color" value={authorColor} onChange={setAuthorColor} />
                 </div>
               </div>
             </div>
@@ -1589,6 +1879,22 @@ const Editor = () => {
             </div>
 
             <Separator className="bg-border" />
+          </div>
+            )}
+
+            {/* TEMPLATES Tab */}
+            {rightTab === "templates" && (
+              <div className="text-center py-8 text-muted-foreground">
+                <p className="text-sm">Templates coming soon...</p>
+              </div>
+            )}
+
+            {/* LIBRARY Tab */}
+            {rightTab === "library" && (
+              <div className="text-center py-8 text-muted-foreground">
+                <p className="text-sm">Library coming soon...</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

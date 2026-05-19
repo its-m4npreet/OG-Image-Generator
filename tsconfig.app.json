@@ -33,6 +33,6 @@
     "src",
     "app",
     "lib",
-    "middleware.ts"
+    "proxy.ts"
   ]
 }

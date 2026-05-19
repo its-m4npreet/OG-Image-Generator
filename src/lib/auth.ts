@@ -31,6 +31,9 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID ?? "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
       allowDangerousEmailAccountLinking: true,
+      httpOptions: {
+        timeout: 15000,
+      },
       async profile(profile) {
         console.log("📧 Google profile received:", { 
           id: profile.sub, 
@@ -104,6 +107,7 @@ export const authOptions: NextAuthOptions = {
           const sessionUser = session.user as SessionUser;
           sessionUser.id = token.sub;
           sessionUser.role = token.role as string;
+          sessionUser.image = token.picture as string;
         }
         return session;
       } catch (error) {

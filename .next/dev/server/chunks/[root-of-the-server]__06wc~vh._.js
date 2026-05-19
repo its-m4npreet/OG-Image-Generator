@@ -169,6 +169,9 @@ const authOptions = {
             clientId: process.env.GOOGLE_CLIENT_ID ?? "",
             clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
             allowDangerousEmailAccountLinking: true,
+            httpOptions: {
+                timeout: 15000
+            },
             async profile (profile) {
                 console.log("📧 Google profile received:", {
                     id: profile.sub,
@@ -234,6 +237,7 @@ const authOptions = {
                     const sessionUser = session.user;
                     sessionUser.id = token.sub;
                     sessionUser.role = token.role;
+                    sessionUser.image = token.picture;
                 }
                 return session;
             } catch (error) {
