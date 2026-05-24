@@ -18,7 +18,7 @@ import { Link } from "react-router-dom";
 import {
   Hexagon, Download, Share2, ArrowLeft, Type, Palette,
   ChevronLeft, ChevronRight, ChevronDown, Wand2, Link2, Image as ImageIcon, Trash2,
-  Eye, EyeOff, CircleUserRound, Move,
+  Eye,   EyeOff, CircleUserRound,
 } from "lucide-react";
 import { toPng, toJpeg } from "html-to-image";
 import {
@@ -47,6 +47,21 @@ interface CanvasImage {
   shadowSpread?: number; // 0-50 for shadow spread
   shadowColor?: string; // shadow color hex
   shadowOpacity?: number; // 0-100 for shadow opacity
+}
+
+type ShapeType = "rectangle" | "circle" | "line" | "arrow" | "triangle";
+
+interface CanvasShape {
+  id: string;
+  type: ShapeType;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  color: string;
+  strokeWidth: number;
+  rotation: number;
+  opacity: number;
 }
 
 interface ContentPosition {
@@ -127,6 +142,10 @@ const Editor = () => {
   const [logoControlsOpen, setLogoControlsOpen] = useState(false);
   const [images, setImages] = useState<CanvasImage[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [shapes, setShapes] = useState<CanvasShape[]>([]);
+  const [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
+  const [shapeColor, setShapeColor] = useState("#000000");
+
   const [logo, setLogo] = useState<string | null>(null);
   const [exportFormat, setExportFormat] = useState<"png" | "jpg" | "webp">("png");
   const [exportSize, setExportSize] = useState<"800x420" | "1200x630" | "1920x1008">("1200x630");
@@ -143,7 +162,7 @@ const Editor = () => {
   const [contentPosition, setContentPosition] = useState<ContentPosition | null>(null);
   const [rightTab, setRightTab] = useState<"design" | "templates" | "library">("design");
   const [zoom, setZoom] = useState(90);
-  const [selectedTool, setSelectedTool] = useState<"move" | "text" | "draw" | "color" | null>(null);
+  const [selectedTool, setSelectedTool] = useState<"move" | "text" | "color" | ShapeType | null>(null);
 
   const getDefaultTitleColor = () => {
     if (templateTitleColor) return templateTitleColor;
@@ -325,6 +344,7 @@ const Editor = () => {
     };
   }, []);
 
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -378,6 +398,31 @@ const Editor = () => {
         
         return updated;
       })
+    );
+  };
+
+  const addShape = (type: ShapeType, x: number, y: number) => {
+    const baseSize = type === "line" ? 180 : 100;
+    const newShape: CanvasShape = {
+      id: `shape-${Date.now()}-${Math.random()}`,
+      type,
+      x,
+      y,
+      width: baseSize,
+      height: type === "line" ? 3 : baseSize,
+      color: shapeColor,
+      strokeWidth: type === "line" ? 3 : 2,
+      rotation: 0,
+      opacity: 100,
+    };
+    setShapes(prev => [...prev, newShape]);
+    setSelectedShapeId(newShape.id);
+    setSelectedImage(null);
+  };
+
+  const updateShape = (id: string, updates: Partial<CanvasShape>) => {
+    setShapes(prev =>
+      prev.map(s => (s.id === id ? { ...s, ...updates } : s))
     );
   };
 
@@ -944,6 +989,18 @@ const Editor = () => {
             <div
               ref={canvasRef}
               className={`flex-shrink-0 shadow-2xl relative overflow-hidden flex items-center justify-center`}
+              onClick={(e) => {
+                if (e.target !== e.currentTarget) return;
+                if (!selectedTool || selectedTool === "move" || selectedTool === "color" || selectedTool === "text") return;
+                const rect = canvasRef.current?.getBoundingClientRect();
+                if (!rect) return;
+                const scaleX = 900 / rect.width;
+                const scaleY = 630 / rect.height;
+                const x = (e.clientX - rect.left) * scaleX;
+                const y = (e.clientY - rect.top) * scaleY;
+                const baseSize = selectedTool === "line" ? 180 : 100;
+                addShape(selectedTool as ShapeType, x - baseSize / 2, y - baseSize / 2);
+              }}
               style={{
                 width: "900px",
                 aspectRatio: "1200 / 630",
@@ -979,13 +1036,13 @@ const Editor = () => {
                   top: `${(img.y / 630) * 100}%`,
                   width: `${(img.width / 900) * 100}%`,
                   height: `${(img.height / 630) * 100}%`,
-                  cursor: selectedTool === "move" ? "move" : "auto",
+                  cursor: "move",
                   transform: `rotate(${img.rotation || 0}deg)`,
                   touchAction: "none",
                 }}
                 onClick={() => setSelectedImage(img.id)}
                 onMouseDown={(e) => {
-                  if (!canvasRef.current || selectedTool !== "move") return;
+                  if (!canvasRef.current) return;
                   e.preventDefault();
                   e.stopPropagation();
                   setSelectedImage(img.id);
@@ -1119,91 +1176,100 @@ const Editor = () => {
                 </div>
               )}
             </div>
-            </div>
-          </div>
 
-          {/* Bottom Toolbar */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center justify-center gap-4 py-3 px-8 bg-card/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-            <div className="relative group">
-              <button 
-                onClick={() => setSelectedTool(selectedTool === "move" ? null : "move")}
-                className={`p-2 rounded-lg transition-all cursor-pointer ${
-                  selectedTool === "move"
-                    ? "bg-primary/20 text-primary"
-                    : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
-                } active:bg-primary/30`}
-                title="Move Tool"
-              >
-                <Move className="w-5 h-5" />
-              </button>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <div className="bg-foreground text-background text-xs rounded px-2 py-1 whitespace-nowrap">Move Tool</div>
-                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-foreground"></div>
-              </div>
-            </div>
-            
-            <div className="w-px h-6 bg-border" />
-            
-            <div className="relative group">
-              <button 
-                onClick={() => setSelectedTool(selectedTool === "text" ? null : "text")}
-                className={`p-2 rounded-lg transition-all cursor-pointer ${
-                  selectedTool === "text"
-                    ? "bg-primary/20 text-primary"
-                    : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
-                } active:bg-primary/30`}
-                title="Text Tool"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 13.125C3 12.504 3.504 12 4.125 12h15.75c.621 0 1.125.504 1.125 1.125v6.75C21 20.496 20.496 21 19.875 21H4.125A1.125 1.125 0 013 19.875v-6.75z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7.5h18M5 5.25h2m2 0h2m2 0h2m2 0h2" />
-                </svg>
-              </button>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <div className="bg-foreground text-background text-xs rounded px-2 py-1 whitespace-nowrap">Text Tool</div>
-                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-foreground"></div>
-              </div>
-            </div>
-            
-            <div className="relative group">
-              <button 
-                onClick={() => setSelectedTool(selectedTool === "draw" ? null : "draw")}
-                className={`p-2 rounded-lg transition-all cursor-pointer ${
-                  selectedTool === "draw"
-                    ? "bg-primary/20 text-primary"
-                    : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
-                } active:bg-primary/30`}
-                title="Draw Tool"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-              </button>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <div className="bg-foreground text-background text-xs rounded px-2 py-1 whitespace-nowrap">Draw Tool</div>
-                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-foreground"></div>
-              </div>
-            </div>
-
-            <div className="relative group">
-              <button 
-                onClick={() => setSelectedTool(selectedTool === "color" ? null : "color")}
-                className={`p-2 rounded-lg transition-all cursor-pointer ${
-                  selectedTool === "color"
-                    ? "bg-primary/20 text-primary"
-                    : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
-                } active:bg-primary/30`}
-                title="Color Picker"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="9" strokeWidth={2} />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 7v5m0 0v5" />
-                </svg>
-              </button>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <div className="bg-foreground text-background text-xs rounded px-2 py-1 whitespace-nowrap">Color Picker</div>
-                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-foreground"></div>
-              </div>
+            {/* Shapes */}
+            <svg
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              style={{ zIndex: 5 }}
+            >
+              {shapes.map((shape) => {
+                const isSelected = selectedShapeId === shape.id;
+                const halfW = shape.width / 2;
+                const halfH = shape.height / 2;
+                const cx = shape.x + halfW;
+                const cy = shape.y + halfH;
+                return (
+                  <g
+                    key={shape.id}
+                    className="pointer-events-auto"
+                    style={{ cursor: "pointer" }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedShapeId(shape.id);
+                      setSelectedImage(null);
+                    }}
+                  >
+                    {shape.type === "rectangle" && (
+                      <rect
+                        x={shape.x}
+                        y={shape.y}
+                        width={shape.width}
+                        height={shape.height}
+                        fill={shape.color}
+                        fillOpacity={shape.opacity / 100}
+                        stroke={isSelected ? "#3b82f6" : shape.color}
+                        strokeWidth={isSelected ? 2 : shape.strokeWidth}
+                        strokeOpacity={shape.opacity / 100}
+                        rx={2}
+                      />
+                    )}
+                    {shape.type === "circle" && (
+                      <circle
+                        cx={cx}
+                        cy={cy}
+                        r={Math.min(shape.width, shape.height) / 2}
+                        fill={shape.color}
+                        fillOpacity={shape.opacity / 100}
+                        stroke={isSelected ? "#3b82f6" : shape.color}
+                        strokeWidth={isSelected ? 2 : shape.strokeWidth}
+                        strokeOpacity={shape.opacity / 100}
+                      />
+                    )}
+                    {shape.type === "line" && (
+                      <line
+                        x1={shape.x}
+                        y1={cy}
+                        x2={shape.x + shape.width}
+                        y2={cy}
+                        stroke={shape.color}
+                        strokeOpacity={shape.opacity / 100}
+                        strokeWidth={shape.strokeWidth}
+                        strokeLinecap="round"
+                      />
+                    )}
+                    {shape.type === "arrow" && (
+                      <>
+                        <line
+                          x1={shape.x}
+                          y1={cy}
+                          x2={shape.x + shape.width}
+                          y2={cy}
+                          stroke={shape.color}
+                          strokeOpacity={shape.opacity / 100}
+                          strokeWidth={shape.strokeWidth}
+                          strokeLinecap="round"
+                        />
+                        <polygon
+                          points={`${shape.x + shape.width},${cy} ${shape.x + shape.width - 14},${cy - 7} ${shape.x + shape.width - 14},${cy + 7}`}
+                          fill={shape.color}
+                          fillOpacity={shape.opacity / 100}
+                        />
+                      </>
+                    )}
+                    {shape.type === "triangle" && (
+                      <polygon
+                        points={`${cx},${shape.y} ${shape.x + shape.width},${shape.y + shape.height} ${shape.x},${shape.y + shape.height}`}
+                        fill={shape.color}
+                        fillOpacity={shape.opacity / 100}
+                        stroke={isSelected ? "#3b82f6" : shape.color}
+                        strokeWidth={isSelected ? 2 : shape.strokeWidth}
+                        strokeOpacity={shape.opacity / 100}
+                      />
+                    )}
+                  </g>
+                );
+              })}
+            </svg>
             </div>
           </div>
 
@@ -1838,6 +1904,100 @@ const Editor = () => {
                 </div>
               </div>
             </div>
+
+            {/* Shape Properties */}
+            {selectedShapeId && (() => {
+              const shape = shapes.find(s => s.id === selectedShapeId);
+              if (!shape) return null;
+              return (
+                <>
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                        <Hexagon className="h-4 w-4" /> {shape.type.charAt(0).toUpperCase() + shape.type.slice(1)}
+                      </h3>
+                      <button
+                        onClick={() => {
+                          setShapes(prev => prev.filter(s => s.id !== selectedShapeId));
+                          setSelectedShapeId(null);
+                        }}
+                        className="p-1 hover:bg-destructive/20 rounded transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </button>
+                    </div>
+                    <div className="bg-background rounded-lg p-3 border border-border space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-xs text-muted-foreground">X</Label>
+                          <Input
+                            type="number"
+                            value={Math.round(shape.x)}
+                            onChange={(e) => updateShape(shape.id, { x: Number(e.target.value) || 0 })}
+                            className="mt-1 bg-card border-border text-xs"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Y</Label>
+                          <Input
+                            type="number"
+                            value={Math.round(shape.y)}
+                            onChange={(e) => updateShape(shape.id, { y: Number(e.target.value) || 0 })}
+                            className="mt-1 bg-card border-border text-xs"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Width</Label>
+                          <Input
+                            type="number"
+                            value={Math.round(shape.width)}
+                            onChange={(e) => updateShape(shape.id, { width: Math.max(10, Number(e.target.value) || 10) })}
+                            className="mt-1 bg-card border-border text-xs"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Height</Label>
+                          <Input
+                            type="number"
+                            value={Math.round(shape.height)}
+                            onChange={(e) => updateShape(shape.id, { height: Math.max(10, Number(e.target.value) || 10) })}
+                            className="mt-1 bg-card border-border text-xs"
+                          />
+                        </div>
+                      </div>
+                      <ColorRow label="Color" value={shape.color} onChange={(color) => updateShape(shape.id, { color })} />
+                      {shape.type !== "line" && (
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Border Width</Label>
+                          <Input
+                            type="number"
+                            min={0}
+                            max={20}
+                            value={shape.strokeWidth}
+                            onChange={(e) => updateShape(shape.id, { strokeWidth: Math.max(0, Number(e.target.value) || 0) })}
+                            className="mt-1 bg-card border-border text-xs"
+                          />
+                        </div>
+                      )}
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Opacity</Label>
+                        <div className="flex items-center gap-3 mt-2">
+                          <input
+                            type="range"
+                            min={0}
+                            max={100}
+                            value={shape.opacity}
+                            onChange={(e) => updateShape(shape.id, { opacity: Number(e.target.value) })}
+                            className="flex-1 accent-primary"
+                          />
+                          <span className="text-xs text-muted-foreground w-8 text-right">{shape.opacity}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
 
             <Separator className="bg-border" />
 
