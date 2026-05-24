@@ -28,8 +28,10 @@ import {
   solidColors,
   colorHexMap,
   isLightColor,
-  getNoiseSVG,
+  getNoiseDataUrl,
   isLightBackground,
+  gradientUsesAlpha,
+  APP_BG_DARK,
 } from "@/lib/colors";
 
 interface CanvasImage {
@@ -134,6 +136,7 @@ const Editor = () => {
   const [selectedSolidColor, setSelectedSolidColor] = useState<string | null>(null);
   const [backgroundType, setBackgroundType] = useState<"gradient" | "solid">("gradient");
   const [noiseLevel, setNoiseLevel] = useState(0); // 0-100 range
+  const [noiseImageUrl, setNoiseImageUrl] = useState("");
   const [selectedFont, setSelectedFont] = useState(0);
   const [fontSize, setFontSize] = useState(templateTitleSize);
   const [leftOpen, setLeftOpen] = useState(true);
@@ -344,6 +347,23 @@ const Editor = () => {
     };
   }, []);
 
+  // Pre-render noise as a PNG so html-to-image captures it correctly
+  useEffect(() => {
+    let cancelled = false;
+    const generate = async () => {
+      if (noiseLevel === 0) {
+        setNoiseImageUrl("");
+        return;
+      }
+      const bgColor = backgroundType === "solid" && selectedSolidColor
+        ? colorHexMap[selectedSolidColor]
+        : undefined;
+      const url = await getNoiseDataUrl(noiseLevel, bgColor);
+      if (!cancelled) setNoiseImageUrl(url);
+    };
+    generate();
+    return () => { cancelled = true; };
+  }, [noiseLevel, backgroundType, selectedSolidColor]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1010,15 +1030,16 @@ const Editor = () => {
               fontFamily: fontOptions[selectedFont],
               ...(backgroundType === "gradient"
                 ? {
-                    backgroundImage: noiseLevel > 0
-                      ? `${gradientCSSMap[selectedGradient]}, ${getNoiseSVG(noiseLevel)}`
+                    backgroundColor: gradientUsesAlpha(gradientCSSMap[selectedGradient]) ? APP_BG_DARK : "transparent",
+                    backgroundImage: noiseLevel > 0 && noiseImageUrl
+                      ? `${gradientCSSMap[selectedGradient]}, url(${noiseImageUrl})`
                       : gradientCSSMap[selectedGradient],
-                    backgroundSize: noiseLevel > 0 ? "100% 100%, 100px 100px" : "100% 100%",
+                    backgroundSize: noiseLevel > 0 && noiseImageUrl ? "100% 100%, 200px 200px" : "100% 100%",
                   }
                 : {
                     backgroundColor: selectedSolidColor ? colorHexMap[selectedSolidColor] || "#ffffff" : "#ffffff",
-                    backgroundImage: getNoiseSVG(noiseLevel, selectedSolidColor ? colorHexMap[selectedSolidColor] : "#ffffff"),
-                    backgroundSize: "100px 100px",
+                    backgroundImage: noiseImageUrl ? `url(${noiseImageUrl})` : "none",
+                    backgroundSize: noiseImageUrl ? "200px 200px" : "0 0",
                   }),
               backgroundRepeat: "repeat",
               backgroundBlendMode: noiseLevel > 0 ? "overlay" : "normal",

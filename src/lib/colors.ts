@@ -1,34 +1,16 @@
 // Unified gradient mapping - Tailwind class to CSS gradient
 export const gradientMap = [
-  { tailwind: "from-primary/30 to-secondary/10", css: "linear-gradient(to bottom right, rgba(59, 130, 246, 0.3), rgba(147, 51, 234, 0.1))" },
   { tailwind: "from-primary/40 to-primary/5", css: "linear-gradient(to bottom right, rgba(59, 130, 246, 0.4), rgba(59, 130, 246, 0.05))" },
   { tailwind: "from-secondary/20 to-primary/10", css: "linear-gradient(to bottom right, rgba(147, 51, 234, 0.2), rgba(59, 130, 246, 0.1))" },
-  { tailwind: "from-primary/20 via-card to-secondary/20", css: "linear-gradient(to bottom right, rgba(59, 130, 246, 0.2), rgb(24, 24, 27), rgba(147, 51, 234, 0.2))" },
   { tailwind: "from-purple-600/30 to-blue-600/10", css: "linear-gradient(to bottom right, rgba(147, 112, 219, 0.3), rgba(37, 99, 235, 0.1))" },
-  { tailwind: "from-orange-500/20 to-pink-600/10", css: "linear-gradient(to bottom right, rgba(249, 115, 22, 0.2), rgba(233, 64, 87, 0.1))" },
-  { tailwind: "from-emerald-500/20 to-cyan-500/10", css: "linear-gradient(to bottom right, rgba(16, 185, 129, 0.2), rgba(34, 197, 94, 0.1))" },
-  { tailwind: "from-rose-500/20 to-amber-500/10", css: "linear-gradient(to bottom right, rgba(244, 63, 94, 0.2), rgba(251, 146, 60, 0.1))" },
   { tailwind: "from-blue-600/30 to-cyan-500/20", css: "linear-gradient(to bottom right, rgba(37, 99, 235, 0.3), rgba(34, 197, 94, 0.2))" },
-  { tailwind: "from-indigo-600/30 to-purple-500/20", css: "linear-gradient(to bottom right, rgba(79, 70, 229, 0.3), rgba(126, 34, 206, 0.2))" },
-  { tailwind: "from-pink-500/30 to-rose-500/20", css: "linear-gradient(to bottom right, rgba(236, 72, 153, 0.3), rgba(244, 63, 94, 0.2))" },
-  { tailwind: "from-amber-500/30 to-orange-500/20", css: "linear-gradient(to bottom right, rgba(251, 146, 60, 0.3), rgba(249, 115, 22, 0.2))" },
-  { tailwind: "from-green-500/30 to-emerald-500/20", css: "linear-gradient(to bottom right, rgba(34, 197, 94, 0.3), rgba(16, 185, 129, 0.2))" },
   { tailwind: "from-teal-500/30 to-cyan-500/20", css: "linear-gradient(to bottom right, rgba(20, 184, 166, 0.3), rgba(34, 211, 238, 0.2))" },
   { tailwind: "from-violet-600/30 to-indigo-600/20", css: "linear-gradient(to bottom right, rgba(109, 40, 217, 0.3), rgba(79, 70, 229, 0.2))" },
   { tailwind: "from-fuchsia-600/30 to-pink-500/20", css: "linear-gradient(to bottom right, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.2))" },
-  // Light gradients
-  { tailwind: "from-purple-200/40 to-pink-100/20", css: "linear-gradient(to bottom right, rgba(216, 180, 254, 0.4), rgba(251, 228, 228, 0.2))" },
-  { tailwind: "from-blue-100/40 to-cyan-100/20", css: "linear-gradient(to bottom right, rgba(219, 234, 254, 0.4), rgba(206, 250, 254, 0.2))" },
-  { tailwind: "from-yellow-100/40 to-orange-100/20", css: "linear-gradient(to bottom right, rgba(254, 243, 199, 0.4), rgba(254, 227, 198, 0.2))" },
-  { tailwind: "from-green-100/40 to-emerald-100/20", css: "linear-gradient(to bottom right, rgba(220, 252, 231, 0.4), rgba(209, 250, 229, 0.2))" },
-  // Premium modern gradients
+  
   { tailwind: "from-red-500 to-orange-400", css: "linear-gradient(to bottom right, #ef4444, #fb923c)" },
-  { tailwind: "from-orange-500 to-amber-400", css: "linear-gradient(to bottom right, #f97316, #fbbf24)" },
   { tailwind: "from-pink-500 to-rose-400", css: "linear-gradient(to bottom right, #ec4899, #f43f5e)" },
   { tailwind: "from-pink-400 to-red-300", css: "linear-gradient(to bottom right, #ec4899, #fca5a5)" },
-  { tailwind: "from-rose-400 to-pink-200", css: "linear-gradient(to bottom right, #f43f5e, #fbcfe8)" },
-  { tailwind: "from-orange-300 to-yellow-200", css: "linear-gradient(to bottom right, #fdba74, #fef08a)" },
-  { tailwind: "from-yellow-200 to-orange-100", css: "linear-gradient(to bottom right, #fbbf24, #fef3c7)" },
   { tailwind: "from-cyan-300 to-blue-100", css: "linear-gradient(to bottom right, #67e8f9, #3b82f6)" },
   { tailwind: "from-blue-500 to-purple-400", css: "linear-gradient(to bottom right, #3b82f6, #a855f7)" },
   { tailwind: "from-blue-400 to-indigo-300", css: "linear-gradient(to bottom right, #60a5fa, #818cf8)" },
@@ -39,21 +21,14 @@ export const gradientMap = [
   { tailwind: "from-green-500 to-emerald-400", css: "linear-gradient(to bottom right, #22c55e, #10b981)" },
   { tailwind: "from-green-400 to-cyan-400", css: "linear-gradient(to bottom right, #4ade80, #06b6d4)" },
   { tailwind: "from-emerald-500 to-teal-400", css: "linear-gradient(to bottom right, #10b981, #14b8a6)" },
-  { tailwind: "from-lime-500 to-green-400", css: "linear-gradient(to bottom right, #84cc16, #22c55e)" },
   { tailwind: "from-teal-500 to-cyan-300", css: "linear-gradient(to bottom right, #14b8a6, #67e8f9)" },
   { tailwind: "from-cyan-400 to-green-300", css: "linear-gradient(to bottom right, #06b6d4, #86efac)" },
   { tailwind: "from-slate-700 to-slate-500", css: "linear-gradient(to bottom right, #475569, #64748b)" },
-  { tailwind: "from-gray-700 to-gray-500", css: "linear-gradient(to bottom right, #525252, #737373)" },
-  { tailwind: "from-neutral-600 to-neutral-400", css: "linear-gradient(to bottom right, #6b7280, #9ca3af)" },
-  // Additional gradients from templates
   { tailwind: "from-red-500 to-pink-500", css: "linear-gradient(to bottom right, #ef4444, #ec4899)" },
   { tailwind: "from-purple-400 to-pink-400", css: "linear-gradient(to bottom right, #a78bfa, #f472b6)" },
-  { tailwind: "from-gray-100 to-white", css: "linear-gradient(to bottom right, #f3f4f6, #ffffff)" },
-  { tailwind: "from-green-100 to-green-50", css: "linear-gradient(to bottom right, #dcfce7, #f0fdf4)" },
   
   // New Premium Gradients (Blog)
   { tailwind: "from-[#0F172A] via-[#111827] to-[#1E293B]", css: "linear-gradient(to bottom right, #0F172A, #111827, #1E293B)" },
-  { tailwind: "from-[#7C2D12] via-[#EA580C] to-[#FB923C]", css: "linear-gradient(to bottom right, #7C2D12, #EA580C, #FB923C)" },
   { tailwind: "from-[#172554] via-[#1E3A8A] to-[#2563EB]", css: "linear-gradient(to bottom right, #172554, #1E3A8A, #2563EB)" },
   { tailwind: "from-[#020617] via-[#111827] to-[#334155]", css: "linear-gradient(to bottom right, #020617, #111827, #334155)" },
   
@@ -68,11 +43,9 @@ export const gradientMap = [
   
   // New Premium Gradients (Product Launch)
   { tailwind: "from-[#2E1065] via-[#4C1D95] to-[#7C3AED]", css: "linear-gradient(to bottom right, #2E1065, #4C1D95, #7C3AED)" },
-  { tailwind: "from-[#7F1D1D] via-[#DC2626] to-[#F97316]", css: "linear-gradient(to bottom right, #7F1D1D, #DC2626, #F97316)" },
   { tailwind: "from-[#E2E8F0] via-[#F8FAFC] to-[#FFFFFF]", css: "linear-gradient(to bottom right, #E2E8F0, #F8FAFC, #FFFFFF)" },
   
   // New Premium Gradients (Social Media)
-  { tailwind: "from-[#78350F] via-[#EA580C] to-[#FDBA74]", css: "linear-gradient(to bottom right, #78350F, #EA580C, #FDBA74)" },
   { tailwind: "from-[#581C87] via-[#9333EA] to-[#EC4899]", css: "linear-gradient(to bottom right, #581C87, #9333EA, #EC4899)" },
   { tailwind: "from-[#14532D] via-[#15803D] to-[#86EFAC]", css: "linear-gradient(to bottom right, #14532D, #15803D, #86EFAC)" },
   
@@ -90,6 +63,14 @@ export const gradientMap = [
   { tailwind: "from-[#172554] via-[#2563EB] to-[#60A5FA]", css: "linear-gradient(to bottom right, #172554, #2563EB, #60A5FA)" },
 ];
 
+// Check if a gradient CSS uses rgba/hsla with alpha < 1 (needs a solid background)
+export const gradientUsesAlpha = (css: string): boolean => {
+  return /rgba\(|hsla\(/.test(css);
+};
+
+// App dark background color (matches hsl(222, 47%, 7%) from index.css)
+export const APP_BG_DARK = "#0B0F19";
+
 // Extract arrays for backward compatibility
 export const gradients = gradientMap.map(g => g.tailwind);
 export const gradientCSSMap = gradientMap.map(g => g.css);
@@ -99,13 +80,6 @@ export const solidColors = [
   "bg-slate-700",
   "bg-gray-800",
   "bg-zinc-800",
-  "bg-neutral-800",
-  "bg-stone-800",
-  "bg-red-700",
-  "bg-orange-700",
-  "bg-amber-700",
-  "bg-yellow-700",
-  "bg-lime-700",
   "bg-green-700",
   "bg-emerald-700",
   "bg-teal-700",
@@ -117,24 +91,6 @@ export const solidColors = [
   "bg-fuchsia-700",
   "bg-pink-700",
   "bg-rose-700",
-  // Light colors
-  "bg-slate-100",
-  "bg-gray-100",
-  "bg-red-100",
-  "bg-orange-100",
-  "bg-amber-100",
-  "bg-yellow-100",
-  "bg-lime-100",
-  "bg-green-100",
-  "bg-emerald-100",
-  "bg-teal-100",
-  "bg-cyan-100",
-  "bg-blue-100",
-  "bg-indigo-100",
-  "bg-violet-100",
-  "bg-purple-100",
-  "bg-pink-100",
-  "bg-rose-100",
 ];
 
 // Color hex mapping for Tailwind classes
@@ -203,6 +159,53 @@ export const getNoiseSVG = (noiseLevel: number, bgColor?: string): string => {
   
   return `url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' seed='1' result='noise'/%3E%3C/filter%3E%3Crect width='100' height='100' fill='${noiseColor}' opacity='${noiseOpacity}' filter='url(%23n)'/%3E%3C/svg%3E")`;
 };
+
+const noiseImageCache = new Map<string, string>();
+
+export async function getNoiseDataUrl(noiseLevel: number, bgColor?: string): Promise<string> {
+  if (noiseLevel <= 0) return "";
+
+  const isLight = bgColor ? isLightColor(bgColor) : false;
+  const noiseColor = isLight ? "#333333" : "#FFFFFF";
+  const opacity = isLight
+    ? Math.min((noiseLevel / 100) * 0.6, 0.6)
+    : Math.min((noiseLevel / 100) * 0.8, 0.8);
+
+  const cacheKey = `${noiseLevel}-${noiseColor}-${opacity}`;
+  if (noiseImageCache.has(cacheKey)) return noiseImageCache.get(cacheKey)!;
+
+  const size = 200;
+  const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
+    <filter id="n">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" seed="1"/>
+    </filter>
+    <rect width="${size}" height="${size}" fill="${noiseColor}" opacity="${opacity}" filter="url(#n)"/>
+  </svg>`;
+
+  const blob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = reject;
+      image.src = url;
+    });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d")!;
+    ctx.drawImage(img, 0, 0);
+
+    const dataUrl = canvas.toDataURL("image/png");
+    noiseImageCache.set(cacheKey, dataUrl);
+    return dataUrl;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
 
 // Check if background is light or dark based on gradient/color selection
 export const isLightBackground = (backgroundType: string, selectedGradient: number, selectedSolidColor: string | null): boolean => {
