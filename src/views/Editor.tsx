@@ -33,6 +33,7 @@ import {
   gradientUsesAlpha,
   APP_BG_DARK,
 } from "@/lib/colors";
+import { templates } from "@/templates";
 
 interface CanvasImage {
   id: string;
@@ -217,6 +218,19 @@ const Editor = () => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  const handleTemplateSelect = (template: typeof templates[number]) => {
+    const gradientIdx = gradients.findIndex(g => g === template.gradient);
+    if (gradientIdx !== -1) setSelectedGradient(gradientIdx);
+    setTitle(template.title);
+    setSubtitle(template.subtitle);
+    setTitleColor(template.titleColor);
+    setSubtitleColor(template.subtitleColor);
+    if ('authorColor' in template && template.authorColor) setAuthorColor(template.authorColor);
+    setFontSize(template.titleSize);
+    setShowAuthor(template.hasAuthor);
+    if (template.contentPosition) setContentPosition(template.contentPosition);
+  };
 
   // Load template data from URL parameters
   useEffect(() => {
@@ -499,8 +513,9 @@ const Editor = () => {
   const BASE_W = 900;
   const BASE_H = 630;
 
-  // If explicit contentPosition is set, use % so it scales at any export size
-  if (contentPosition) {
+  // If explicit contentPosition is set and images exist, use % so it scales at any export size
+  // When there are no images, always center the content
+  if (contentPosition && images.length > 0) {
     return {
       position: "absolute" as const,
       top: `${(contentPosition.y / BASE_H) * 100}%`,
@@ -516,9 +531,9 @@ const Editor = () => {
   if (images.length === 0) {
     return {
       position: "absolute" as const,
-      top: "50%",
+      top: contentPosition ? `${(contentPosition.y / BASE_H) * 100}%` : "50%",
       left: "50%",
-      transform: "translate(-50%, -50%)",
+      transform: "translateX(-50%)",
       maxWidth: "80%",
     };
   }
@@ -1134,7 +1149,7 @@ const Editor = () => {
                 wordWrap: "break-word",
                 whiteSpace: "normal",
               }}
-              className="space-y-4"
+              className="space-y-6"
             >
               <h2
                 className="font-bold leading-tight"
@@ -1151,9 +1166,10 @@ const Editor = () => {
               </h2>
               {showSubtitle && (
                 <p
-                  className="text-sm md:text-base mx-auto"
                   style={{ 
                     color: subtitleColor,
+                    fontSize: `${fontSize * 0.3}px`,
+                    lineHeight: 1.4,
                     wordWrap: "break-word",
                     overflow: "hidden",
                     whiteSpace: "normal",
@@ -1913,8 +1929,60 @@ const Editor = () => {
 
             {/* TEMPLATES Tab */}
             {rightTab === "templates" && (
-              <div className="text-center py-8 text-muted-foreground">
-                <p className="text-sm">Templates coming soon...</p>
+              <div className="space-y-3">
+                {templates.map((template) => {
+                  return (
+                  <button
+                    key={template.id}
+                    onClick={() => { handleTemplateSelect(template); setRightTab("design"); }}
+                    className={`w-full aspect-[1200/630] rounded-lg overflow-hidden border border-border hover:border-primary hover:scale-[1.02] transition-all duration-200 text-left relative bg-card bg-gradient-to-br ${template.preview.bg}`}
+                  >
+                    {template.hasImage && template.imagePosition && (
+                      <div className="absolute bg-white/10 rounded border border-white/10"
+                        style={{
+                          left: `${(template.imagePosition.x / 900) * 100}%`,
+                          top: `${(template.imagePosition.y / 630) * 100}%`,
+                          width: `${(template.imagePosition.width / 900) * 100}%`,
+                          height: `${(template.imagePosition.height / 630) * 100}%`,
+                          transform: template.imagePosition.rotation ? `rotate(${template.imagePosition.rotation}deg)` : undefined,
+                        }}
+                      />
+                    )}
+                    {template.contentPosition && (
+                      <>
+                        <div
+                          className="absolute leading-tight font-bold"
+                          style={{
+                            left: `${(template.contentPosition.x / 900) * 100}%`,
+                            top: `${(template.contentPosition.y / 630) * 100}%`,
+                            width: `${(template.contentPosition.width / 900) * 100}%`,
+                            textAlign: template.contentPosition.textAlign ?? "left",
+                            color: template.titleColor,
+                            fontSize: `${Math.min(template.titleSize / 5.6, 10)}px`,
+                            lineHeight: '1.1',
+                          }}
+                        >
+                          {template.title.length > 25 ? template.title.slice(0, 25) + "…" : template.title}
+                        </div>
+                        <div
+                          className="absolute leading-tight opacity-80"
+                          style={{
+                            left: `${(template.contentPosition.x / 900) * 100}%`,
+                            top: `${((template.contentPosition.y + 40) / 630) * 100}%`,
+                            width: `${(template.contentPosition.width / 900) * 100}%`,
+                            textAlign: template.contentPosition.textAlign ?? "left",
+                            color: template.subtitleColor,
+                            fontSize: `${Math.min(template.titleSize / 7.5, 6)}px`,
+                            lineHeight: '1.1',
+                          }}
+                        >
+                          {template.subtitle.length > 30 ? template.subtitle.slice(0, 30) + "…" : template.subtitle}
+                        </div>
+                      </>
+                    )}
+                  </button>
+                  );
+                })}
               </div>
             )}
 

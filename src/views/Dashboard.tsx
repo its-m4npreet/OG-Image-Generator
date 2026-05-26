@@ -24,11 +24,7 @@ import {
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { templates, categories } from "@/templates";
-import { gradients, gradientMap, solidColors, colorHexMap } from "@/lib/colors";
-
-// Access any color data needed
-const allGradients = gradientMap;
-const hexValue = colorHexMap["bg-primary-700"];
+import { gradients, solidColors } from "@/lib/colors";
 
 const Dashboard = () => {
   const { data: session, status } = useSession();
@@ -302,10 +298,10 @@ const Dashboard = () => {
                           alt=""
                           style={{
                             position: "absolute",
-                            left: template.imagePosition.x,
-                            top: template.imagePosition.y,
-                            width: template.imagePosition.width,
-                            height: template.imagePosition.height,
+                            left: template.imagePosition.x * (550 / 900),
+                            top: template.imagePosition.y * (350 / 630),
+                            width: template.imagePosition.width * (550 / 900),
+                            height: template.imagePosition.height * (350 / 630),
                             transform: `rotate(${template.imagePosition.rotation ?? 0}deg)`,
                             borderRadius: 8,
                             filter:
@@ -317,37 +313,22 @@ const Dashboard = () => {
                         />
                       )}
 
-                    {/* Logo */}
-                    {/* {template.hasLogo && template.logoUrl && template.logoPosition && (
-      <img
-        src={template.logoUrl}
-        alt=""
-        style={{
-          position: "absolute",
-          left: template.logoPosition.x,
-          top: template.logoPosition.y,
-          width: template.logoPosition.width,
-          height: template.logoPosition.height,
-          borderRadius: 10,
-          objectFit: "cover",
-        }}
-      />
-    )} */}
-
                     {/* Text content */}
                     {template.contentPosition &&
                       (() => {
                         const cp = template.contentPosition;
                         const scale = 192 / 350; // same scale as the container
+                        const scaleX = 550 / 900;
+                        const scaleY = 350 / 630;
                         const isCenter =
                           !template.hasImage || cp.textAlign === "center";
-                        const left = isCenter ? (550 - cp.width) / 2 : cp.x;
+                        const left = isCenter ? (550 - cp.width * scaleX) / 2 : cp.x * scaleX;
                         const fontSizeMultiplier = template.hasImage
                           ? 0.5
                           : 0.35; // smaller if no image
 
                         // Calculate vertical center when no image
-                        let top = cp.y;
+                        let top = cp.y * scaleY;
                         if (!template.hasImage) {
                           const estimatedHeight =
                             Math.round(
@@ -369,7 +350,7 @@ const Dashboard = () => {
                               position: "absolute",
                               left,
                               top,
-                              width: cp.width,
+                              width: cp.width * scaleX,
                               textAlign: cp.textAlign as any,
                             }}
                           >
@@ -383,7 +364,7 @@ const Dashboard = () => {
                                 lineHeight: 1.15,
                                 color: template.titleColor,
                                 marginBottom: Math.round(
-                                  template.titleSize * 0.3 * fontSizeMultiplier,
+                                  template.titleSize * 0.6 * fontSizeMultiplier,
                                 ),
                                 wordBreak: "break-word",
                               }}

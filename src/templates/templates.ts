@@ -20,9 +20,9 @@ export const templates = [
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
     imagePosition: {
-      x: 460,
+      x: 480,
       y: 90,
-      width: 664,
+      width: 640,
       height: 430,
       rotation: -10,
       shadowBlur: 60,
@@ -38,9 +38,9 @@ export const templates = [
       height: 72,
     },
     contentPosition: {
-      x: 70,
+      x: 60,
       y: 180,
-      width: 360,
+      width: 380,
       textAlign: "left",
     },
     preview: {
@@ -94,9 +94,9 @@ export const templates = [
     logoUrl: "/ogImage.png",
     imagePosition: {
       x: 175,
-      y: 280,
+      y: 300,
       width: 550,
-      height: 350,
+      height: 330,
       rotation: 0,
       shadowBlur: 0,
       shadowSpread: 0,
@@ -105,9 +105,9 @@ export const templates = [
     },
     logoPosition: { x: 50, y: 50, width: 80, height: 80 },
     contentPosition: {
-      x: 250,
+      x: 50,
       y: 60,
-      width: 760,
+      width: 800,
       textAlign: "center",
     },
     preview: {
@@ -199,9 +199,9 @@ export const templates = [
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
     imagePosition: {
-      x: 350,
+      x: 360,
       y: 250,
-      width: 550,
+      width: 540,
       height: 470,
       rotation: 0,
       shadowBlur: 0,
@@ -213,7 +213,7 @@ export const templates = [
     contentPosition: {
       x: 30,
       y: 90,
-      width: 350,
+      width: 300,
       textAlign: "left",
     },
     preview: {
@@ -268,9 +268,9 @@ export const templates = [
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
     imagePosition: {
-      x: 400,
+      x: 420,
       y: 90,
-      width: 550,
+      width: 530,
       height: 420,
       rotation: -8,
       shadowBlur: 90,
@@ -280,9 +280,9 @@ export const templates = [
     },
     logoPosition: { x: 60, y: 60, width: 110, height: 110 },
     contentPosition: {
-      x: 60,
+      x: 50,
       y: 130,
-      width: 340,
+      width: 350,
       textAlign: "left",
     },
     preview: {
@@ -349,9 +349,9 @@ export const templates = [
     },
     logoPosition: { x: 45, y: 45, width: 95, height: 95 },
     contentPosition: {
-      x: 520,
+      x: 490,
       y: 200,
-      width: 340,
+      width: 380,
       textAlign: "left",
     },
     preview: {
@@ -375,9 +375,9 @@ export const templates = [
     imageUrl: "/ogImage.png",
     logoUrl: undefined,
     imagePosition: {
-      x: 350,
+      x: 370,
       y: 160,
-      width: 550,
+      width: 530,
       height: 470,
       rotation: 0,
       shadowBlur: 0,
@@ -389,7 +389,7 @@ export const templates = [
     contentPosition: {
       x: 30,
       y: 110,
-      width: 300,
+      width: 320,
       textAlign: "left",
     },
     preview: {
@@ -443,9 +443,9 @@ export const templates = [
     imageUrl: "/ogImage.png",
     logoUrl: "",
     imagePosition: {
-      x: 350,
+      x: 370,
       y: 120,
-      width: 520,
+      width: 500,
       height: 430,
       rotation: 0,
       shadowBlur: 0,
@@ -457,7 +457,7 @@ export const templates = [
     contentPosition: {
       x: 25,
       y: 180,
-      width: 340,
+      width: 320,
       textAlign: "left",
     },
     preview: {
@@ -481,9 +481,9 @@ export const templates = [
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
     imagePosition: {
-      x: 480,
+      x: 500,
       y: 90,
-      width: 500,
+      width: 480,
       height: 450,
       rotation: 0,
       shadowBlur: 0,
@@ -493,9 +493,9 @@ export const templates = [
     },
     logoPosition: { x: 70, y: 60, width: 72, height: 72 },
     contentPosition: {
-      x: 60,
+      x: 50,
       y: 180,
-      width: 340,
+      width: 410,
       textAlign: "left",
     },
     preview: {
@@ -574,7 +574,7 @@ export const templates = [
     },
 
     logoPosition: {
-      x: 980,
+      x: 850,
       y: 60,
       width: 72,
       height: 72,
@@ -583,7 +583,7 @@ export const templates = [
     contentPosition: {
       x: 520,
       y: 190,
-      width: 340,
+      width: 350,
       textAlign: "left",
     },
 
@@ -609,12 +609,12 @@ export const templates = [
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
 
-    // CENTER HERO
+    // LEFT TEXT + RIGHT IMAGE
     imagePosition: {
-      x: 420,
+      x: 480,
       y: 120,
-      width: 540,
-      height: 360,
+      width: 480,
+      height: 420,
       rotation: -4,
 
       shadowBlur: 100,
@@ -624,17 +624,17 @@ export const templates = [
     },
 
     logoPosition: {
-      x: 70,
-      y: 60,
+      x: 40,
+      y: 40,
       width: 74,
       height: 74,
     },
 
     contentPosition: {
       x: 40,
-      y: 200,
-      width: 760,
-      textAlign: "center",
+      y: 180,
+      width: 400,
+      textAlign: "left",
     },
 
     preview: {
@@ -674,16 +674,16 @@ export const templates = [
     },
 
     logoPosition: {
-      x: 980,
+      x: 830,
       y: 60,
       width: 82,
       height: 82,
     },
 
     contentPosition: {
-      x: 520,
+      x: 510,
       y: 150,
-      width: 340,
+      width: 360,
       textAlign: "left",
     },
 
@@ -692,101 +692,6 @@ export const templates = [
       text: "white",
     },
   },
-
-  // {
-  //   id: 18,
-  //   name: "Glassmorphism SaaS",
-  //   category: "SaaS",
-  //   gradient: "from-[#312E81] via-[#4338CA] to-[#818CF8]",
-  //   title: "Manage Everything Faster",
-  //   subtitle: "Built for modern high-performance teams",
-  //   titleColor: "#FFFFFF",
-  //   subtitleColor: "#E0E7FF",
-  //   titleSize: 50,
-  //   hasImage: true,
-  //   hasLogo: true,
-  //   hasAuthor: false,
-  //   imageUrl: "/ogImage.png",
-  //   logoUrl: "/ogImage.png",
-
-  //   // CENTER GLASS CARD
-  //   imagePosition: {
-  //     x: 300,
-  //     y: 100,
-  //     width: 600,
-  //     height: 400,
-  //     rotation: 3,
-
-  //     shadowBlur: 120,
-  //     shadowSpread: 25,
-  //     shadowColor: "#4338CA",
-  //     shadowOpacity: 0.4,
-  //   },
-
-  //   logoPosition: {
-  //     x: 80,
-  //     y: 60,
-  //     width: 76,
-  //     height: 76,
-  //   },
-
-  //   contentPosition: {
-  //     x: 70,
-  //     y: 510,
-  //     width: 760,
-  //     textAlign: "center",
-  //   },
-
-  //   preview: {
-  //     bg: "from-[#312E81] via-[#4338CA] to-[#6366F1]",
-  //     text: "white",
-  //   },
-  // },
-
-  // {
-  //   id: 19,
-  //   name: "Social Card Centered",
-  //   category: "Social Media",
-  //   gradient: "from-[#7C2D12] via-[#EA580C] to-[#FDBA74]",
-  //   title: "Big Announcement Tomorrow",
-  //   subtitle: "Something exciting is coming soon",
-  //   titleColor: "#FFFFFF",
-  //   subtitleColor: "#FEF3C7",
-  //   titleSize: 46,
-  //   hasImage: true,
-  //   hasLogo: false,
-  //   hasAuthor: false,
-  //   imageUrl: "/ogImage.png",
-  //   logoUrl: "",
-
-  //   // CENTER SOCIAL STYLE
-  //   imagePosition: {
-  //     x: 350,
-  //     y: 110,
-  //     width: 500,
-  //     height: 350,
-  //     rotation: -3,
-
-  //     shadowBlur: 70,
-  //     shadowSpread: 16,
-  //     shadowColor: "#EA580C",
-  //     shadowOpacity: 0.3,
-  //   },
-
-  //   logoPosition: undefined,
-
-  //   contentPosition: {
-  //     x: 70,
-  //     y: 500,
-  //     width: 760,
-  //     textAlign: "center",
-  //   },
-
-  //   preview: {
-  //     bg: "from-[#7C2D12] via-[#EA580C] to-[#FB923C]",
-  //     text: "white",
-  //   },
-  // },
 
   {
     id: 20,
@@ -819,16 +724,16 @@ export const templates = [
     },
 
     logoPosition: {
-      x: 980,
+      x: 800,
       y: 60,
       width: 70,
       height: 70,
     },
 
     contentPosition: {
-      x: 550,
+      x: 560,
       y: 200,
-      width: 320,
+      width: 310,
       textAlign: "left",
     },
 
@@ -876,61 +781,6 @@ export const templates = [
     },
   },
 
-  // {
-  //   id: 27,
-  //   name: "Creator Drop",
-  //   category: "Social Media",
-
-  //   gradient: "from-[#581C87] via-[#9333EA] to-[#D946EF]",
-
-  //   title: "New Project Launching Tomorrow",
-  //   subtitle: "Built for developers, creators, and startups.",
-  //   titleColor: "#FFFFFF",
-  //   subtitleColor: "#F3E8FF",
-  //   titleSize: 48,
-
-  //   hasImage: true,
-  //   hasLogo: true,
-  //   hasAuthor: true,
-
-  //   imageUrl: "/ogImage.png",
-  //   logoUrl: "/ogImage.png",
-
-  //   // CENTER FLOAT
-  //   imagePosition: {
-  //     x: 350,
-  //     y: 120,
-  //     width: 500,
-  //     height: 340,
-
-  //     rotation: -5,
-
-  //     shadowBlur: 100,
-  //     shadowSpread: 25,
-  //     shadowColor: "#9333EA",
-  //     shadowOpacity: 0.35,
-  //   },
-
-  //   logoPosition: {
-  //     x: 80,
-  //     y: 60,
-  //     width: 70,
-  //     height: 70,
-  //   },
-
-  //   contentPosition: {
-  //     x: 70,
-  //     y: 500,
-  //     width: 760,
-  //     textAlign: "center",
-  //   },
-
-  //   preview: {
-  //     bg: "from-[#7C3AED] via-[#9333EA] to-[#C026D3]",
-  //     text: "white",
-  //   },
-  // },
-
   {
     id: 29,
     name: "Viral Product Post",
@@ -969,7 +819,7 @@ export const templates = [
     logoPosition: undefined,
 
     contentPosition: {
-      x: 500,
+      x: 510,
       y: 200,
       width: 360,
       textAlign: "left",
@@ -1024,60 +874,6 @@ export const templates = [
     },
   },
 
-  // {
-  //   id: 31,
-  //   name: "Centered Announcement",
-  //   category: "Social Media",
-
-  //   gradient: "from-[#172554] via-[#2563EB] to-[#60A5FA]",
-
-  //   title: "Big Announcement Coming Soon",
-  //   subtitle: "Stay tuned for the reveal.",
-  //   titleColor: "#FFFFFF",
-  //   subtitleColor: "#DBEAFE",
-  //   titleSize: 50,
-
-  //   hasImage: true,
-  //   hasLogo: true,
-  //   hasAuthor: false,
-
-  //   imageUrl: "/ogImage.png",
-  //   logoUrl: "/ogImage.png",
-
-  //   // CENTER CARD
-  //   imagePosition: {
-  //     x: 300,
-  //     y: 100,
-  //     width: 600,
-  //     height: 390,
-
-  //     rotation: -3,
-
-  //     shadowBlur: 90,
-  //     shadowSpread: 20,
-  //     shadowColor: "#2563EB",
-  //     shadowOpacity: 0.32,
-  //   },
-
-  //   logoPosition: {
-  //     x: 80,
-  //     y: 60,
-  //     width: 74,
-  //     height: 74,
-  //   },
-
-  //   contentPosition: {
-  //     x: 70,
-  //     y: 500,
-  //     width: 760,
-  //     textAlign: "center",
-  //   },
-
-  //   preview: {
-  //     bg: "from-[#172554] via-[#1E3A8A] to-[#2563EB]",
-  //     text: "white",
-  //   },
-  // },
 ] as const;
 
 export const categories = [
