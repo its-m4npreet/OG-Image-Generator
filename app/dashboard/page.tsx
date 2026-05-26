@@ -40,6 +40,6 @@ export default async function DashboardPage() {
         email={user.email}
       />
     </main>
-  );}
+  );
 }
   

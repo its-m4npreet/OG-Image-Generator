@@ -1416,18 +1416,18 @@ const Editor = () => {
 
               {/* Noise Section */}
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <Label className="text-xs text-muted-foreground">Noise Overlay</Label>
-                  <span className="text-xs text-primary font-medium">{noiseLevel}%</span>
+                <Label className="text-xs text-muted-foreground mb-2 block">Noise Overlay</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={noiseLevel}
+                    onChange={(e) => setNoiseLevel(Math.max(0, Math.min(100, Number(e.target.value) || 0)))}
+                    className="flex-1 [&]:h-auto [&]:border-0 [&]:px-0 [&]:py-0"
+                  />
+                  <span className="text-xs text-muted-foreground w-8 text-right tabular-nums">{noiseLevel}%</span>
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={noiseLevel}
-                  onChange={(e) => setNoiseLevel(Number(e.target.value))}
-                  className="w-full h-2 bg-border rounded-lg appearance-none cursor-pointer accent-primary"
-                />
               </div>
 
               <Separator className="bg-border my-3" />
@@ -1525,40 +1525,32 @@ const Editor = () => {
                         />
                       </div>
                     </div>
-                    <div>
-                      <Label className="text-xs text-muted-foreground">Border Radius</Label>
-                      <div className="flex items-center gap-3 mt-2">
-                        <input
-                          type="range"
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Border Radius</Label>
+                        <Input
+                          type="number"
                           min="0"
                           max="50"
                           value={images.find((img) => img.id === selectedImage)?.borderRadius || 0}
                           onChange={(e) =>
-                            updateImage(selectedImage, { borderRadius: Number(e.target.value) })
+                            updateImage(selectedImage, { borderRadius: Math.max(0, Math.min(50, Number(e.target.value) || 0)) })
                           }
-                          className="flex-1 accent-primary"
+                          className="mt-1 bg-card border-border text-xs"
                         />
-                        <span className="text-xs text-muted-foreground w-8 text-right">
-                          {images.find((img) => img.id === selectedImage)?.borderRadius || 0}
-                        </span>
                       </div>
-                    </div>
-                    <div>
-                      <Label className="text-xs text-muted-foreground">Border Width</Label>
-                      <div className="flex items-center gap-3 mt-2">
-                        <input
-                          type="range"
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Border Width</Label>
+                        <Input
+                          type="number"
                           min="0"
                           max="10"
                           value={images.find((img) => img.id === selectedImage)?.borderWidth || 0}
                           onChange={(e) =>
-                            updateImage(selectedImage, { borderWidth: Number(e.target.value) })
+                            updateImage(selectedImage, { borderWidth: Math.max(0, Math.min(10, Number(e.target.value) || 0)) })
                           }
-                          className="flex-1 accent-primary"
+                          className="mt-1 bg-card border-border text-xs"
                         />
-                        <span className="text-xs text-muted-foreground w-8 text-right">
-                          {images.find((img) => img.id === selectedImage)?.borderWidth || 0}
-                        </span>
                       </div>
                     </div>
                     <div>
@@ -1574,62 +1566,46 @@ const Editor = () => {
                     </div>
 
                     <div>
-                      <Label className="text-xs text-muted-foreground mb-2 block">Rotation</Label>
-                      <div className="flex items-center gap-3 mt-2">
-                        <input
-                          type="range"
-                          min="-360"
-                          max="360"
-                          value={images.find((img) => img.id === selectedImage)?.rotation || 0}
-                          onChange={(e) =>
-                            updateImage(selectedImage, { rotation: Number(e.target.value) })
-                          }
-                          className="flex-1 accent-primary"
-                        />
-                        <span className="text-xs text-muted-foreground w-10 text-right">
-                          {images.find((img) => img.id === selectedImage)?.rotation || 0}°
-                        </span>
-                      </div>
+                      <Label className="text-xs text-muted-foreground">Rotation</Label>
+                      <Input
+                        type="number"
+                        value={images.find((img) => img.id === selectedImage)?.rotation || 0}
+                        onChange={(e) =>
+                          updateImage(selectedImage, { rotation: Number(e.target.value) || 0 })
+                        }
+                        className="mt-1 bg-card border-border text-xs"
+                        placeholder="0"
+                      />
                     </div>
 
                     <div>
                       <Label className="text-xs text-muted-foreground mb-2 block">Box Shadow</Label>
-                      <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-3 mb-3">
                         <div>
                           <Label className="text-xs text-muted-foreground">Blur</Label>
-                          <div className="flex items-center gap-3 mt-1">
-                            <input
-                              type="range"
-                              min="0"
-                              max="50"
-                              value={images.find((img) => img.id === selectedImage)?.shadowBlur || 0}
-                              onChange={(e) =>
-                                updateImage(selectedImage, { shadowBlur: Number(e.target.value) })
-                              }
-                              className="flex-1 accent-primary"
-                            />
-                            <span className="text-xs text-muted-foreground w-8 text-right">
-                              {images.find((img) => img.id === selectedImage)?.shadowBlur || 0}
-                            </span>
-                          </div>
+                          <Input
+                            type="number"
+                            min="0"
+                            max="50"
+                            value={images.find((img) => img.id === selectedImage)?.shadowBlur || 0}
+                            onChange={(e) =>
+                              updateImage(selectedImage, { shadowBlur: Math.max(0, Math.min(50, Number(e.target.value) || 0)) })
+                            }
+                            className="mt-1 bg-card border-border text-xs"
+                          />
                         </div>
                         <div>
                           <Label className="text-xs text-muted-foreground">Spread</Label>
-                          <div className="flex items-center gap-3 mt-1">
-                            <input
-                              type="range"
-                              min="0"
-                              max="50"
-                              value={images.find((img) => img.id === selectedImage)?.shadowSpread || 0}
-                              onChange={(e) =>
-                                updateImage(selectedImage, { shadowSpread: Number(e.target.value) })
-                              }
-                              className="flex-1 accent-primary"
-                            />
-                            <span className="text-xs text-muted-foreground w-8 text-right">
-                              {images.find((img) => img.id === selectedImage)?.shadowSpread || 0}
-                            </span>
-                          </div>
+                          <Input
+                            type="number"
+                            min="0"
+                            max="50"
+                            value={images.find((img) => img.id === selectedImage)?.shadowSpread || 0}
+                            onChange={(e) =>
+                              updateImage(selectedImage, { shadowSpread: Math.max(0, Math.min(50, Number(e.target.value) || 0)) })
+                            }
+                            className="mt-1 bg-card border-border text-xs"
+                          />
                         </div>
                         <div>
                           <Label className="text-xs text-muted-foreground">Color</Label>
@@ -1644,121 +1620,20 @@ const Editor = () => {
                         </div>
                         <div>
                           <Label className="text-xs text-muted-foreground">Opacity</Label>
-                          <div className="flex items-center gap-3 mt-1">
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              value={images.find((img) => img.id === selectedImage)?.shadowOpacity || 0}
-                              onChange={(e) =>
-                                updateImage(selectedImage, { shadowOpacity: Number(e.target.value) })
-                              }
-                              className="flex-1 accent-primary"
-                            />
-                            <span className="text-xs text-muted-foreground w-8 text-right">
-                              {images.find((img) => img.id === selectedImage)?.shadowOpacity || 0}%
-                            </span>
-                          </div>
+                          <Input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={images.find((img) => img.id === selectedImage)?.shadowOpacity || 0}
+                            onChange={(e) =>
+                              updateImage(selectedImage, { shadowOpacity: Math.max(0, Math.min(100, Number(e.target.value) || 0)) })
+                            }
+                            className="mt-1 bg-card border-border text-xs"
+                          />
                         </div>
                       </div>
                     </div>
-
-                    <div>
-                      <Label className="text-xs text-muted-foreground mb-2 block">Quick Position</Label>
-                      <div className="grid grid-cols-3 gap-2 mb-3">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs h-8 px-2"
-                          onClick={() => updateImage(selectedImage, { x: 175, y: 20 })}
-                          title="Position at top center"
-                        >
-                          ↑ Top
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs h-8 px-2"
-                          onClick={() => updateImage(selectedImage, { x: 175, y: 140 })}
-                          title="Position at center"
-                        >
-                          ⊙ Center
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs h-8 px-2"
-                          onClick={() => updateImage(selectedImage, { x: 175, y: 260 })}
-                          title="Position at bottom center"
-                        >
-                          ↓ Bottom
-                        </Button>
-                      </div>
                     </div>
-
-                    <div>
-                      <Label className="text-xs text-muted-foreground mb-2 block">Alignment</Label>
-                      <div className="grid grid-cols-3 gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs h-8 px-2"
-                          onClick={() => updateImage(selectedImage, { x: 25 })}
-                          title="Align to left"
-                        >
-                          Left
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs h-8 px-2"
-                          onClick={() => updateImage(selectedImage, { x: 175 })}
-                          title="Center horizontally"
-                        >
-                          Center
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs h-8 px-2"
-                          onClick={() => {
-                            const img = images.find((i) => i.id === selectedImage);
-                            if (img) updateImage(selectedImage, { x: 825 - img.width });
-                          }}
-                          title="Align to right"
-                        >
-                          Right
-                        </Button>
-                      </div>
-                    </div>
-                      <div className="grid grid-cols-3 gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs h-8"
-                          onClick={() => updateImage(selectedImage, { width: 400, height: 240 })}
-                        >
-                          Small
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs h-8"
-                          onClick={() => updateImage(selectedImage, { width: 550, height: 350 })}
-                        >
-                          Large
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs h-8"
-                          onClick={() => updateImage(selectedImage, { width: 750, height: 450 })}
-                        >
-                          XL
-                        </Button>
-                      </div>
-                    </div>
-                  // </div>
                   )}
                 </div>
 
@@ -1837,21 +1712,16 @@ const Editor = () => {
                     </div>
                     <div>
                       <Label className="text-xs text-muted-foreground">Border Radius</Label>
-                      <div className="flex items-center gap-3 mt-2">
-                        <input
-                          type="range"
-                          min="0"
-                          max="50"
-                          value={logoProps.borderRadius || 0}
-                          onChange={(e) =>
-                            setLogoProps({ ...logoProps, borderRadius: Number(e.target.value) })
-                          }
-                          className="flex-1 accent-primary"
-                        />
-                        <span className="text-xs text-muted-foreground w-8 text-right">
-                          {logoProps.borderRadius || 0}
-                        </span>
-                      </div>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="50"
+                        value={logoProps.borderRadius || 0}
+                        onChange={(e) =>
+                          setLogoProps({ ...logoProps, borderRadius: Math.max(0, Math.min(50, Number(e.target.value) || 0)) })
+                        }
+                        className="mt-1 bg-card border-border text-xs"
+                      />
                     </div>
                   </div>
                   )}
@@ -1905,22 +1775,6 @@ const Editor = () => {
                       }}
                       className="mt-1 bg-card border-border text-xs"
                     />
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-2 block">Text Alignment</Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(['left', 'center', 'right'] as const).map((align) => (
-                      <Button
-                        key={align}
-                        variant="outline"
-                        size="sm"
-                        className={`text-xs h-8 ${contentPosition?.textAlign === align ? 'border-primary bg-primary/10 text-foreground' : ''}`}
-                        onClick={() => setContentPosition(prev => prev ? { ...prev, textAlign: align } : { x: 50, y: 200, width: 400, textAlign: align })}
-                      >
-                        {align.charAt(0).toUpperCase() + align.slice(1)}
-                      </Button>
-                    ))}
                   </div>
                 </div>
               </div>
@@ -2002,17 +1856,14 @@ const Editor = () => {
                       )}
                       <div>
                         <Label className="text-xs text-muted-foreground">Opacity</Label>
-                        <div className="flex items-center gap-3 mt-2">
-                          <input
-                            type="range"
-                            min={0}
-                            max={100}
-                            value={shape.opacity}
-                            onChange={(e) => updateShape(shape.id, { opacity: Number(e.target.value) })}
-                            className="flex-1 accent-primary"
-                          />
-                          <span className="text-xs text-muted-foreground w-8 text-right">{shape.opacity}%</span>
-                        </div>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={shape.opacity}
+                          onChange={(e) => updateShape(shape.id, { opacity: Math.max(0, Math.min(100, Number(e.target.value) || 0)) })}
+                          className="mt-1 bg-card border-border text-xs"
+                        />
                       </div>
                     </div>
                   </div>
@@ -2046,17 +1897,14 @@ const Editor = () => {
             {/* Font Size */}
             <div>
               <Label className="text-xs text-muted-foreground">Title Size</Label>
-              <div className="flex items-center gap-3 mt-2">
-                <input
-                  type="range"
-                  min={24}
-                  max={64}
-                  value={fontSize}
-                  onChange={(e) => setFontSize(Number(e.target.value))}
-                  className="flex-1 accent-primary"
-                />
-                <span className="text-xs text-muted-foreground w-8 text-right">{fontSize}</span>
-              </div>
+              <Input
+                type="number"
+                min="24"
+                max="64"
+                value={fontSize}
+                onChange={(e) => setFontSize(Math.max(24, Math.min(64, Number(e.target.value) || 24)))}
+                className="mt-1 bg-card border-border text-xs"
+              />
             </div>
 
             <Separator className="bg-border" />

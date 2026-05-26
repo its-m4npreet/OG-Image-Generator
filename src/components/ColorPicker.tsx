@@ -22,10 +22,10 @@ export function ColorRow({ label, value, onChange }: ColorRowProps) {
   }, []);
 
   return (
-    <div className="flex items-center justify-between" ref={ref}>
+    <div className="relative flex items-center justify-between" ref={ref}>
       <Label className="text-xs text-muted-foreground">{label}</Label>
 
-      <div className="relative ">
+      <div className=" w-12">
         <button
           onClick={() => setOpen((o) => !o)}
           className="w-12 h-9 rounded-md border border-input shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -34,7 +34,7 @@ export function ColorRow({ label, value, onChange }: ColorRowProps) {
         />
 
         {open && (
-          <div className="absolute right-12 top-10 z-50 rounded-lg border bg-popover p-3 shadow-xl">
+          <div className="absolute left-0 top-0 z-50 rounded-lg border bg-popover p-3 shadow-xl">
             <input
               type="color"
               value={value}
@@ -44,17 +44,7 @@ export function ColorRow({ label, value, onChange }: ColorRowProps) {
             />
             <div className="mt-2 flex items-center gap-2">
               <span className="text-xs text-muted-foreground font-mono">{value.toUpperCase()}</span>
-              {/* <input
-                type="text"
-                value={value}
-                onChange={(e) => {
-                  if (/^#[0-9A-Fa-f]{0,6}$/.test(e.target.value)) {
-                    onChange(e.target.value);
-                  }
-                }}
-                className="flex-1 rounded border border-input bg-background px-2 py-1 text-xs font-mono"
-                maxLength={7}
-              /> */}
+
             </div>
           </div>
         )}
