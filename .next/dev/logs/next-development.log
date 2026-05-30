@@ -1,12 +1,1 @@
-{"timestamp":"00:00:02.729","source":"Server","level":"LOG","message":""}
-{"timestamp":"00:00:34.765","source":"Server","level":"WARN","message":"[next-auth][warn][DEBUG_ENABLED] \"\\nhttps://next-auth.js.org/warnings#debug_enabled\""}
-{"timestamp":"00:00:34.769","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:00:34.775","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"00:09:03.984","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:09:03.987","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"00:09:51.105","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:09:51.111","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"00:13:31.493","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:13:31.498","source":"Server","level":"LOG","message":"✅ session callback: {}"}
-{"timestamp":"00:16:54.724","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
-{"timestamp":"00:16:54.728","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:00:04.966","source":"Server","level":"LOG","message":""}
