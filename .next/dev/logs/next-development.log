@@ -1,1 +1,5 @@
 {"timestamp":"00:00:04.966","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:00:50.458","source":"Server","level":"WARN","message":"[next-auth][warn][DEBUG_ENABLED] \"\\nhttps://next-auth.js.org/warnings#debug_enabled\""}
+{"timestamp":"00:00:50.467","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:00:54.071","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:00:54.074","source":"Server","level":"LOG","message":"✅ session callback: {}"}
