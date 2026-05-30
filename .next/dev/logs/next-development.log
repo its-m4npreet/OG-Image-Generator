@@ -1,3 +1,4 @@
-{"timestamp":"00:00:02.510","source":"Server","level":"LOG","message":""}
-{"timestamp":"00:00:30.998","source":"Server","level":"WARN","message":"[next-auth][warn][DEBUG_ENABLED] \"\\nhttps://next-auth.js.org/warnings#debug_enabled\""}
-{"timestamp":"00:00:31.009","source":"Server","level":"LOG","message":"✅ session callback: {}"}
+{"timestamp":"00:00:02.729","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:00:34.765","source":"Server","level":"WARN","message":"[next-auth][warn][DEBUG_ENABLED] \"\\nhttps://next-auth.js.org/warnings#debug_enabled\""}
+{"timestamp":"00:00:34.769","source":"Server","level":"LOG","message":"✅ redirect callback: {}"}
+{"timestamp":"00:00:34.775","source":"Server","level":"LOG","message":"✅ session callback: {}"}

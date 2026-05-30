@@ -39,7 +39,7 @@ export const templates = [
     },
     contentPosition: {
       x: 60,
-      y: 180,
+      y: 210,
       width: 380,
       textAlign: "left",
     },
@@ -86,7 +86,7 @@ export const templates = [
     subtitle: "Exploring new patterns and best practices",
     titleColor: "#FFFFFF",
     subtitleColor: "#E0E7FF",
-    titleSize: 44,
+    titleSize: 64,
     hasImage: true,
     hasLogo: true,
     hasAuthor: false,
@@ -105,8 +105,8 @@ export const templates = [
     },
     logoPosition: { x: 50, y: 50, width: 80, height: 80 },
     contentPosition: {
-      x: 50,
-      y: 60,
+      x: 200,
+      y: 50,
       width: 800,
       textAlign: "center",
     },
@@ -174,7 +174,7 @@ export const templates = [
     logoPosition: { x: 40, y: 40, width: 100, height: 100 },
     contentPosition: {
       x: 480,
-      y: 170,
+      y: 200,
       width: 470,
       textAlign: "left",
     },
@@ -212,7 +212,7 @@ export const templates = [
     logoPosition: { x: 50, y: 50, width: 90, height: 90 },
     contentPosition: {
       x: 30,
-      y: 90,
+      y: 120,
       width: 300,
       textAlign: "left",
     },
@@ -281,7 +281,7 @@ export const templates = [
     logoPosition: { x: 60, y: 60, width: 110, height: 110 },
     contentPosition: {
       x: 50,
-      y: 130,
+      y: 160,
       width: 350,
       textAlign: "left",
     },
@@ -350,7 +350,7 @@ export const templates = [
     logoPosition: { x: 45, y: 45, width: 95, height: 95 },
     contentPosition: {
       x: 490,
-      y: 200,
+      y: 230,
       width: 380,
       textAlign: "left",
     },
@@ -388,7 +388,7 @@ export const templates = [
     logoPosition: { x: 55, y: 55, width: 85, height: 85 },
     contentPosition: {
       x: 30,
-      y: 110,
+      y: 140,
       width: 320,
       textAlign: "left",
     },
@@ -456,7 +456,7 @@ export const templates = [
     logoPosition: undefined,
     contentPosition: {
       x: 25,
-      y: 180,
+      y: 210,
       width: 320,
       textAlign: "left",
     },
@@ -494,7 +494,7 @@ export const templates = [
     logoPosition: { x: 70, y: 60, width: 72, height: 72 },
     contentPosition: {
       x: 50,
-      y: 180,
+      y: 210,
       width: 410,
       textAlign: "left",
     },
@@ -582,7 +582,7 @@ export const templates = [
 
     contentPosition: {
       x: 520,
-      y: 190,
+      y: 220,
       width: 350,
       textAlign: "left",
     },
@@ -632,7 +632,7 @@ export const templates = [
 
     contentPosition: {
       x: 40,
-      y: 180,
+      y: 210,
       width: 400,
       textAlign: "left",
     },
@@ -682,7 +682,7 @@ export const templates = [
 
     contentPosition: {
       x: 510,
-      y: 150,
+      y: 180,
       width: 360,
       textAlign: "left",
     },
@@ -732,7 +732,7 @@ export const templates = [
 
     contentPosition: {
       x: 560,
-      y: 200,
+      y: 230,
       width: 310,
       textAlign: "left",
     },
@@ -820,7 +820,7 @@ export const templates = [
 
     contentPosition: {
       x: 510,
-      y: 200,
+      y: 230,
       width: 360,
       textAlign: "left",
     },

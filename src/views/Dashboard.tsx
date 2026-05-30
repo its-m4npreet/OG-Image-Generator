@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,119 @@ import {
 import { useSession, signOut } from "next-auth/react";
 import { templates, categories } from "@/templates";
 import { gradients, solidColors } from "@/lib/colors";
+
+function TemplatePreview({ template }: { template: (typeof templates)[number] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      const { width } = entries[0].contentRect;
+      setScale(width / 550);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={containerRef} className="w-full aspect-[550/350] relative overflow-hidden flex-shrink-0">
+      <div
+        className="absolute top-0 left-0 origin-top-left"
+        style={{
+          width: 550,
+          height: 350,
+          transform: `scale(${scale})`,
+          background: template.gradient.startsWith("from-")
+            ? undefined
+            : template.gradient,
+          overflow: "hidden",
+        }}
+      >
+        <div className={`absolute inset-0 bg-gradient-to-br ${template.gradient}`} />
+
+        {template.hasImage &&
+          template.imageUrl &&
+          template.imagePosition && (
+            <img
+              src={template.imageUrl}
+              alt=""
+              style={{
+                position: "absolute",
+                left: template.imagePosition.x * (550 / 900),
+                top: template.imagePosition.y * (350 / 630),
+                width: template.imagePosition.width * (550 / 900),
+                height: template.imagePosition.height * (350 / 630),
+                transform: `rotate(${template.imagePosition.rotation ?? 0}deg)`,
+                borderRadius: 8,
+                filter:
+                  template.imagePosition.shadowBlur > 0
+                    ? `drop-shadow(0 0 ${template.imagePosition.shadowBlur}px ${template.imagePosition.shadowColor ?? "#000"})`
+                    : "none",
+                objectFit: "cover",
+              }}
+            />
+          )}
+
+        {template.contentPosition &&
+          (() => {
+            const cp = template.contentPosition;
+            const scaleX = 550 / 900;
+            const scaleY = 350 / 630;
+            const isCenter =
+              !template.hasImage || cp.textAlign === "center";
+            const left = isCenter ? (550 - cp.width * scaleX) / 2 : cp.x * scaleX;
+            const titleSize = template.hasImage ? 32 : 24;
+            const subtitleSize = template.hasImage ? 15 : 14;
+
+            let top = cp.y * scaleY;
+            if (!template.hasImage) {
+              const estimatedHeight =
+                titleSize * 1.5 +
+                subtitleSize * 1.5;
+              top = (350 - estimatedHeight) / 2;
+            }
+
+            return (
+              <div
+                style={{
+                  position: "absolute",
+                  left,
+                  top,
+                  width: cp.width * scaleX,
+                  textAlign: cp.textAlign as any,
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: titleSize,
+                    fontWeight: 700,
+                    lineHeight: 1.15,
+                    color: template.titleColor,
+                    marginBottom: 4,
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {template.title}
+                </div>
+                <div
+                  style={{
+                    fontSize: subtitleSize,
+                    color: template.subtitleColor,
+                    lineHeight: 1.4,
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {template.subtitle}
+                </div>
+              </div>
+            );
+          })()}
+      </div>
+    </div>
+  );
+}
 
 const Dashboard = () => {
   const { data: session, status } = useSession();
@@ -117,13 +230,9 @@ const Dashboard = () => {
       </div>
       
       {/* Top bar */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl"
-      >
+      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container flex items-center justify-between h-16 px-4">
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <div>
             <Link
               to="/"
               className="flex items-center gap-2 font-bold text-lg text-foreground hover:opacity-80 transition-opacity"
@@ -131,10 +240,10 @@ const Dashboard = () => {
               <Hexagon className="h-6 w-6 text-primary" />
               OG Studio
             </Link>
-          </motion.div>
+          </div>
 
           <div className="flex items-center gap-4">
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <div >
               <Button
                 variant="hero"
                 size="sm"
@@ -145,7 +254,7 @@ const Dashboard = () => {
                   <SlidersHorizontal className="h-4 w-4 mr-1" /> Customize Image
                 </Link>
               </Button>
-            </motion.div>
+            </div>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -200,9 +309,9 @@ const Dashboard = () => {
             </DropdownMenu>
           </div>
         </div>
-      </motion.header>
+      </header>
 
-      <div className="w-full px-4 py-8">
+      <div className="w-full px-4 py-8 max-sm:pt-0">
         <div className="max-w-7xl mx-auto">
           {/* Heading */}
           <motion.div
@@ -211,8 +320,8 @@ const Dashboard = () => {
             transition={{ duration: 0.6 }}
             className="mb-8"
           >
-            <h1 className="text-3xl font-bold text-foreground mb-2">Templates</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-3xl font-bold text-foreground mb-2 max-sm:hidden">Templates</h1>
+            <p className="text-muted-foreground max-sm:hidden">
               Pick a template and customize it in the editor.
             </p>
           </motion.div>
@@ -266,129 +375,9 @@ const Dashboard = () => {
             >
               <Link
                 to={`/editor?template=${template.id}&title=${encodeURIComponent(template.title)}&subtitle=${encodeURIComponent(template.subtitle)}&gradient=${encodeURIComponent(template.gradient)}&titleColor=${encodeURIComponent(template.titleColor)}&subtitleColor=${encodeURIComponent(template.subtitleColor)}&authorColor=${encodeURIComponent(template.authorColor || template.subtitleColor)}&titleSize=${template.titleSize}&logo=${template.hasLogo && template.logoUrl ? template.logoUrl : ""}&image=${template.hasImage && template.imageUrl ? template.imageUrl : ""}${template.imagePosition ? `&imagePosition=${encodeURIComponent(JSON.stringify(template.imagePosition))}` : ""}${template.logoPosition ? `&logoPosition=${encodeURIComponent(JSON.stringify(template.logoPosition))}` : ""}${template.contentPosition ? `&contentPosition=${encodeURIComponent(JSON.stringify(template.contentPosition))}` : ""}&hasAuthor=${template.hasAuthor}`}
-                className="block group h-full rounded-2xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-200"
+                className="block group h-full rounded-md border border-border bg-card overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-200"
               >
-                {/* Replace the entire preview div inside the Link with this: */}
-
-                <div className="h-48 relative overflow-hidden flex-shrink-0" >
-                  {/* Scale wrapper: 550×350 template scaled down to fit card width */}
-                  <div
-                    className="absolute top-0 left-0 origin-top-left"
-                    style={{
-                      width: 550,
-                      height: 350,
-                      transform: `scale(${192 / 350})`, // 192px = h-48, scale height to fit
-                      background: template.gradient.startsWith("from-")
-                        ? undefined
-                        : template.gradient,
-                      overflow: "hidden",
-                    }}
-                  >
-                    {/* Apply Tailwind gradient if it's a Tailwind class string */}
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-br ${template.gradient}`}
-                    />
-
-                    {/* Image */}
-                    {template.hasImage &&
-                      template.imageUrl &&
-                      template.imagePosition && (
-                        <img
-                          src={template.imageUrl}
-                          alt=""
-                          style={{
-                            position: "absolute",
-                            left: template.imagePosition.x * (550 / 900),
-                            top: template.imagePosition.y * (350 / 630),
-                            width: template.imagePosition.width * (550 / 900),
-                            height: template.imagePosition.height * (350 / 630),
-                            transform: `rotate(${template.imagePosition.rotation ?? 0}deg)`,
-                            borderRadius: 8,
-                            filter:
-                              template.imagePosition.shadowBlur > 0
-                                ? `drop-shadow(0 0 ${template.imagePosition.shadowBlur}px ${template.imagePosition.shadowColor ?? "#000"})`
-                                : "none",
-                            objectFit: "cover",
-                          }}
-                        />
-                      )}
-
-                    {/* Text content */}
-                    {template.contentPosition &&
-                      (() => {
-                        const cp = template.contentPosition;
-                        const scale = 192 / 350; // same scale as the container
-                        const scaleX = 550 / 900;
-                        const scaleY = 350 / 630;
-                        const isCenter =
-                          !template.hasImage || cp.textAlign === "center";
-                        const left = isCenter ? (550 - cp.width * scaleX) / 2 : cp.x * scaleX;
-                        const fontSizeMultiplier = template.hasImage
-                          ? 0.5
-                          : 0.35; // smaller if no image
-
-                        // Calculate vertical center when no image
-                        let top = cp.y * scaleY;
-                        if (!template.hasImage) {
-                          const estimatedHeight =
-                            Math.round(
-                              (template.titleSize / scale) *
-                                fontSizeMultiplier *
-                                1.5,
-                            ) +
-                            Math.round(
-                              ((template.titleSize * 0.36) / scale) *
-                                fontSizeMultiplier *
-                                1.5,
-                            );
-                          top = (350 - estimatedHeight) / 2;
-                        }
-
-                        return (
-                          <div
-                            style={{
-                              position: "absolute",
-                              left,
-                              top,
-                              width: cp.width * scaleX,
-                              textAlign: cp.textAlign as any,
-                            }}
-                          >
-                            <div
-                              style={{
-                                fontSize: Math.round(
-                                  (template.titleSize / scale) *
-                                    fontSizeMultiplier,
-                                ),
-                                fontWeight: 700,
-                                lineHeight: 1.15,
-                                color: template.titleColor,
-                                marginBottom: Math.round(
-                                  template.titleSize * 0.6 * fontSizeMultiplier,
-                                ),
-                                wordBreak: "break-word",
-                              }}
-                            >
-                              {template.title}
-                            </div>
-                            <div
-                              style={{
-                                fontSize: Math.round(
-                                  ((template.titleSize * 0.36) / scale) *
-                                    fontSizeMultiplier,
-                                ),
-                                color: template.subtitleColor,
-                                lineHeight: 1.4,
-                                wordBreak: "break-word",
-                              }}
-                            >
-                              {template.subtitle}
-                            </div>
-                          </div>
-                        );
-                      })()}
-                  </div>
-                </div>
+                <TemplatePreview template={template} />
               </Link>
             </motion.div>
           ))}
