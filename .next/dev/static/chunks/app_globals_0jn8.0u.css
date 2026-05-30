@@ -977,6 +977,10 @@ img, video {
   min-width: var(--radix-select-trigger-width);
 }
 
+.min-w-\[140px\] {
+  min-width: 140px;
+}
+
 .max-w-2xl {
   max-width: 42rem;
 }

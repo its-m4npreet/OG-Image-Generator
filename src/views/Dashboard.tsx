@@ -21,7 +21,6 @@ import {
   LogOut,
   User as UserIcon,
   Settings,
-  ChevronDown,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { templates, categories } from "@/templates";
@@ -367,12 +366,12 @@ const Dashboard = () => {
             <div className="sm:hidden">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="w-[140px] justify-between py-3">
-                    <span className="truncate overflow-hidden">{activeCategory}</span>
-                    <ChevronDown className="h-4 w-4 ml-2 shrink-0" />
+                  <Button variant="outline" size="sm" className="w-full justify-between py-3">
+                    {activeCategory}
+                    <span className="ml-2">▼</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[140px]">
+                <DropdownMenuContent align="end" className="w-full min-w-[140px]">
                   {categories.map((cat) => (
                     <DropdownMenuItem
                       key={cat}
