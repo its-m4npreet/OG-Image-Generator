@@ -21,6 +21,7 @@ import {
   LogOut,
   User as UserIcon,
   Settings,
+  ChevronDown,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { templates, categories } from "@/templates";
@@ -331,7 +332,7 @@ const Dashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.6 }}
-            className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8"
+            className="flex flex-row items-start sm:items-center gap-4 mb-8"
           >
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -342,7 +343,8 @@ const Dashboard = () => {
                 className="pl-10 bg-card border-border"
               />
             </div>
-            <motion.div className="flex gap-2 flex-wrap" layout>
+            {/* Desktop: row of category buttons */}
+            <motion.div className="hidden sm:flex gap-2 flex-wrap" layout>
               {categories.map((cat, i) => (
                 <motion.div
                   key={cat}
@@ -361,6 +363,28 @@ const Dashboard = () => {
                 </motion.div>
               ))}
             </motion.div>
+            {/* Mobile: dropdown */}
+            <div className="sm:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="w-[140px] justify-between py-3">
+                    <span className="truncate overflow-hidden">{activeCategory}</span>
+                    <ChevronDown className="h-4 w-4 ml-2 shrink-0" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[140px]">
+                  {categories.map((cat) => (
+                    <DropdownMenuItem
+                      key={cat}
+                      onClick={() => setActiveCategory(cat)}
+                      className={activeCategory === cat ? "bg-accent" : ""}
+                    >
+                      {cat}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </motion.div>
 
           {/* Grid */}
