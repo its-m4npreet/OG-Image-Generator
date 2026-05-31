@@ -193,7 +193,10 @@ const Editor = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [shapes, setShapes] = useState<CanvasShape[]>([]);
   const [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
+  const [activeSidebar, setActiveSidebar] = useState<string | null>(null);
   const [shapeColor, setShapeColor] = useState("#000000");
+  const [selectedLogo, setSelectedLogo] = useState(false);
+  const [selectedTextElement, setSelectedTextElement] = useState(false);
 
   const [logo, setLogo] = useState<string | null>(null);
   const [exportFormat, setExportFormat] = useState<"png" | "jpg" | "webp">(
@@ -1346,6 +1349,8 @@ const Editor = () => {
               onClick={(e) => {
                 if (e.target !== e.currentTarget) return;
                 setSelectedImage(null);
+                setSelectedLogo(false);
+                setSelectedTextElement(false);
                 setImageControlsOpen(false);
                 setSelectedShapeId(null);
                 if (
@@ -1422,11 +1427,17 @@ const Editor = () => {
                     transform: `rotate(${img.rotation || 0}deg)`,
                     touchAction: "none",
                     zIndex: getLayerZIndex("Image"),
+                    outline: selectedImage === img.id ? "3px solid #3b82f6" : "none",
+                    outlineOffset: "2px",
                   }}
                   onClick={() => {
                     if (lockedLayers.has("Image")) return;
                     setSelectedImage(img.id);
+                    setSelectedLogo(false);
+                    setSelectedTextElement(false);
                     setImageControlsOpen(true);
+                    setActiveSidebar("image");
+                    setTimeout(() => imageControlsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
                   }}
                   onMouseDown={(e) => {
                     if (!canvasRef.current) return;
@@ -1434,6 +1445,8 @@ const Editor = () => {
                     e.preventDefault();
                     e.stopPropagation();
                     setSelectedImage(img.id);
+                    setSelectedLogo(false);
+                    setSelectedTextElement(false);
 
                     const rect = canvasRef.current.getBoundingClientRect();
                     const scaleX = 900 / rect.width;
@@ -1482,15 +1495,16 @@ const Editor = () => {
                     width: `${logoProps.width}px`,
                     height: `${logoProps.height}px`,
                     zIndex: getLayerZIndex("Logo"),
+                    outline: selectedLogo ? "3px solid #3b82f6" : "none",
+                    outlineOffset: "2px",
                   }}
                   onClick={() => {
+                    setSelectedLogo(true);
+                    setSelectedImage(null);
                     setLogoControlsOpen(true);
-                    if (logoControlsRef.current && rightPanelRef.current) {
-                      const container = rightPanelRef.current;
-                      const el = logoControlsRef.current;
-                      const top = el.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
-                      container.scrollTo({ top, behavior: "smooth" });
-                    }
+                    setImageControlsOpen(true);
+                    setActiveSidebar("logo");
+                    setTimeout(() => logoControlsRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 50);
                   }}
                 >
                   <img
@@ -1508,12 +1522,12 @@ const Editor = () => {
               {/* Text Content */}
               <div
                 onClick={() => {
-                  if (contentPositionRef.current && rightPanelRef.current) {
-                    const container = rightPanelRef.current;
-                    const el = contentPositionRef.current;
-                    const top = el.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
-                    container.scrollTo({ top, behavior: "smooth" });
-                  }
+                  setSelectedTextElement(true);
+                  setSelectedImage(null);
+                  setSelectedLogo(false);
+                  setImageControlsOpen(true);
+                  setActiveSidebar("text");
+                  setTimeout(() => contentPositionRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 50);
                 }}
                 style={{
                   ...getTextPositioning(),
@@ -1522,6 +1536,9 @@ const Editor = () => {
                   overflow: "hidden",
                   wordWrap: "break-word",
                   whiteSpace: "normal",
+                  outline: selectedTextElement ? "2px solid #3b82f6" : "none",
+                  outlineOffset: "-2px",
+                  borderRadius: selectedTextElement ? "4px" : "0px",
                 }}
                 className="space-y-6"
               >
@@ -1614,6 +1631,8 @@ const Editor = () => {
                         e.stopPropagation();
                         setSelectedShapeId(shape.id);
                         setSelectedImage(null);
+                        setSelectedLogo(false);
+                        setSelectedTextElement(false);
                       }}
                     >
                       {shape.type === "rectangle" && (
@@ -1697,7 +1716,7 @@ const Editor = () => {
           rightOpen
             ? 'fixed inset-y-0 right-0 z-50 w-80 shadow-2xl'
             : 'hidden'
-        } lg:relative lg:z-auto lg:block lg:w-80 border-l border-border bg-card shrink-0 h-full flex flex-col overflow-hidden`}>
+        } lg:relative lg:z-auto lg:block lg:w-80 border-l border-border bg-card shrink-0 h-full flex flex-col overflow-y-auto`}>
           {/* Tabs */}
           {/* <div className="flex border-b border-border bg-background/30">
             <button
@@ -1739,10 +1758,6 @@ const Editor = () => {
               <div>
                 {/* Style / Colors - At Top */}
                 <div ref={backgroundRef}>
-                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-3">
-                    <Palette className="h-4 w-4" /> Background
-                  </h3>
-
                   {/* Background Type Toggle */}
                   <Label className="text-xs text-muted-foreground mb-2 block">
                     Background
@@ -2475,7 +2490,6 @@ const Editor = () => {
                 {/* Content Position Controls */}
                 <div
                   ref={contentPositionRef}
-                  className="rounded-lg transition-all duration-200"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
