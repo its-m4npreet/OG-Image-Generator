@@ -202,6 +202,8 @@ const Editor = () => {
   const [exportFormat, setExportFormat] = useState<"png" | "jpg" | "webp">(
     "png",
   );
+  const [canvasWidth, setCanvasWidth] = useState(1200);
+  const [canvasHeight, setCanvasHeight] = useState(630);
   const [exportSize, setExportSize] = useState<
     "800x420" | "1200x630" | "1920x1008"
   >("1200x630");
