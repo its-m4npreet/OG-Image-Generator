@@ -51,6 +51,9 @@ import {
   MoreVertical,
   PanelLeft,
   PanelRight,
+  Move,
+  MousePointer2,
+  Frame,
 } from "lucide-react";
 import { toPng, toJpeg } from "html-to-image";
 import {
@@ -98,6 +101,8 @@ interface CanvasShape {
   rotation: number;
   opacity: number;
 }
+
+
 
 interface ContentPosition {
   x: number;
@@ -202,8 +207,6 @@ const Editor = () => {
   const [exportFormat, setExportFormat] = useState<"png" | "jpg" | "webp">(
     "png",
   );
-  const [canvasWidth, setCanvasWidth] = useState(1200);
-  const [canvasHeight, setCanvasHeight] = useState(630);
   const [exportSize, setExportSize] = useState<
     "800x420" | "1200x630" | "1920x1008"
   >("1200x630");
@@ -227,8 +230,9 @@ const Editor = () => {
   );
   const [zoom, setZoom] = useState(90);
   const [selectedTool, setSelectedTool] = useState<
-    "move" | "text" | "color" | ShapeType | null
-  >(null);
+    "move" | "select" | null
+  >("select");
+  const [frameGridVisible, setFrameGridVisible] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
@@ -417,6 +421,14 @@ const Editor = () => {
     offsetX: number;
     offsetY: number;
   } | null>(null);
+  const contentDragRef = useRef<{
+    offsetX: number;
+    offsetY: number;
+  } | null>(null);
+  const logoDragRef = useRef<{
+    offsetX: number;
+    offsetY: number;
+  } | null>(null);
   const rightPanelRef = useRef<HTMLDivElement>(null);
   const imageControlsRef = useRef<HTMLDivElement>(null);
   const contentPositionRef = useRef<HTMLDivElement>(null);
@@ -550,7 +562,6 @@ const Editor = () => {
               borderColor,
             };
             setImages([newImage]);
-            setSelectedImage(newImage.id);
           };
           reader.readAsDataURL(blob);
         })
@@ -565,32 +576,50 @@ const Editor = () => {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!dragRef.current || !canvasRef.current) return;
-
+      if (!canvasRef.current) return;
       const rect = canvasRef.current.getBoundingClientRect();
       const scaleX = 900 / rect.width;
       const scaleY = 630 / rect.height;
-
       const mouseBaseX = (e.clientX - rect.left) * scaleX;
       const mouseBaseY = (e.clientY - rect.top) * scaleY;
 
-      const newX = mouseBaseX - dragRef.current.offsetX;
-      const newY = mouseBaseY - dragRef.current.offsetY;
+      if (dragRef.current) {
+        const newX = mouseBaseX - dragRef.current.offsetX;
+        const newY = mouseBaseY - dragRef.current.offsetY;
+        setImages((prev) =>
+          prev.map((img) => {
+            if (img.id !== dragRef.current?.id) return img;
+            return {
+              ...img,
+              x: Math.min(Math.max(-500, newX), 700),
+              y: Math.min(Math.max(-500, newY), 300),
+            };
+          }),
+        );
+      }
 
-      setImages((prev) =>
-        prev.map((img) => {
-          if (img.id !== dragRef.current?.id) return img;
-          return {
-            ...img,
-            x: Math.min(Math.max(-500, newX), 700),
-            y: Math.min(Math.max(-500, newY), 300),
-          };
-        }),
-      );
+      if (logoDragRef.current) {
+        const newX = Math.max(0, mouseBaseX - logoDragRef.current.offsetX);
+        const newY = Math.max(0, mouseBaseY - logoDragRef.current.offsetY);
+        setLogoProps(prev => ({ ...prev, x: newX, y: newY }));
+      }
+
+      if (contentDragRef.current) {
+        const newX = Math.max(0, mouseBaseX - contentDragRef.current.offsetX);
+        const newY = Math.max(0, mouseBaseY - contentDragRef.current.offsetY);
+        setContentPosition(prev => ({
+          x: newX,
+          y: newY,
+          width: prev?.width ?? 400,
+          textAlign: prev?.textAlign ?? "left",
+        }));
+      }
     };
 
     const handleMouseUp = () => {
       dragRef.current = null;
+      logoDragRef.current = null;
+      contentDragRef.current = null;
       setIsDragging(false);
     };
 
@@ -1355,25 +1384,8 @@ const Editor = () => {
                 setSelectedTextElement(false);
                 setImageControlsOpen(false);
                 setSelectedShapeId(null);
-                if (
-                  !selectedTool ||
-                  selectedTool === "move" ||
-                  selectedTool === "color" ||
-                  selectedTool === "text"
-                )
+                if (!selectedTool || selectedTool === "move" || selectedTool === "select")
                   return;
-                const rect = canvasRef.current?.getBoundingClientRect();
-                if (!rect) return;
-                const scaleX = 900 / rect.width;
-                const scaleY = 630 / rect.height;
-                const x = (e.clientX - rect.left) * scaleX;
-                const y = (e.clientY - rect.top) * scaleY;
-                const baseSize = selectedTool === "line" ? 180 : 100;
-                addShape(
-                  selectedTool as ShapeType,
-                  x - baseSize / 2,
-                  y - baseSize / 2,
-                );
               }}
               style={{
                 width: "900px",
@@ -1381,6 +1393,7 @@ const Editor = () => {
                 transform: `scale(${zoom / 100})`,
                 transformOrigin: "center",
                 transition: "transform 0.2s ease-out",
+                cursor: selectedTool === "move" ? "grab" : "default",
                 fontFamily: fontOptions[selectedFont],
                 ...(backgroundType === "gradient"
                   ? {
@@ -1425,7 +1438,7 @@ const Editor = () => {
                     top: `${(img.y / 630) * 100}%`,
                     width: `${(img.width / 900) * 100}%`,
                     height: `${(img.height / 630) * 100}%`,
-                    cursor: "move",
+                    cursor: selectedTool === "move" ? "move" : selectedTool === "select" ? "pointer" : "default",
                     transform: `rotate(${img.rotation || 0}deg)`,
                     touchAction: "none",
                     zIndex: getLayerZIndex("Image"),
@@ -1434,6 +1447,7 @@ const Editor = () => {
                   }}
                   onClick={() => {
                     if (lockedLayers.has("Image")) return;
+                    if (frameGridVisible) return;
                     setSelectedImage(img.id);
                     setSelectedLogo(false);
                     setSelectedTextElement(false);
@@ -1444,6 +1458,7 @@ const Editor = () => {
                   onMouseDown={(e) => {
                     if (!canvasRef.current) return;
                     if (lockedLayers.has("Image")) return;
+                    if (selectedTool !== "move") return;
                     e.preventDefault();
                     e.stopPropagation();
                     setSelectedImage(img.id);
@@ -1490,23 +1505,43 @@ const Editor = () => {
               {/* Logo */}
               {logo && (
                 <div
-                  className="absolute flex items-center justify-center transition-all duration-200"
+                  className={`absolute flex items-center justify-center ${isDragging ? "" : "transition-all duration-200"}`}
                   style={{
                     left: `${logoProps.x}px`,
                     top: `${logoProps.y}px`,
                     width: `${logoProps.width}px`,
                     height: `${logoProps.height}px`,
                     zIndex: getLayerZIndex("Logo"),
+                    cursor: selectedTool === "move" ? "move" : selectedTool === "select" ? "pointer" : "default",
                     outline: selectedLogo ? "3px solid #3b82f6" : "none",
                     outlineOffset: "2px",
                   }}
                   onClick={() => {
+                    if (frameGridVisible) return;
                     setSelectedLogo(true);
                     setSelectedImage(null);
                     setLogoControlsOpen(true);
                     setImageControlsOpen(true);
                     setActiveSidebar("logo");
                     setTimeout(() => logoControlsRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 50);
+                  }}
+                  onMouseDown={(e) => {
+                    if (selectedTool !== "move") return;
+                    if (!canvasRef.current) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setSelectedLogo(true);
+                    setSelectedImage(null);
+                    const rect = canvasRef.current.getBoundingClientRect();
+                    const scaleX = 900 / rect.width;
+                    const scaleY = 630 / rect.height;
+                    const mouseBaseX = (e.clientX - rect.left) * scaleX;
+                    const mouseBaseY = (e.clientY - rect.top) * scaleY;
+                    logoDragRef.current = {
+                      offsetX: mouseBaseX - logoProps.x,
+                      offsetY: mouseBaseY - logoProps.y,
+                    };
+                    setIsDragging(true);
                   }}
                 >
                   <img
@@ -1515,6 +1550,7 @@ const Editor = () => {
                     className="w-full h-full object-contain"
                     style={{
                       userSelect: "none",
+                      pointerEvents: "none",
                       borderRadius: `${logoProps.borderRadius || 0}px`,
                     }}
                   />
@@ -1524,6 +1560,7 @@ const Editor = () => {
               {/* Text Content */}
               <div
                 onClick={() => {
+                  if (frameGridVisible) return;
                   setSelectedTextElement(true);
                   setSelectedImage(null);
                   setSelectedLogo(false);
@@ -1531,8 +1568,34 @@ const Editor = () => {
                   setActiveSidebar("text");
                   setTimeout(() => contentPositionRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 50);
                 }}
+                onMouseDown={(e) => {
+                  if (selectedTool !== "move") return;
+                  if (!canvasRef.current) return;
+                  if (images.length === 0) return;
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSelectedTextElement(true);
+                  setSelectedImage(null);
+                  setSelectedLogo(false);
+                  const rect = canvasRef.current.getBoundingClientRect();
+                  const scaleX = 900 / rect.width;
+                  const scaleY = 630 / rect.height;
+                  const mouseBaseX = (e.clientX - rect.left) * scaleX;
+                  const mouseBaseY = (e.clientY - rect.top) * scaleY;
+                  const currentX = contentPosition?.x ?? 200;
+                  const currentY = contentPosition?.y ?? 200;
+                  if (!contentPosition) {
+                    setContentPosition({ x: currentX, y: currentY, width: 400, textAlign: "left" });
+                  }
+                  contentDragRef.current = {
+                    offsetX: mouseBaseX - currentX,
+                    offsetY: mouseBaseY - currentY,
+                  };
+                  setIsDragging(true);
+                }}
                 style={{
                   ...getTextPositioning(),
+                  cursor: selectedTool === "move" && images.length > 0 ? "move" : selectedTool === "select" ? "pointer" : "default",
                   zIndex: Math.max(getLayerZIndex("Text"), getLayerZIndex("Subtitle")),
                   padding: "2rem",
                   overflow: "hidden",
@@ -1612,6 +1675,48 @@ const Editor = () => {
                   </div>
                 )}
               </div>
+
+              {/* Frame Grid Overlay */}
+              {frameGridVisible && (
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ zIndex: 6 }}
+                >
+                  {/* Outer border */}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      border: "2px solid rgba(255,255,255,0.5)",
+                      borderRadius: "0",
+                    }}
+                  />
+                  {/* Vertical lines */}
+                  <svg className="absolute inset-0 w-full h-full">
+                    {Array.from({ length: 12 }).map((_, i) => (
+                      <line
+                        key={`v-${i}`}
+                        x1={`${((i + 1) / 13) * 100}%`}
+                        y1="0"
+                        x2={`${((i + 1) / 13) * 100}%`}
+                        y2="100%"
+                        stroke="rgba(255,255,255,0.2)"
+                        strokeWidth="1"
+                      />
+                    ))}
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <line
+                        key={`h-${i}`}
+                        x1="0"
+                        y1={`${((i + 1) / 9) * 100}%`}
+                        x2="100%"
+                        y2={`${((i + 1) / 9) * 100}%`}
+                        stroke="rgba(255,255,255,0.2)"
+                        strokeWidth="1"
+                      />
+                    ))}
+                  </svg>
+                </div>
+              )}
 
               {/* Shapes */}
               <svg
@@ -1710,6 +1815,43 @@ const Editor = () => {
               </svg>
             </div>
             )}
+          </div>
+
+          {/* Bottom Toolbar */}
+          <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-background/80 backdrop-blur-sm border border-border rounded-sm p-2 shadow-lg">
+            <button
+              onClick={() => setSelectedTool("move")}
+              className={`p-2 rounded-sm transition-colors ${
+                selectedTool === "move"
+                  ? "bg-accent text-accent-foreground"
+                  : "hover:bg-accent"
+              }`}
+              title="Move"
+            >
+              <Move className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setSelectedTool("select")}
+              className={`p-2 rounded-sm transition-colors ${
+                selectedTool === "select"
+                  ? "bg-accent text-accent-foreground"
+                  : "hover:bg-accent"
+              }`}
+              title="Select"
+            >
+              <MousePointer2 className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setFrameGridVisible(prev => !prev)}
+              className={`p-2 rounded-sm transition-colors ${
+                frameGridVisible
+                  ? "bg-accent text-accent-foreground"
+                  : "hover:bg-accent"
+              }`}
+              title="Frame"
+            >
+              <Frame className="h-4 w-4" />
+            </button>
           </div>
         </div>
 
