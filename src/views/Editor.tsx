@@ -27,6 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import {
@@ -1819,39 +1820,51 @@ const Editor = () => {
 
           {/* Bottom Toolbar */}
           <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-background/80 backdrop-blur-sm border border-border rounded-sm p-2 shadow-lg">
-            <button
-              onClick={() => setSelectedTool("move")}
-              className={`p-2 rounded-sm transition-colors ${
-                selectedTool === "move"
-                  ? "bg-accent text-accent-foreground"
-                  : "hover:bg-accent"
-              }`}
-              title="Move"
-            >
-              <Move className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setSelectedTool("select")}
-              className={`p-2 rounded-sm transition-colors ${
-                selectedTool === "select"
-                  ? "bg-accent text-accent-foreground"
-                  : "hover:bg-accent"
-              }`}
-              title="Select"
-            >
-              <MousePointer2 className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setFrameGridVisible(prev => !prev)}
-              className={`p-2 rounded-sm transition-colors ${
-                frameGridVisible
-                  ? "bg-accent text-accent-foreground"
-                  : "hover:bg-accent"
-              }`}
-              title="Frame"
-            >
-              <Frame className="h-4 w-4" />
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setSelectedTool("select")}
+                  className={`p-2 rounded-sm transition-colors ${
+                    selectedTool === "select"
+                      ? "bg-accent text-accent-foreground"
+                      : "hover:bg-accent"
+                  }`}
+                >
+                  <MousePointer2 className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top">Select</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setSelectedTool("move")}
+                  className={`p-2 rounded-sm transition-colors ${
+                    selectedTool === "move"
+                      ? "bg-accent text-accent-foreground"
+                      : "hover:bg-accent"
+                  }`}
+                >
+                  <Move className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top">Move</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setFrameGridVisible(prev => !prev)}
+                  className={`p-2 rounded-sm transition-colors ${
+                    frameGridVisible
+                      ? "bg-accent text-accent-foreground"
+                      : "hover:bg-accent"
+                  }`}
+                >
+                  <Frame className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top">Frame</TooltipContent>
+            </Tooltip>
           </div>
         </div>
 
