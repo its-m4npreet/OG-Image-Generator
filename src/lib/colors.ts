@@ -43,6 +43,12 @@ export const gradientMap = [
   { tailwind: "radial-slate-glow", css: "radial-gradient(125% 125% at 50% 10%, #fff 40%, #475569 100%)" },
   { tailwind: "radial-orchid-depths", css: "radial-gradient(125% 125% at 50% 10%, #000000 40%, #350136 100%)" },
   { tailwind: "radial-azure-depths", css: "radial-gradient(125% 125% at 50% 10%, #000000 40%, #010133 100%)" },
+
+  // Aurora Dream Gradients
+  { tailwind: "aurora-dream-vivid-bloom", css: "radial-gradient(ellipse 80% 60% at 70% 20%, rgba(175, 109, 255, 0.85), transparent 68%), radial-gradient(ellipse 70% 60% at 20% 80%, rgba(255, 100, 180, 0.75), transparent 68%), radial-gradient(ellipse 60% 50% at 60% 65%, rgba(255, 235, 170, 0.98), transparent 68%), radial-gradient(ellipse 65% 40% at 50% 60%, rgba(120, 190, 255, 0.3), transparent 68%), linear-gradient(180deg, #f7eaff 0%, #fde2ea 100%)" },
+  { tailwind: "aurora-dream-diagonal-flow", css: "radial-gradient(ellipse 80% 60% at 5% 40%, rgba(175, 109, 255, 0.48), transparent 67%), radial-gradient(ellipse 70% 60% at 45% 45%, rgba(255, 100, 180, 0.41), transparent 67%), radial-gradient(ellipse 62% 52% at 83% 76%, rgba(255, 235, 170, 0.44), transparent 63%), radial-gradient(ellipse 60% 48% at 75% 20%, rgba(120, 190, 255, 0.36), transparent 66%), linear-gradient(45deg, #f7eaff 0%, #fde2ea 100%)" },
+  { tailwind: "dreamy-sunset-gradient", css: "linear-gradient(180deg, rgba(245,245,220,1) 0%, rgba(255,223,186,0.8) 25%, rgba(255,182,193,0.6) 50%, rgba(147,112,219,0.7) 75%, rgba(72,61,139,0.9) 100%), radial-gradient(circle at 30% 20%, rgba(255,255,224,0.4) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(72,61,139,0.6) 0%, transparent 70%), radial-gradient(circle at 50% 60%, rgba(147,112,219,0.3) 0%, transparent 60%)" },
+  { tailwind: "yellow-corner-bright", css: "radial-gradient(circle 600px at 0% 200px, #fef3c7, transparent), radial-gradient(circle 600px at 100% 200px, #fef3c7, transparent)" },
 ];
 
 // Check if a gradient CSS uses rgba/hsla with alpha < 1 (needs a solid background)
@@ -296,8 +302,8 @@ export const isLightBackground = (
   selectedPattern: number | null,
 ): boolean => {
   if (backgroundType === "gradient") {
-    if (selectedGradient >= 25 && selectedGradient <= 26) return true;
-    if (selectedGradient >= 27) return false;
+    if (selectedGradient >= 25 && selectedGradient <= 30) return true;
+    if (selectedGradient >= 31) return false;
     return selectedGradient >= 16;
   }
   if (backgroundType === "pattern" && selectedPattern !== null && patternMap[selectedPattern]) {

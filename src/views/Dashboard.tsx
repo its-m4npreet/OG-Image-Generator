@@ -24,11 +24,14 @@ import {
 import { useSession, signOut } from "next-auth/react";
 import { clearSessionStorage } from "@/lib/token-storage";
 import { templates, categories } from "@/templates";
-import { gradients, solidColors } from "@/lib/colors";
+import { gradients, solidColors, gradientMap, patternMap } from "@/lib/colors";
 
 function TemplatePreview({ template }: { template: (typeof templates)[number] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+
+  const gradientCSS = gradientMap.find(g => g.tailwind === template.gradient)?.css;
+  const templatePattern = "pattern" in template ? patternMap[template.pattern as number] : null;
 
   useEffect(() => {
     const el = containerRef.current;
@@ -41,6 +44,8 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
     return () => observer.disconnect();
   }, []);
 
+  const isStandardGradient = template.gradient.startsWith("from-");
+
   return (
     <div ref={containerRef} className="w-full aspect-[550/350] relative overflow-hidden flex-shrink-0">
       <div
@@ -49,13 +54,34 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
           width: 550,
           height: 350,
           transform: `scale(${scale})`,
-          background: template.gradient.startsWith("from-")
-            ? undefined
-            : template.gradient,
+          background: templatePattern
+            ? templatePattern.backgroundColor
+            : isStandardGradient
+              ? undefined
+              : gradientCSS,
           overflow: "hidden",
         }}
       >
-        <div className={`absolute inset-0 bg-gradient-to-br ${template.gradient}`} />
+        {templatePattern ? (
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: templatePattern.backgroundImage,
+              backgroundSize: templatePattern.backgroundSize || undefined,
+              WebkitMaskImage: templatePattern.WebkitMaskImage || undefined,
+              maskImage: templatePattern.maskImage || undefined,
+              WebkitMaskComposite: templatePattern.WebkitMaskComposite as React.CSSProperties['WebkitMaskComposite'] || undefined,
+              maskComposite: templatePattern.maskComposite as React.CSSProperties['maskComposite'] || undefined,
+            }}
+          />
+        ) : isStandardGradient ? (
+          <div className={`absolute inset-0 bg-gradient-to-br ${template.gradient}`} />
+        ) : (
+          <div
+            className="absolute inset-0"
+            style={{ background: gradientCSS }}
+          />
+        )}
 
         {template.hasImage &&
           template.imageUrl &&
@@ -396,7 +422,7 @@ const Dashboard = () => {
               className="h-full"
             >
               <Link
-                to={`/editor?template=${template.id}&title=${encodeURIComponent(template.title)}&subtitle=${encodeURIComponent(template.subtitle)}&gradient=${encodeURIComponent(template.gradient)}&titleColor=${encodeURIComponent(template.titleColor)}&subtitleColor=${encodeURIComponent(template.subtitleColor)}&authorColor=${encodeURIComponent("authorColor" in template && template.authorColor ? template.authorColor : template.subtitleColor)}&titleSize=${template.titleSize}&logo=${template.hasLogo && template.logoUrl ? template.logoUrl : ""}&image=${template.hasImage && template.imageUrl ? template.imageUrl : ""}${template.imagePosition ? `&imagePosition=${encodeURIComponent(JSON.stringify(template.imagePosition))}` : ""}${template.logoPosition ? `&logoPosition=${encodeURIComponent(JSON.stringify(template.logoPosition))}` : ""}${template.contentPosition ? `&contentPosition=${encodeURIComponent(JSON.stringify(template.contentPosition))}` : ""}&hasAuthor=${template.hasAuthor}`}
+                to={`/editor?template=${template.id}&title=${encodeURIComponent(template.title)}&subtitle=${encodeURIComponent(template.subtitle)}&gradient=${encodeURIComponent(template.gradient)}&titleColor=${encodeURIComponent(template.titleColor)}&subtitleColor=${encodeURIComponent(template.subtitleColor)}&authorColor=${encodeURIComponent("authorColor" in template && template.authorColor ? template.authorColor : template.subtitleColor)}&titleSize=${template.titleSize}&logo=${template.hasLogo && template.logoUrl ? template.logoUrl : ""}&image=${template.hasImage && template.imageUrl ? template.imageUrl : ""}${template.imagePosition ? `&imagePosition=${encodeURIComponent(JSON.stringify(template.imagePosition))}` : ""}${template.logoPosition ? `&logoPosition=${encodeURIComponent(JSON.stringify(template.logoPosition))}` : ""}${template.contentPosition ? `&contentPosition=${encodeURIComponent(JSON.stringify(template.contentPosition))}` : ""}&hasAuthor=${template.hasAuthor}${"pattern" in template && template.pattern !== undefined ? `&backgroundType=pattern&pattern=${template.pattern}` : ""}`}
                 className="block group h-full rounded-sm border border-border bg-card overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-200"
               >
                 <TemplatePreview template={template} />

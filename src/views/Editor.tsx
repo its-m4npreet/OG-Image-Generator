@@ -172,6 +172,8 @@ const Editor = () => {
     ? Number(searchParams.get("titleSize"))
     : 40;
   const templateHasAuthor = searchParams.get("hasAuthor") !== "false"; // Default to true
+  const templateBackgroundType = searchParams.get("backgroundType") as "gradient" | "solid" | "pattern" | null;
+  const templatePattern = searchParams.get("pattern") ? Number(searchParams.get("pattern")) : null;
 
   // Helper function to get initial gradient index
   const getInitialGradient = () => {
@@ -200,9 +202,11 @@ const Editor = () => {
   );
   const [showAllSolidColors, setShowAllSolidColors] = useState(false);
   const [solidColorsLoading, setSolidColorsLoading] = useState(false);
-  const [selectedPattern, setSelectedPattern] = useState<number | null>(0);
+  const [selectedPattern, setSelectedPattern] = useState<number | null>(
+    templateBackgroundType === "pattern" && templatePattern !== null ? templatePattern : 0,
+  );
   const [backgroundType, setBackgroundType] = useState<"gradient" | "solid" | "pattern">(
-    "gradient",
+    templateBackgroundType || "gradient",
   );
   const [noiseLevel, setNoiseLevel] = useState(0); // 0-100 range
   const [noiseImageUrl, setNoiseImageUrl] = useState("");
@@ -524,14 +528,40 @@ const Editor = () => {
   }, []);
 
   const handleTemplateSelect = (template: (typeof templates)[number]) => {
-    const gradientIdx = gradients.findIndex((g) => g === template.gradient);
-    if (gradientIdx !== -1) setSelectedGradient(gradientIdx);
+    if ("pattern" in template && template.pattern !== undefined) {
+      setSelectedPattern(template.pattern);
+      setBackgroundType("pattern");
+      const p = patternMap[template.pattern];
+      if (p) {
+        const hex = p.backgroundColor?.replace("#", "") || "ffffff";
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        const isLight = (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5;
+        if (isLight) {
+          setTitleColor("#292929");
+          setSubtitleColor("#545454");
+          setAuthorColor("#383838");
+        } else {
+          setTitleColor("#FFFFFF");
+          setSubtitleColor("#E5E7EB");
+          setAuthorColor("#9CA3AF");
+        }
+      }
+      setNoiseLevel(0);
+    } else {
+      const gradientIdx = gradients.findIndex((g) => g === template.gradient);
+      if (gradientIdx !== -1) setSelectedGradient(gradientIdx);
+      setBackgroundType("gradient");
+    }
     setTitle(template.title);
     setSubtitle(template.subtitle);
-    setTitleColor(template.titleColor);
-    setSubtitleColor(template.subtitleColor);
-    if ("authorColor" in template && template.authorColor)
-      setAuthorColor(template.authorColor);
+    if (!("pattern" in template)) {
+      setTitleColor(template.titleColor);
+      setSubtitleColor(template.subtitleColor);
+      if ("authorColor" in template && template.authorColor)
+        setAuthorColor(template.authorColor);
+    }
     setFontSize(template.titleSize);
     setShowAuthor(template.hasAuthor);
     if (template.contentPosition) setContentPosition(template.contentPosition);
@@ -3314,7 +3344,18 @@ const Editor = () => {
                         handleTemplateSelect(template);
                         setRightTab("design");
                       }}
-                      className={`group w-full aspect-[1200/630] rounded-lg overflow-hidden border border-border hover:border-primary transition-all duration-200 text-left relative bg-card bg-gradient-to-br ${template.preview.bg}`}
+                      className={`group w-full aspect-[1200/630] rounded-lg overflow-hidden border border-border hover:border-primary transition-all duration-200 text-left relative ${template.preview.bg?.startsWith("from-") ? `bg-card bg-gradient-to-br ${template.preview.bg}` : "bg-card"}`}
+                      style={(() => {
+                        if ("pattern" in template && template.pattern !== undefined) {
+                          const p = patternMap[template.pattern as number];
+                          if (p) return {
+                            backgroundColor: p.backgroundColor,
+                            backgroundImage: p.backgroundImage,
+                            backgroundSize: p.backgroundSize || undefined,
+                          };
+                        }
+                        return undefined;
+                      })()}
                     >
                       <div className="absolute inset-0 transition-all duration-200 ">
                       {template.hasImage && template.imagePosition && (

@@ -45,14 +45,14 @@ export const templates = [
     },
   },
   {
-    id: 3,
+    id: 1,
     name: "Dark Tech Article",
     category: "Blog",
-    gradient: "from-[#020617] via-[#111827] to-[#334155]",
+    gradient: "aurora-dream-vivid-bloom",
     title: "Web Performance Optimization",
     subtitle: "Speed up your website with these proven techniques",
-    titleColor: "#FFFFFF",
-    subtitleColor: "#CBD5E1",
+    titleColor: "#000000",
+    subtitleColor: "#1F2937",
     titleSize: 52,
     hasImage: false,
     hasLogo: false,
@@ -69,14 +69,14 @@ export const templates = [
       textAlign: "center",
     },
     preview: {
-      bg: "from-slate-700 to-slate-500",
-      text: "white",
+      bg: "aurora-dream-vivid-bloom",
+      text: "dark",
     },
   },
 
   // SaaS Templates
   {
-    id: 4,
+    id: 2,
     name: "SaaS Launch",
     category: "SaaS",
     gradient: "from-[#312E81] via-[#4338CA] to-[#6366F1]",
@@ -115,7 +115,7 @@ export const templates = [
     },
   },
   {
-    id: 5,
+    id: 3,
     name: "Startup Pitch",
     category: "SaaS",
     gradient: "from-[#7C2D12] via-[#C2410C] to-[#FB7185]",
@@ -154,7 +154,7 @@ export const templates = [
     },
   },
   {
-    id: 6,
+    id: 4,
     name: "SaaS Minimalist",
     category: "SaaS",
     gradient: "from-[#083344] via-[#155E75] to-[#67E8F9]",
@@ -334,35 +334,6 @@ export const templates = [
       text: "white",
     },
   },
-  {
-    id: 11,
-    name: "Launch Minimal",
-    category: "Product Launch",
-    gradient: "from-[#E2E8F0] via-[#F8FAFC] to-[#FFFFFF]",
-    title: "New Era Begins",
-    subtitle: "What happens next will change everything",
-    titleColor: "#1F2937",
-    subtitleColor: "#4B5563",
-    titleSize: 56,
-    hasImage: false,
-    hasLogo: false,
-    hasAuthor: false,
-    ismultiple: false,
-    imageUrl: "",
-    logoUrl: "",
-    imagePosition: undefined,
-    logoPosition: undefined,
-    contentPosition: {
-      x: 250,
-      y: 200,
-      width: 1060,
-      textAlign: "center",
-    },
-    preview: {
-      bg: "from-gray-100 to-white",
-      text: "dark",
-    },
-  },
 
   // Social Media Templates
   {
@@ -443,57 +414,18 @@ export const templates = [
       text: "white",
     },
   },
-  {
-    id: 14,
-    name: "Social Minimal",
-    category: "Social Media",
-    gradient: "from-[#14532D] via-[#15803D] to-[#86EFAC]",
-    title: "New Tutorial Live",
-    subtitle: "Learn something new today",
-    titleColor: "#1F2937",
-    subtitleColor: "#374151",
-    titleSize: 48,
-    hasImage: false,
-    hasLogo: false,
-    hasAuthor: false,
-    ismultiple: false,
-    imageUrl: "/ogImage.png",
-    logoUrl: "",
-    imagePosition:{
-        x: 425,
-      y: 200,
-      width: 400,
-      height: 240,
-      rotation: 0,
-      shadowBlur: 0,
-      shadowSpread: 0,
-      shadowColor: "#000000",
-      shadowOpacity: 0,
-    },
-    logoPosition: undefined,
-    contentPosition: {
-      x: 70,
-      y: 200,
-      width: 1060,
-      textAlign: "center",
-    },
-    preview: {
-      bg: "from-green-100 to-green-50",
-      text: "dark",
-    },
-  },
   // NEW PREMIUM TEMPLATES
 
   {
     id: 15,
     name: "Editorial Left Hero",
     category: "Blog",
-    gradient: "from-[#020617] via-[#0F172A] to-[#1E293B]",
+    gradient: "radial-teal-glow",
     title: "Design Systems That Scale",
     subtitle: "Building modern interfaces with consistency",
-    titleColor: "#FFFFFF",
-    subtitleColor: "#E5E7EB",
-    authorColor: "#9CA3AF",
+    titleColor: "#1C1C1C",
+    subtitleColor: "#171717",
+    authorColor: "#121416",
     titleSize: 50,
     hasImage: true,
     hasLogo: true,
@@ -525,56 +457,12 @@ export const templates = [
     },
 
     preview: {
-      bg: "from-[#0F172A] via-[#111827] to-[#1E293B]",
+      bg: "radial-teal-glow",
       text: "white",
     },
   },
 
-  {
-    id: 16,
-    name: "Centered Product Reveal",
-    category: "Product Launch",
-    gradient: "from-[#09090B] via-[#18181B] to-[#27272A]",
-    title: "Meet Nova AI",
-    subtitle: "Your next-gen productivity assistant",
-    titleColor: "#FFFFFF",
-    subtitleColor: "#E5E7EB",
-    titleSize: 52,
-    hasImage: true,
-    hasLogo: true,
-    hasAuthor: false,
-    ismultiple: false,
-    imageUrl: "/ogImage.png",
-    logoUrl: "",
 
-    // LEFT TEXT + RIGHT IMAGE
-    imagePosition: {
-      x: 480,
-      y: 120,
-      width: 480,
-      height: 420,
-      rotation: -4,
-
-      shadowBlur: 100,
-      shadowSpread: 25,
-      shadowColor: "#A855F7",
-      shadowOpacity: 0.35,
-    },
-
-    logoPosition: undefined,
-
-    contentPosition: {
-      x: 40,
-      y: 210,
-      width: 400,
-      textAlign: "left",
-    },
-
-    preview: {
-      bg: "from-[#18181B] via-[#27272A] to-[#09090B]",
-      text: "white",
-    },
-  },
 
   {
     id: 17,
@@ -627,10 +515,11 @@ export const templates = [
     name: "Cinematic Launch",
     category: "Product Launch",
     gradient: "from-[#030712] via-[#111827] to-[#374151]",
+    pattern: 4,
     title: "The Future Starts Today",
     subtitle: "Reimagining the way teams build products",
-    titleColor: "#FFFFFF",
-    subtitleColor: "#D1D5DB",
+    titleColor: "#1F2937",
+    subtitleColor: "#4B5563",
     titleSize: 54,
     hasImage: true,
     hasLogo: true,
@@ -663,8 +552,8 @@ export const templates = [
     },
 
     preview: {
-      bg: "from-[#111827] via-[#1F2937] to-[#374151]",
-      text: "white",
+      bg: "cross-top-fade",
+      text: "dark",
     },
   },
   // MIXED SOCIAL MEDIA TEMPLATES
@@ -676,6 +565,7 @@ export const templates = [
     category: "Social Media",
 
     gradient: "from-[#020617] via-[#111827] to-[#334155]",
+    pattern: 11,
 
     title: "Consistency beats motivation.",
     subtitle: "Small improvements compound faster than hype.",
@@ -702,106 +592,17 @@ export const templates = [
     },
 
     preview: {
-      bg: "from-[#0F172A] via-[#111827] to-[#1E293B]",
+      bg: "variable-spacing",
       text: "white",
     },
   },
 
-  {
-    id: 29,
-    name: "Viral Product Post",
-    category: "Social Media",
-
-    gradient: "from-[#7F1D1D] via-[#DC2626] to-[#FB923C]",
-
-    title: "We Just Shipped v2 🚀",
-    subtitle: "Faster performance. Cleaner UI. Better workflows.",
-    titleColor: "#FFFFFF",
-    subtitleColor: "#FEE2E2",
-    titleSize: 48,
-
-    hasImage: true,
-    hasLogo: false,
-    hasAuthor: false,
-    ismultiple: false,
-
-    imageUrl: "/ogImage.png",
-    logoUrl: "",
-
-    // LEFT BLEED
-    imagePosition: {
-      x: -90,
-      y: 100,
-      width: 580,
-      height: 380,
-
-      rotation: 7,
-
-      shadowBlur: 120,
-      shadowSpread: 30,
-      shadowColor: "#DC2626",
-      shadowOpacity: 0.42,
-    },
-
-    logoPosition: undefined,
-
-    contentPosition: {
-      x: 510,
-      y: 230,
-      width: 360,
-      textAlign: "left",
-    },
-
-    preview: {
-      bg: "from-[#7F1D1D] via-[#DC2626] to-[#F97316]",
-      text: "white",
-    },
-  },
-
-  {
-    id: 30,
-    name: "Twitter Style Text Card",
-    category: "Social Media",
-
-    gradient: "from-[#030712] via-[#111827] to-[#374151]",
-
-    title: "Hot take:",
-    subtitle:
-      "Most SaaS products don't fail because of code. They fail because nobody cares.",
-    titleColor: "#FFFFFF",
-    subtitleColor: "#D1D5DB",
-    authorColor: "#9CA3AF",
-    titleSize: 44,
-
-    hasImage: false,
-    hasLogo: true,
-    hasAuthor: true,
-    ismultiple: false,
-
-    imageUrl: "",
-    logoUrl: "",
-
-    imagePosition: undefined,
-
-    logoPosition: undefined,
-    contentPosition: {
-      x: 100,
-      y: 200,
-      width: 1060,
-      textAlign: "center",
-    },
-
-    preview: {
-      bg: "from-[#111827] via-[#1F2937] to-[#374151]",
-      text: "white",
-    },
-  },
   {
     id: 31,
     name: "Blurred Gradient",
     category: "Social Media",
     blurred: true,
-    gradient: "from-[#030712] via-[#111827] to-[#374151]",
+    gradient: "radial-azure-depths",
 
     title: "Create Beautiful OG Images Here",
     subtitle:"",
@@ -829,7 +630,7 @@ export const templates = [
     },
 
     preview: {
-      bg: "from-[#111827] via-[#1F2937] to-[#374151]",
+      bg: "radial-azure-depths",
       text: "white",
     },
   },
