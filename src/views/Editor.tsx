@@ -278,7 +278,7 @@ const Editor = () => {
       else if (tags.length === 0) return next.filter(l => l !== "Tag");
       return next;
     });
-  }, [images.length > 0, logos.length > 0, tags.length > 0]);
+  }, [images.length, logos.length, tags.length]);
 
   const visibleLayers = useMemo(() => {
     const layerMap: Record<string, { name: string; icon: React.ReactNode; onClick: () => void }> = {
@@ -500,7 +500,7 @@ const Editor = () => {
       setSelectedImage(images[0].id);
       setImageControlsOpen(true);
     }
-  }, [images.length, selectedImage]);
+  }, [images, selectedImage]);
 
   // Handle keyboard zoom shortcuts
   useEffect(() => {
@@ -694,6 +694,7 @@ const Editor = () => {
     templateImage,
     templateImagePosition,
     templateContentPosition,
+    templateLogoPosition,
   ]);
 
   // Update text colors when switching to pattern backgrounds
@@ -813,7 +814,7 @@ const Editor = () => {
     return () => {
       cancelled = true;
     };
-  }, [noiseLevel, backgroundType, selectedSolidColor]);
+  }, [noiseLevel, backgroundType, selectedSolidColor, selectedGradient]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1735,10 +1736,10 @@ const Editor = () => {
                       ? { maskImage: patternMap[selectedPattern].maskImage }
                       : {}),
                     ...(patternMap[selectedPattern].WebkitMaskComposite
-                      ? { WebkitMaskComposite: patternMap[selectedPattern].WebkitMaskComposite as any }
+                      ? { WebkitMaskComposite: patternMap[selectedPattern].WebkitMaskComposite as React.CSSProperties['WebkitMaskComposite'] }
                       : {}),
                     ...(patternMap[selectedPattern].maskComposite
-                      ? { maskComposite: patternMap[selectedPattern].maskComposite as any }
+                      ? { maskComposite: patternMap[selectedPattern].maskComposite as React.CSSProperties['maskComposite'] }
                       : {}),
                   }}
                 />
@@ -2534,8 +2535,8 @@ const Editor = () => {
                                   backgroundRepeat: "repeat",
                                   WebkitMaskImage: pattern.WebkitMaskImage || undefined,
                                   maskImage: pattern.maskImage || undefined,
-                                  WebkitMaskComposite: pattern.WebkitMaskComposite as any || undefined,
-                                  maskComposite: pattern.maskComposite as any || undefined,
+                                  WebkitMaskComposite: (pattern.WebkitMaskComposite as React.CSSProperties['WebkitMaskComposite']) || undefined,
+                                  maskComposite: (pattern.maskComposite as React.CSSProperties['maskComposite']) || undefined,
                                 }}
                               />
                             </div>

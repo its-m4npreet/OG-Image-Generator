@@ -19,7 +19,7 @@ export const templates = [
     hasAuthor: true,
     ismultiple: false,
     imageUrl: "/ogImage.png",
-    logoUrl: "/ogImage.png",
+    logoUrl: "",
     imagePosition: {
       x: 480,
       y: 90,
@@ -32,12 +32,7 @@ export const templates = [
       shadowOpacity: 0.25,
     },
 
-    logoPosition: {
-      x: 70,
-      y: 60,
-      width: 72,
-      height: 72,
-    },
+    logoPosition: undefined,
     contentPosition: {
       x: 60,
       y: 210,
@@ -95,7 +90,7 @@ export const templates = [
     hasAuthor: false,
     ismultiple: false,
     imageUrl: "/ogImage.png",
-    logoUrl: "/ogImage.png",
+    logoUrl: "",
     imagePosition: {
       x: -100,
       y: 160,
@@ -107,7 +102,7 @@ export const templates = [
       shadowColor: "#000000",
       shadowOpacity: 0,
     },
-    logoPosition: { x: 40, y: 40, width: 100, height: 100 },
+    logoPosition: undefined,
     contentPosition: {
       x: 480,
       y: 200,
@@ -134,7 +129,7 @@ export const templates = [
     hasAuthor: false,
     ismultiple: false,
     imageUrl: "/ogImage.png",
-    logoUrl: "/ogImage.png",
+    logoUrl: "",
     imagePosition: {
       x: 360,
       y: 250,
@@ -146,7 +141,7 @@ export const templates = [
       shadowColor: "#000000",
       shadowOpacity: 0,
     },
-    logoPosition: { x: 50, y: 50, width: 90, height: 90 },
+    logoPosition: undefined,
     contentPosition: {
       x: 30,
       y: 120,
@@ -205,7 +200,7 @@ export const templates = [
     hasAuthor: true,
     ismultiple: false,
     imageUrl: "/ogImage.png",
-    logoUrl: "/ogImage.png",
+    logoUrl: "",
     imagePosition: {
       x: 420,
       y: 90,
@@ -217,7 +212,7 @@ export const templates = [
       shadowColor: "#4F46E5",
       shadowOpacity: 0.35,
     },
-    logoPosition: { x: 60, y: 60, width: 110, height: 110 },
+    logoPosition: undefined,
     contentPosition: {
       x: 50,
       y: 160,
@@ -276,7 +271,7 @@ export const templates = [
     hasAuthor: false,
     ismultiple: false,
     imageUrl: "/ogImage.png",
-    logoUrl: "/ogImage.png",
+    logoUrl: "",
     imagePosition: {
       x: -100,
       y: 160,
@@ -288,7 +283,7 @@ export const templates = [
       shadowColor: "#000000",
       shadowOpacity: 0,
     },
-    logoPosition: { x: 45, y: 45, width: 95, height: 95 },
+    logoPosition: undefined,
     contentPosition: {
       x: 490,
       y: 230,
@@ -315,7 +310,7 @@ export const templates = [
     hasAuthor: false,
     ismultiple: false,
     imageUrl: "/ogImage.png",
-    logoUrl: undefined,
+    logoUrl: "",
     imagePosition: {
       x: 370,
       y: 160,
@@ -327,7 +322,7 @@ export const templates = [
       shadowColor: "#000000",
       shadowOpacity: 0,
     },
-    logoPosition: { x: 55, y: 55, width: 85, height: 85 },
+    logoPosition: undefined,
     contentPosition: {
       x: 30,
       y: 140,
@@ -424,7 +419,7 @@ export const templates = [
     hasAuthor: false,
     ismultiple: false,
     imageUrl: "/ogImage.png",
-    logoUrl: "/ogImage.png",
+    logoUrl: "",
     imagePosition: {
       x: 500,
       y: 90,
@@ -436,7 +431,7 @@ export const templates = [
       shadowColor: "#000000",
       shadowOpacity: 0,
     },
-    logoPosition: { x: 70, y: 60, width: 72, height: 72 },
+    logoPosition: undefined,
     contentPosition: {
       x: 50,
       y: 210,
@@ -520,12 +515,7 @@ export const templates = [
       shadowOpacity: 0.35,
     },
 
-    logoPosition: {
-      x: 850,
-      y: 60,
-      width: 72,
-      height: 72,
-    },
+    logoPosition: undefined,
 
     contentPosition: {
       x: 520,
@@ -555,7 +545,7 @@ export const templates = [
     hasAuthor: false,
     ismultiple: false,
     imageUrl: "/ogImage.png",
-    logoUrl: "/ogImage.png",
+    logoUrl: "",
 
     // LEFT TEXT + RIGHT IMAGE
     imagePosition: {
@@ -571,12 +561,7 @@ export const templates = [
       shadowOpacity: 0.35,
     },
 
-    logoPosition: {
-      x: 40,
-      y: 40,
-      width: 74,
-      height: 74,
-    },
+    logoPosition: undefined,
 
     contentPosition: {
       x: 40,
@@ -607,7 +592,7 @@ export const templates = [
     hasAuthor: true,
     ismultiple: false,
     imageUrl: "/ogImage.png",
-    logoUrl: "/ogImage.png",
+    logoUrl: "",
 
     imagePosition: {
       x: -80,
@@ -622,12 +607,7 @@ export const templates = [
       shadowOpacity: 0.28,
     },
 
-    logoPosition: {
-      x: 830,
-      y: 60,
-      width: 82,
-      height: 82,
-    },
+    logoPosition: undefined,
 
     contentPosition: {
       x: 510,
@@ -673,12 +653,7 @@ export const templates = [
       shadowOpacity: 0.45,
     },
 
-    logoPosition: {
-      x: 800,
-      y: 60,
-      width: 70,
-      height: 70,
-    },
+    logoPosition: undefined,
 
     contentPosition: {
       x: 560,
@@ -804,16 +779,11 @@ export const templates = [
     ismultiple: false,
 
     imageUrl: "",
-    logoUrl: "/ogImage.png",
+    logoUrl: "",
 
     imagePosition: undefined,
 
-    logoPosition: {
-      x: 80,
-      y: 60,
-      width: 68,
-      height: 68,
-    },
+    logoPosition: undefined,
     contentPosition: {
       x: 100,
       y: 200,
@@ -826,7 +796,43 @@ export const templates = [
       text: "white",
     },
   },
-  
+  {
+    id: 31,
+    name: "Blurred Gradient",
+    category: "Social Media",
+    blurred: true,
+    gradient: "from-[#030712] via-[#111827] to-[#374151]",
+
+    title: "Create Beautiful OG Images Here",
+    subtitle:"",
+    titleColor: "#FFFFFF",
+    subtitleColor: "#FFFFFF",
+    authorColor: "#FFFFFF",
+    titleSize: 52,
+
+    hasImage: false,
+    hasLogo: true,
+    hasAuthor: false,
+    ismultiple: true,
+
+    logoUrl: "",
+    logoUrls: ["/ogImage.png", "/ogImage.png"],
+
+    imagePosition: undefined,
+
+    logoPosition: undefined,
+    contentPosition: {
+      x: 168,
+      y: 195,
+      width: 600,
+      textAlign: "center",
+    },
+
+    preview: {
+      bg: "from-[#111827] via-[#1F2937] to-[#374151]",
+      text: "white",
+    },
+  },
 
 ] as const;
 
