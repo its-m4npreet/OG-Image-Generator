@@ -185,7 +185,7 @@ export const templates = [
 
   // Portfolio Templates
   {
-    id: 7,
+    id: 5,
     name: "Creative Folio",
     category: "Portfolio",
     gradient: "from-[#4C1D95] via-[#7E22CE] to-[#DB2777]",
@@ -225,7 +225,7 @@ export const templates = [
     },
   },
   {
-    id: 8,
+    id: 6,
     name: "Portfolio Classic",
     category: "Portfolio",
     gradient: "from-[#064E3B] via-[#065F46] to-[#0F766E]",
@@ -257,7 +257,7 @@ export const templates = [
 
   // Product Launch Templates
   {
-    id: 9,
+    id: 7,
     name: "Product Hero",
     category: "Product Launch",
     gradient: "from-[#2E1065] via-[#4C1D95] to-[#7C3AED]",
@@ -296,7 +296,7 @@ export const templates = [
     },
   },
   {
-    id: 10,
+    id: 8,
     name: "Launch Day Bold",
     category: "Product Launch",
     gradient: "from-[#7F1D1D] via-[#DC2626] to-[#F97316]",
@@ -337,7 +337,7 @@ export const templates = [
 
   // Social Media Templates
   {
-    id: 12,
+    id: 9,
     name: "Social Media Vibes",
     category: "Social Media",
     gradient: "from-[#78350F] via-[#EA580C] to-[#FDBA74]",
@@ -376,7 +376,7 @@ export const templates = [
     },
   },
   {
-    id: 13,
+    id: 10,
     name: "Social Engagement",
     category: "Social Media",
     gradient: "from-[#581C87] via-[#9333EA] to-[#EC4899]",
@@ -417,7 +417,7 @@ export const templates = [
   // NEW PREMIUM TEMPLATES
 
   {
-    id: 15,
+    id: 11,
     name: "Editorial Left Hero",
     category: "Blog",
     gradient: "radial-teal-glow",
@@ -465,7 +465,7 @@ export const templates = [
 
 
   {
-    id: 17,
+    id: 12,
     name: "Portfolio Showcase Left",
     category: "Portfolio",
     gradient: "from-[#172554] via-[#1D4ED8] to-[#38BDF8]",
@@ -511,7 +511,7 @@ export const templates = [
   },
 
   {
-    id: 20,
+    id: 13,
     name: "Cinematic Launch",
     category: "Product Launch",
     gradient: "from-[#030712] via-[#111827] to-[#374151]",
@@ -560,7 +560,7 @@ export const templates = [
   // includes both image + non-image layouts
 
   {
-    id: 26,
+    id: 14,
     name: "Minimal Quote Post",
     category: "Social Media",
 
@@ -598,7 +598,7 @@ export const templates = [
   },
 
   {
-    id: 31,
+    id: 15,
     name: "Blurred Gradient",
     category: "Social Media",
     blurred: true,
