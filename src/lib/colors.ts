@@ -49,6 +49,11 @@ export const gradientMap = [
   { tailwind: "aurora-dream-diagonal-flow", css: "radial-gradient(ellipse 80% 60% at 5% 40%, rgba(175, 109, 255, 0.48), transparent 67%), radial-gradient(ellipse 70% 60% at 45% 45%, rgba(255, 100, 180, 0.41), transparent 67%), radial-gradient(ellipse 62% 52% at 83% 76%, rgba(255, 235, 170, 0.44), transparent 63%), radial-gradient(ellipse 60% 48% at 75% 20%, rgba(120, 190, 255, 0.36), transparent 66%), linear-gradient(45deg, #f7eaff 0%, #fde2ea 100%)" },
   { tailwind: "dreamy-sunset-gradient", css: "linear-gradient(180deg, rgba(245,245,220,1) 0%, rgba(255,223,186,0.8) 25%, rgba(255,182,193,0.6) 50%, rgba(147,112,219,0.7) 75%, rgba(72,61,139,0.9) 100%), radial-gradient(circle at 30% 20%, rgba(255,255,224,0.4) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(72,61,139,0.6) 0%, transparent 70%), radial-gradient(circle at 50% 60%, rgba(147,112,219,0.3) 0%, transparent 60%)" },
   { tailwind: "yellow-corner-bright", css: "radial-gradient(circle 600px at 0% 200px, #fef3c7, transparent), radial-gradient(circle 600px at 100% 200px, #fef3c7, transparent)" },
+
+  // Dark Cosmic Gradients
+  { tailwind: "cosmic-nebula", css: "radial-gradient(ellipse 110% 70% at 25% 80%, rgba(147, 51, 234, 0.12), transparent 55%), radial-gradient(ellipse 130% 60% at 75% 15%, rgba(59, 130, 246, 0.10), transparent 65%), radial-gradient(ellipse 80% 90% at 20% 30%, rgba(236, 72, 153, 0.14), transparent 50%), radial-gradient(ellipse 100% 40% at 60% 70%, rgba(16, 185, 129, 0.08), transparent 45%)" },
+  { tailwind: "stellar-mist", css: "radial-gradient(ellipse 140% 50% at 15% 60%, rgba(124, 58, 237, 0.11), transparent 48%), radial-gradient(ellipse 90% 80% at 85% 25%, rgba(245, 101, 101, 0.09), transparent 58%), radial-gradient(ellipse 120% 65% at 40% 90%, rgba(34, 197, 94, 0.13), transparent 52%), radial-gradient(ellipse 100% 45% at 70% 5%, rgba(251, 191, 36, 0.07), transparent 42%), radial-gradient(ellipse 80% 75% at 90% 80%, rgba(168, 85, 247, 0.10), transparent 55%)" },
+  { tailwind: "pearl-mist", css: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(226, 232, 240, 0.15), transparent 70%)" },
 ];
 
 // Check if a gradient CSS uses rgba/hsla with alpha < 1 (needs a solid background)

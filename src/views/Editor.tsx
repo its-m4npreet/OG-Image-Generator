@@ -226,6 +226,8 @@ const Editor = () => {
   const [selectedTextElement, setSelectedTextElement] = useState(false);
   const [tags, setTags] = useState<CanvasTag[]>([]);
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
+  const [templateTag, setTemplateTag] = useState("");
+  const [templateIsTag, setTemplateIsTag] = useState(false);
 
   const [logos, setLogos] = useState<CanvasLogo[]>([]);
   const [selectedLogoId, setSelectedLogoId] = useState<string | null>(null);
@@ -415,6 +417,8 @@ const Editor = () => {
     } else if (name === "Tag") {
       setTags([]);
       setSelectedTagId(null);
+      setTemplateIsTag(false);
+      setTemplateTag("");
     }
     setLayerOrder(prev => prev.filter(l => l !== name));
     setLayerDeleteConfirm(null);
@@ -498,14 +502,6 @@ const Editor = () => {
   const tagControlsRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Auto-select image when images exist but none selected
-  useEffect(() => {
-    if (images.length > 0 && !selectedImage) {
-      setSelectedImage(images[0].id);
-      setImageControlsOpen(true);
-    }
-  }, [images, selectedImage]);
-
   // Handle keyboard zoom shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -567,10 +563,27 @@ const Editor = () => {
     if (template.contentPosition) setContentPosition(template.contentPosition);
     if ("ismultiple" in template) setIsMultipleLogo(!!template.ismultiple);
     else setIsMultipleLogo(false);
+    setImages([]);
+    setSelectedImage(null);
     setLogos([]);
     setSelectedLogoId(null);
-    setTags([]);
-    setSelectedTagId(null);
+    setTemplateTag(template.tag ?? "");
+    setTemplateIsTag(template.istag ?? false);
+    if (template.istag && template.tag) {
+      setTags([{
+        id: `tag-${Date.now()}-${Math.random()}`,
+        text: template.tag,
+        x: 20,
+        y: 20,
+        borderWidth: 1,
+        borderColor: "#3b82f6",
+        borderRadius: 10,
+      }]);
+      setSelectedTagId(null);
+    } else {
+      setTags([]);
+      setSelectedTagId(null);
+    }
 
     if ("logoUrls" in template && template.logoUrls && Array.isArray(template.logoUrls)) {
       template.logoUrls.forEach((url: string, i: number) => {
@@ -1478,9 +1491,10 @@ const Editor = () => {
                   size="sm"
                   className="w-full text-xs"
                   onClick={() => {
+                    const text = templateTag || "Tag";
                     const newTag: CanvasTag = {
                       id: `tag-${Date.now()}-${Math.random()}`,
-                      text: "Tag",
+                      text,
                       x: 20,
                       y: 20,
                       borderWidth: 1,
@@ -1489,6 +1503,7 @@ const Editor = () => {
                     };
                     setTags([newTag]);
                     setSelectedTagId(newTag.id);
+                    setTemplateIsTag(true);
                   }}
                 >
                   + Add Tag
@@ -1497,7 +1512,10 @@ const Editor = () => {
                 <Input
                   value={tags[0]?.text ?? ""}
                   onChange={(e) => {
-                    if (tags[0]) updateTag(tags[0].id, { text: e.target.value });
+                    const val = e.target.value;
+                    if (tags[0]) updateTag(tags[0].id, { text: val });
+                    setTemplateTag(val);
+                    setTemplateIsTag(true);
                   }}
                   className="bg-background border-border"
                 />
@@ -2206,8 +2224,6 @@ const Editor = () => {
                       color: tag.borderColor,
                       cursor: selectedTool === "move" ? "move" : "pointer",
                       zIndex: getLayerZIndex("Tag"),
-                      outline: isSelected ? "2px solid #3b82f6" : "none",
-                      outlineOffset: "2px",
                       userSelect: "none",
                       whiteSpace: "nowrap",
                     }}
@@ -3353,6 +3369,10 @@ const Editor = () => {
                             backgroundImage: p.backgroundImage,
                             backgroundSize: p.backgroundSize || undefined,
                           };
+                        }
+                        if (!template.gradient.startsWith("from-")) {
+                          const g = gradientMap.find(g => g.tailwind === template.gradient);
+                          if (g) return { background: g.css };
                         }
                         return undefined;
                       })()}
