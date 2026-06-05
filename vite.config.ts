@@ -21,6 +21,12 @@ export default defineConfig(({ mode }) => ({
         secure: false,
         xfwd: true,
       },
+      "/api/user": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+        secure: false,
+        xfwd: true,
+      },
     },
     hmr: {
       overlay: false,

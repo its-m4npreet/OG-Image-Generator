@@ -28,7 +28,7 @@ export function ColorRow({ label, value, onChange }: ColorRowProps) {
       <div className=" w-12">
         <button
           onClick={() => setOpen((o) => !o)}
-          className="w-12 h-9 rounded-md border border-input shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-12 h-9 rounded-sm border border-input shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
           style={{ backgroundColor: value }}
           aria-label={`Pick ${label}`}
         />

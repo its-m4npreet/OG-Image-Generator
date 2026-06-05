@@ -32,8 +32,6 @@ const buttonVariants = {
     scale: 1,
     transition: { duration: 0.5 },
   },
-  hover: { scale: 1.05 },
-  tap: { scale: 0.95 },
 };
 
 export default function LoginPage() {
@@ -70,9 +68,7 @@ export default function LoginPage() {
             </motion.p>
             <motion.button
               variants={buttonVariants}
-              whileHover="hover"
-              whileTap="tap"
-              className="rounded-md bg-black px-4 py-2 text-white transition-transform"
+              className="rounded-sm bg-black px-4 py-2 text-white"
               onClick={() => signOut({ callbackUrl: "/" })}
               type="button"
             >
@@ -83,9 +79,7 @@ export default function LoginPage() {
           <motion.div variants={itemVariants} className="flex flex-col gap-3 w-full">
             <motion.button
               variants={buttonVariants}
-              whileHover="hover"
-              whileTap="tap"
-              className="rounded-md bg-black px-4 py-2 text-white transition-transform"
+              className="rounded-sm bg-black px-4 py-2 text-white"
               onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
               type="button"
             >
@@ -94,9 +88,7 @@ export default function LoginPage() {
 
             <motion.button
               variants={buttonVariants}
-              whileHover="hover"
-              whileTap="tap"
-              className="rounded-md border border-black px-4 py-2 text-black transition-transform"
+              className="rounded-sm border border-black px-4 py-2 text-black"
               onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
               type="button"
             >

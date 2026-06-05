@@ -76,7 +76,7 @@ export default function Home() {
           className="flex gap-3"
         >
           <Link
-            className="rounded-md bg-black px-4 py-2 text-white transition-transform hover:scale-105 active:scale-95"
+            className="rounded-sm bg-primary px-4 py-2 text-white transition-all hover:bg-primary/80"
             href="/login"
           >
             Get Started

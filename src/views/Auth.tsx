@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Hexagon, Github, Mail } from "lucide-react";
+import { Hexagon, Github, Mail,ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -36,8 +36,6 @@ const buttonVariants = {
     scale: 1,
     transition: { duration: 0.5 },
   },
-  hover: { scale: 1.05 },
-  tap: { scale: 0.95 },
 };
 
 const Auth = () => {
@@ -132,11 +130,7 @@ const Auth = () => {
             </CardHeader>
 
             <CardContent className="space-y-4">
-              <motion.div
-                variants={buttonVariants}
-                whileHover="hover"
-                whileTap="tap"
-              >
+              <motion.div variants={buttonVariants}>
                 <Button
                   className="w-full"
                   onClick={() => handleOAuthAuth("github")}
@@ -148,11 +142,7 @@ const Auth = () => {
                 </Button>
               </motion.div>
 
-              <motion.div
-                variants={buttonVariants}
-                whileHover="hover"
-                whileTap="tap"
-              >
+              <motion.div variants={buttonVariants}>
                 <Button
                   variant="outline"
                   className="w-full"
@@ -173,8 +163,6 @@ const Auth = () => {
                     <>
                       Already have an account?{" "}
                       <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
                         onClick={() => navigate("/login")}
                         className="font-semibold text-primary hover:underline cursor-pointer"
                       >
@@ -185,8 +173,6 @@ const Auth = () => {
                     <>
                       Don't have an account?{" "}
                       <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
                         onClick={() => navigate("/signup")}
                         className="font-semibold text-primary hover:underline cursor-pointer"
                       >

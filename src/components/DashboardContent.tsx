@@ -32,8 +32,6 @@ const buttonVariants = {
     scale: 1,
     transition: { duration: 0.5 },
   },
-  hover: { scale: 1.05 },
-  tap: { scale: 0.95 },
 };
 
 interface DashboardContentProps {
@@ -76,11 +74,7 @@ export default function DashboardContent({
       </motion.p>
 
       <motion.div variants={itemVariants} className="flex flex-col gap-3 w-full max-w-xs pt-4">
-        <motion.div
-          whileHover="hover"
-          whileTap="tap"
-          variants={buttonVariants}
-        >
+        <motion.div variants={buttonVariants}>
           <Button asChild className="w-full" variant="default" size="lg">
             <Link href="/editor">Create OG Image</Link>
           </Button>

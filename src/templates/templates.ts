@@ -17,6 +17,7 @@ export const templates = [
     hasImage: true,
     hasLogo: true,
     hasAuthor: true,
+    ismultiple: false,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
     imagePosition: {
@@ -49,73 +50,6 @@ export const templates = [
     },
   },
   {
-    id: 1,
-    name: "Minimal Blog",
-    category: "Blog",
-    gradient: "from-[#7C2D12] via-[#EA580C] to-[#FB923C]",
-    title: "Your Amazing Blog Title",
-    subtitle: "A compelling description that captures attention",
-    titleColor: "#FFFFFF",
-    subtitleColor: "#F3F4F6",
-    authorColor: "#D1D5DB",
-    titleSize: 56,
-    hasImage: false,
-    hasLogo: false,
-    hasAuthor: true,
-    imageUrl: "",
-    logoUrl: "",
-    imagePosition: undefined,
-    logoPosition: undefined,
-    contentPosition: {
-      x: 200,
-      y: 200,
-      width: 1060,
-      textAlign: "center",
-    },
-    preview: {
-      bg: "from-red-500 to-orange-400",
-      text: "white",
-    },
-  },
-  {
-    id: 2,
-    name: "Blog with Hero Image",
-    category: "Blog",
-    gradient: "from-[#172554] via-[#1E3A8A] to-[#2563EB]",
-    title: "The Future of React",
-    subtitle: "Exploring new patterns and best practices",
-    titleColor: "#FFFFFF",
-    subtitleColor: "#E0E7FF",
-    titleSize: 64,
-    hasImage: true,
-    hasLogo: true,
-    hasAuthor: false,
-    imageUrl: "/ogImage.png",
-    logoUrl: "/ogImage.png",
-    imagePosition: {
-      x: 175,
-      y: 300,
-      width: 550,
-      height: 330,
-      rotation: 0,
-      shadowBlur: 0,
-      shadowSpread: 0,
-      shadowColor: "#000000",
-      shadowOpacity: 0,
-    },
-    logoPosition: { x: 50, y: 50, width: 80, height: 80 },
-    contentPosition: {
-      x: 200,
-      y: 50,
-      width: 800,
-      textAlign: "center",
-    },
-    preview: {
-      bg: "from-blue-600/30 to-cyan-500/20",
-      text: "dark",
-    },
-  },
-  {
     id: 3,
     name: "Dark Tech Article",
     category: "Blog",
@@ -128,6 +62,7 @@ export const templates = [
     hasImage: false,
     hasLogo: false,
     hasAuthor: false,
+    ismultiple: false,
     imageUrl: "",
     logoUrl: "",
     imagePosition: undefined,
@@ -158,6 +93,7 @@ export const templates = [
     hasImage: true,
     hasLogo: true,
     hasAuthor: false,
+    ismultiple: false,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
     imagePosition: {
@@ -196,6 +132,7 @@ export const templates = [
     hasImage: true,
     hasLogo: true,
     hasAuthor: false,
+    ismultiple: false,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
     imagePosition: {
@@ -234,6 +171,7 @@ export const templates = [
     hasImage: false,
     hasLogo: false,
     hasAuthor: false,
+    ismultiple: false,
     imageUrl: "",
     logoUrl: "",
     imagePosition: undefined,
@@ -265,6 +203,7 @@ export const templates = [
     hasImage: true,
     hasLogo: true,
     hasAuthor: true,
+    ismultiple: false,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
     imagePosition: {
@@ -304,6 +243,7 @@ export const templates = [
     hasImage: false,
     hasLogo: false,
     hasAuthor: true,
+    ismultiple: false,
     imageUrl: "",
     logoUrl: "",
     imagePosition: undefined,
@@ -334,6 +274,7 @@ export const templates = [
     hasImage: true,
     hasLogo: true,
     hasAuthor: false,
+    ismultiple: false,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
     imagePosition: {
@@ -372,6 +313,7 @@ export const templates = [
     hasImage: true,
     hasLogo: true,
     hasAuthor: false,
+    ismultiple: false,
     imageUrl: "/ogImage.png",
     logoUrl: undefined,
     imagePosition: {
@@ -410,6 +352,7 @@ export const templates = [
     hasImage: false,
     hasLogo: false,
     hasAuthor: false,
+    ismultiple: false,
     imageUrl: "",
     logoUrl: "",
     imagePosition: undefined,
@@ -440,6 +383,7 @@ export const templates = [
     hasImage: true,
     hasLogo: false,
     hasAuthor: false,
+    ismultiple: false,
     imageUrl: "/ogImage.png",
     logoUrl: "",
     imagePosition: {
@@ -478,6 +422,7 @@ export const templates = [
     hasImage: true,
     hasLogo: true,
     hasAuthor: false,
+    ismultiple: false,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
     imagePosition: {
@@ -516,6 +461,7 @@ export const templates = [
     hasImage: false,
     hasLogo: false,
     hasAuthor: false,
+    ismultiple: false,
     imageUrl: "/ogImage.png",
     logoUrl: "",
     imagePosition:{
@@ -557,6 +503,7 @@ export const templates = [
     hasImage: true,
     hasLogo: true,
     hasAuthor: true,
+    ismultiple: false,
     imageUrl: "/ogImage.png",
     logoUrl: "",
     // LEFT FOCUS
@@ -606,6 +553,7 @@ export const templates = [
     hasImage: true,
     hasLogo: true,
     hasAuthor: false,
+    ismultiple: false,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
 
@@ -657,6 +605,7 @@ export const templates = [
     hasImage: true,
     hasLogo: true,
     hasAuthor: true,
+    ismultiple: false,
     imageUrl: "/ogImage.png",
     logoUrl: "/ogImage.png",
 
@@ -706,6 +655,7 @@ export const templates = [
     hasImage: true,
     hasLogo: true,
     hasAuthor: false,
+    ismultiple: false,
     imageUrl: "/ogImage.png",
     logoUrl: "",
 
@@ -762,6 +712,7 @@ export const templates = [
     hasImage: false,
     hasLogo: false,
     hasAuthor: true,
+    ismultiple: false,
 
     imageUrl: "",
     logoUrl: "",
@@ -797,6 +748,7 @@ export const templates = [
     hasImage: true,
     hasLogo: false,
     hasAuthor: false,
+    ismultiple: false,
 
     imageUrl: "/ogImage.png",
     logoUrl: "",
@@ -849,6 +801,7 @@ export const templates = [
     hasImage: false,
     hasLogo: true,
     hasAuthor: true,
+    ismultiple: false,
 
     imageUrl: "",
     logoUrl: "/ogImage.png",
@@ -873,6 +826,7 @@ export const templates = [
       text: "white",
     },
   },
+  
 
 ] as const;
 

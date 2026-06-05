@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Hexagon, LayoutDashboard } from "lucide-react";
@@ -23,17 +24,22 @@ const buttonVariants = {
     scale: 1,
     transition: { duration: 0.4 },
   },
-  hover: { scale: 1.05 },
-  tap: { scale: 0.95 },
 };
 
 const Navbar = () => {
   const { status } = useSession();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 30);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const navLinks = [
+    { href: "#features", label: "Features" },
+    { href: "#testimonials", label: "Testimonials" },
     { href: "#pricing", label: "Pricing" },
-    { href: "/dashboard", label: "Templates" },
-    { href: "/editor", label: "Editor" },
   ];
 
   return (
@@ -41,21 +47,25 @@ const Navbar = () => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl"
+      className={`fixed top-0 left-0 right-0 z-50 h-16 transition-all duration-300 ${
+        scrolled
+          ? "bg-background/85 backdrop-blur-xl border-b border-border/50"
+          : "bg-transparent border-b border-transparent"
+      }`}
     >
-      <div className="container flex items-center justify-between h-16 px-4 mx-auto">
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+      <div className="container flex items-center justify-between h-full px-4 mx-auto">
+        <Link
+          to="/"
+          className="flex items-center justify-center gap-2 text-foreground hover:opacity-80 transition-opacity"
         >
-          <Link to="/" className="flex items-center gap-2 font-bold text-lg text-foreground hover:opacity-80 transition-opacity">
-            <Hexagon className="h-6 w-6 text-primary" />
+          <Hexagon className="h-5 w-5 text-primary" />
+          <span className="font-mono text-sm font-bold tracking-wide pt-1">
             OG Studio
-          </Link>
-        </motion.div>
+          </span>
+        </Link>
 
-        <motion.div 
-          className="hidden md:flex items-center gap-8"
+        <motion.div
+          className="hidden md:flex items-center gap-9"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.4 }}
@@ -69,7 +79,7 @@ const Navbar = () => {
               initial="hidden"
               animate="visible"
               whileHover={{ color: "var(--foreground)" }}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors font-medium"
             >
               {link.label}
             </motion.a>
@@ -83,37 +93,25 @@ const Navbar = () => {
           transition={{ delay: 0.2, duration: 0.4 }}
         >
           {status === "authenticated" ? (
-            <motion.div
-              whileHover="hover"
-              whileTap="tap"
-              variants={buttonVariants}
-            >
-              <Button variant="hero" size="sm" asChild>
-                <Link to="/dashboard">
-                  <LayoutDashboard className="h-4 w-4 mr-2" />
-                  Dashboard
-                </Link>
-              </Button>
-            </motion.div>
+              <motion.div variants={buttonVariants}>
+                <Button variant="hero" size="sm" className="btn-shimmer" asChild>
+                  <Link to="/dashboard">
+                    <LayoutDashboard className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </Link>
+                </Button>
+              </motion.div>
           ) : (
             <>
-              <motion.div
-                whileHover="hover"
-                whileTap="tap"
-                variants={buttonVariants}
-              >
+              <motion.div variants={buttonVariants}>
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/login">Log in</Link>
                 </Button>
               </motion.div>
 
-              <motion.div
-                whileHover="hover"
-                whileTap="tap"
-                variants={buttonVariants}
-              >
-                <Button variant="hero" size="sm" asChild>
-                  <Link to="/signup">Get Started</Link>
+              <motion.div variants={buttonVariants}>
+                <Button variant="hero" size="sm" className="btn-shimmer" asChild>
+                  <Link to="/signup">Get Started &rarr;</Link>
                 </Button>
               </motion.div>
             </>

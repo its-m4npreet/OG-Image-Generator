@@ -55,6 +55,7 @@ import {
   Move,
   MousePointer2,
   Frame,
+  Settings2,
 } from "lucide-react";
 import { toPng, toJpeg } from "html-to-image";
 import {
@@ -63,11 +64,12 @@ import {
   gradientCSSMap,
   solidColors,
   colorHexMap,
+  patternMap,
+  APP_BG_DARK,
+  gradientUsesAlpha,
+  isLightBackground,
   isLightColor,
   getNoiseDataUrl,
-  isLightBackground,
-  gradientUsesAlpha,
-  APP_BG_DARK,
 } from "@/lib/colors";
 import { templates } from "@/templates";
 
@@ -103,21 +105,31 @@ interface CanvasShape {
   opacity: number;
 }
 
+interface CanvasTag {
+  id: string;
+  text: string;
+  x: number;
+  y: number;
+  borderWidth: number;
+  borderColor: string;
+  borderRadius: number;
+}
 
+interface CanvasLogo {
+  id: string;
+  src: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  borderRadius?: number;
+}
 
 interface ContentPosition {
   x: number;
   y: number;
   width: number;
   textAlign: "left" | "center" | "right";
-}
-
-interface LogoProperties {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  borderRadius?: number;
 }
 
 const fontOptions = ["Inter", "Georgia", "Arial"];
@@ -177,14 +189,19 @@ const Editor = () => {
   const [showAvatar, setShowAvatar] = useState(true);
   const [selectedGradient, setSelectedGradient] =
     useState(getInitialGradient());
+  const [customGradientFrom, setCustomGradientFrom] = useState("#6366f1");
+  const [customGradientTo, setCustomGradientTo] = useState("#a78bfa");
+  const [useCustomGradient, setUseCustomGradient] = useState(false);
+  const [customizeOpen, setCustomizeOpen] = useState(false);
   const [showAllGradients, setShowAllGradients] = useState(false);
   const [gradientsLoading, setGradientsLoading] = useState(false);
   const [selectedSolidColor, setSelectedSolidColor] = useState<string | null>(
-    null,
+    "bg-cyan-700",
   );
   const [showAllSolidColors, setShowAllSolidColors] = useState(false);
   const [solidColorsLoading, setSolidColorsLoading] = useState(false);
-  const [backgroundType, setBackgroundType] = useState<"gradient" | "solid">(
+  const [selectedPattern, setSelectedPattern] = useState<number | null>(0);
+  const [backgroundType, setBackgroundType] = useState<"gradient" | "solid" | "pattern">(
     "gradient",
   );
   const [noiseLevel, setNoiseLevel] = useState(0); // 0-100 range
@@ -195,36 +212,32 @@ const Editor = () => {
   const [rightOpen, setRightOpen] = useState(true);
   const [imageControlsOpen, setImageControlsOpen] = useState(false);
   const [logoControlsOpen, setLogoControlsOpen] = useState(false);
+  const [authorGroupOpen, setAuthorGroupOpen] = useState(true);
   const [images, setImages] = useState<CanvasImage[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [shapes, setShapes] = useState<CanvasShape[]>([]);
   const [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
   const [activeSidebar, setActiveSidebar] = useState<string | null>(null);
   const [shapeColor, setShapeColor] = useState("#000000");
-  const [selectedLogo, setSelectedLogo] = useState(false);
   const [selectedTextElement, setSelectedTextElement] = useState(false);
+  const [tags, setTags] = useState<CanvasTag[]>([]);
+  const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
 
-  const [logo, setLogo] = useState<string | null>(null);
+  const [logos, setLogos] = useState<CanvasLogo[]>([]);
+  const [selectedLogoId, setSelectedLogoId] = useState<string | null>(null);
+  const [isMultipleLogo, setIsMultipleLogo] = useState(false);
+
   const [exportFormat, setExportFormat] = useState<"png" | "jpg" | "webp">(
     "png",
   );
-  const [exportSize, setExportSize] = useState<
-    "800x420" | "1200x630" | "1920x1008"
-  >("1200x630");
+
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const [logoProps, setLogoProps] = useState<LogoProperties>({
-    x: 16,
-    y: 16,
-    width: 48,
-    height: 48,
-    borderRadius: 0,
-  });
 
   const [contentPosition, setContentPosition] =
     useState<ContentPosition | null>(null);
   const [lockedLayers, setLockedLayers] = useState<Set<string>>(new Set());
-  const [layerOrder, setLayerOrder] = useState<string[]>(["Card", "Text", "Subtitle"]);
+  const [layerOrder, setLayerOrder] = useState<string[]>(["Card", "Text", "Subtitle", "Author", "Avatar", "Tag"]);
   const [layerDeleteConfirm, setLayerDeleteConfirm] = useState<string | null>(null);
   const [rightTab, setRightTab] = useState<"design" | "templates" | "library">(
     "design",
@@ -236,22 +249,36 @@ const Editor = () => {
   const [frameGridVisible, setFrameGridVisible] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
+  const activeLogo = useMemo(() => {
+    if (isMultipleLogo && selectedLogoId) return logos.find(l => l.id === selectedLogoId) || null;
+    if (!isMultipleLogo && logos.length > 0) return logos[0];
+    return null;
+  }, [logos, selectedLogoId, isMultipleLogo]);
+
+  const updateLogo = (id: string, updates: Partial<CanvasLogo>) => {
+    setLogos((prev) =>
+      prev.map((l) => (l.id === id ? { ...l, ...updates } : l)),
+    );
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => setInitialLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
 
-  // Sync layerOrder with images/logo
+  // Sync layerOrder with images/logo/tags
   useEffect(() => {
     setLayerOrder(prev => {
       const next = [...prev];
       if (images.length > 0 && !next.includes("Image")) next.push("Image");
       else if (images.length === 0) return next.filter(l => l !== "Image");
-      if (logo && !next.includes("Logo")) next.push("Logo");
-      else if (!logo) return next.filter(l => l !== "Logo");
+      if (logos.length > 0 && !next.includes("Logo")) next.push("Logo");
+      else if (logos.length === 0) return next.filter(l => l !== "Logo");
+      if (tags.length > 0 && !next.includes("Tag")) next.push("Tag");
+      else if (tags.length === 0) return next.filter(l => l !== "Tag");
       return next;
     });
-  }, [images.length > 0, !!logo]);
+  }, [images.length > 0, logos.length > 0, tags.length > 0]);
 
   const visibleLayers = useMemo(() => {
     const layerMap: Record<string, { name: string; icon: React.ReactNode; onClick: () => void }> = {
@@ -270,6 +297,16 @@ const Editor = () => {
         icon: <Type className="h-3.5 w-3.5" />,
         onClick: () => contentPositionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
       },
+      Author: {
+        name: "Author",
+        icon: <Type className="h-3.5 w-3.5" />,
+        onClick: () => contentPositionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      },
+      Avatar: {
+        name: "Avatar",
+        icon: <ImageIcon className="h-3.5 w-3.5" />,
+        onClick: () => contentPositionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      },
       Image: {
         name: "Image",
         icon: <ImageIcon className="h-3.5 w-3.5" />,
@@ -286,16 +323,22 @@ const Editor = () => {
         icon: <ImageIcon className="h-3.5 w-3.5" />,
         onClick: () => logoControlsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
       },
+      Tag: {
+        name: "Tag",
+        icon: <Hexagon className="h-3.5 w-3.5" />,
+        onClick: () => tagControlsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      },
     };
 
     return layerOrder
       .filter(name => {
         if (name === "Image") return images.length > 0;
-        if (name === "Logo") return !!logo;
+        if (name === "Logo") return logos.length > 0;
+        if (name === "Tag") return tags.length > 0;
         return true;
       })
       .map(name => layerMap[name]);
-  }, [layerOrder, images, logo]);
+  }, [layerOrder, images, logos, tags]);
 
   const moveLayerUp = (name: string) => {
     setLayerOrder(prev => {
@@ -365,6 +408,9 @@ const Editor = () => {
       setTitle("");
     } else if (name === "Subtitle") {
       setShowSubtitle(false);
+    } else if (name === "Tag") {
+      setTags([]);
+      setSelectedTagId(null);
     }
     setLayerOrder(prev => prev.filter(l => l !== name));
     setLayerDeleteConfirm(null);
@@ -376,35 +422,38 @@ const Editor = () => {
     return (idx + 1) * 10;
   };
 
-  const getDefaultTitleColor = () => {
-    if (templateTitleColor) return templateTitleColor;
+  const getIsLightBackground = () => {
+    if (useCustomGradient) {
+      return isLightColor(customGradientFrom) || isLightColor(customGradientTo);
+    }
     return isLightBackground(
       backgroundType,
       selectedGradient,
       selectedSolidColor,
-    )
+      selectedPattern,
+    );
+  };
+
+  const getDefaultTitleColor = () => {
+    if (templateTitleColor) return templateTitleColor;
+    if (backgroundType === "pattern" && selectedPattern !== null && isLightBackground(backgroundType, selectedGradient, selectedSolidColor, selectedPattern)) return "#292929";
+    return getIsLightBackground()
       ? "#000000"
       : "#FFFFFF";
   };
 
   const getDefaultSubtitleColor = () => {
     if (templateSubtitleColor) return templateSubtitleColor;
-    return isLightBackground(
-      backgroundType,
-      selectedGradient,
-      selectedSolidColor,
-    )
+    if (backgroundType === "pattern" && selectedPattern !== null && isLightBackground(backgroundType, selectedGradient, selectedSolidColor, selectedPattern)) return "#545454";
+    return getIsLightBackground()
       ? "#1F2937"
       : "#E5E7EB";
   };
 
   const getDefaultAuthorColor = () => {
     if (templateAuthorColor) return templateAuthorColor;
-    return isLightBackground(
-      backgroundType,
-      selectedGradient,
-      selectedSolidColor,
-    )
+    if (backgroundType === "pattern" && selectedPattern !== null && isLightBackground(backgroundType, selectedGradient, selectedSolidColor, selectedPattern)) return "#383838";
+    return getIsLightBackground()
       ? "#4B5563"
       : "#9CA3AF";
   };
@@ -427,6 +476,12 @@ const Editor = () => {
     offsetY: number;
   } | null>(null);
   const logoDragRef = useRef<{
+    id: string;
+    offsetX: number;
+    offsetY: number;
+  } | null>(null);
+  const tagDragRef = useRef<{
+    id: string;
     offsetX: number;
     offsetY: number;
   } | null>(null);
@@ -436,7 +491,16 @@ const Editor = () => {
   const backgroundRef = useRef<HTMLDivElement>(null);
   const logoControlsRef = useRef<HTMLDivElement>(null);
   const dragLayerRef = useRef<string | null>(null);
+  const tagControlsRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  // Auto-select image when images exist but none selected
+  useEffect(() => {
+    if (images.length > 0 && !selectedImage) {
+      setSelectedImage(images[0].id);
+      setImageControlsOpen(true);
+    }
+  }, [images.length, selectedImage]);
 
   // Handle keyboard zoom shortcuts
   useEffect(() => {
@@ -471,6 +535,40 @@ const Editor = () => {
     setFontSize(template.titleSize);
     setShowAuthor(template.hasAuthor);
     if (template.contentPosition) setContentPosition(template.contentPosition);
+    if ("ismultiple" in template) setIsMultipleLogo(!!template.ismultiple);
+    else setIsMultipleLogo(false);
+    setLogos([]);
+    setSelectedLogoId(null);
+    setTags([]);
+    setSelectedTagId(null);
+
+    if ("logoUrls" in template && template.logoUrls && Array.isArray(template.logoUrls)) {
+      template.logoUrls.forEach((url: string, i: number) => {
+        if (!url) return;
+        fetch(url)
+          .then((res) => res.blob())
+          .then((blob) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const id = `logo-${Date.now()}-${i}`;
+              const pos = ("logoPosition" in template && template.logoPosition) || { x: 16, y: 16, width: 48, height: 48 };
+              const newLogo: CanvasLogo = {
+                id,
+                src: e.target?.result as string,
+                x: pos.x + i * 20,
+                y: pos.y + i * 20,
+                width: pos.width,
+                height: pos.height,
+                borderRadius: 0,
+              };
+              setLogos((prev) => [...prev, newLogo]);
+              if (i === 0) setSelectedLogoId(id);
+            };
+            reader.readAsDataURL(blob);
+          })
+          .catch((err) => console.log("Logo load skipped:", err));
+      });
+    }
   };
 
   // Load template data from URL parameters
@@ -482,7 +580,30 @@ const Editor = () => {
         .then((blob) => {
           const reader = new FileReader();
           reader.onload = (e) => {
-            setLogo(e.target?.result as string);
+            const id = `logo-${Date.now()}`;
+            const newLogo: CanvasLogo = {
+              id,
+              src: e.target?.result as string,
+              x: 16,
+              y: 16,
+              width: 48,
+              height: 48,
+              borderRadius: 0,
+            };
+            if (templateLogoPosition) {
+              try {
+                const pos = JSON.parse(templateLogoPosition);
+                newLogo.x = pos.x ?? newLogo.x;
+                newLogo.y = pos.y ?? newLogo.y;
+                newLogo.width = pos.width ?? newLogo.width;
+                newLogo.height = pos.height ?? newLogo.height;
+                newLogo.borderRadius = pos.borderRadius ?? newLogo.borderRadius;
+              } catch (err) {
+                console.log("Could not parse logo position:", err);
+              }
+            }
+            setLogos([newLogo]);
+            setSelectedLogoId(id);
           };
           reader.readAsDataURL(blob);
         })
@@ -518,10 +639,10 @@ const Editor = () => {
               imageWidth = 550,
               imageHeight = 350;
             let rotation = 0,
-              shadowBlur = 0,
-              shadowSpread = 0,
-              shadowColor = "#000000",
-              shadowOpacity = 0;
+              shadowBlur = 10,
+              shadowSpread = 2,
+              shadowColor = "#7c3aed",
+              shadowOpacity = 30;
             let borderRadius = 0,
               borderWidth = 0,
               borderColor = "#000000";
@@ -575,6 +696,28 @@ const Editor = () => {
     templateContentPosition,
   ]);
 
+  // Update text colors when switching to pattern backgrounds
+  useEffect(() => {
+    if (backgroundType !== "pattern" || selectedPattern === null) return;
+    const p = patternMap[selectedPattern];
+    if (!p) return;
+    const hex = p.backgroundColor?.replace("#", "") || "ffffff";
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    const isLight = (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5;
+    if (isLight) {
+      setTitleColor("#292929");
+      setSubtitleColor("#545454");
+      setAuthorColor("#383838");
+    } else {
+      setTitleColor("#FFFFFF");
+      setSubtitleColor("#E5E7EB");
+      setAuthorColor("#9CA3AF");
+    }
+    setNoiseLevel(0);
+  }, [backgroundType, selectedPattern]);
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!canvasRef.current) return;
@@ -602,7 +745,12 @@ const Editor = () => {
       if (logoDragRef.current) {
         const newX = Math.max(0, mouseBaseX - logoDragRef.current.offsetX);
         const newY = Math.max(0, mouseBaseY - logoDragRef.current.offsetY);
-        setLogoProps(prev => ({ ...prev, x: newX, y: newY }));
+        const draggingId = logoDragRef.current.id;
+        setLogos((prev) =>
+          prev.map((l) =>
+            l.id === draggingId ? { ...l, x: newX, y: newY } : l,
+          ),
+        );
       }
 
       if (contentDragRef.current) {
@@ -615,12 +763,23 @@ const Editor = () => {
           textAlign: prev?.textAlign ?? "left",
         }));
       }
+
+      if (tagDragRef.current) {
+        const newX = Math.max(0, mouseBaseX - tagDragRef.current.offsetX);
+        const newY = Math.max(0, mouseBaseY - tagDragRef.current.offsetY);
+        setTags((prev) =>
+          prev.map((t) =>
+            t.id === tagDragRef.current?.id ? { ...t, x: newX, y: newY } : t,
+          ),
+        );
+      }
     };
 
     const handleMouseUp = () => {
       dragRef.current = null;
       logoDragRef.current = null;
       contentDragRef.current = null;
+      tagDragRef.current = null;
       setIsDragging(false);
     };
 
@@ -644,6 +803,8 @@ const Editor = () => {
       const bgColor =
         backgroundType === "solid" && selectedSolidColor
           ? colorHexMap[selectedSolidColor]
+          : backgroundType === "gradient" && selectedGradient !== undefined
+          ? undefined
           : undefined;
       const url = await getNoiseDataUrl(noiseLevel, bgColor);
       if (!cancelled) setNoiseImageUrl(url);
@@ -675,14 +836,18 @@ const Editor = () => {
         borderWidth: 0,
         borderColor: "#000000",
         rotation: 0,
-        shadowBlur: 0,
-        shadowSpread: 0,
-        shadowColor: "#000000",
-        shadowOpacity: 0,
+        shadowBlur: 10,
+        shadowSpread: 2,
+        shadowColor: "#7c3aed",
+        shadowOpacity: 30,
       };
-      // Replace the image instead of adding multiple
-      setImages([newImage]);
+      if (isMultipleLogo) {
+        setImages((prev) => [...prev, newImage]);
+      } else {
+        setImages([newImage]);
+      }
       setSelectedImage(newImage.id);
+      setImageControlsOpen(true);
     };
     reader.readAsDataURL(file);
 
@@ -690,6 +855,12 @@ const Editor = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  };
+
+  const updateTag = (id: string, updates: Partial<CanvasTag>) => {
+    setTags((prev) =>
+      prev.map((tag) => (tag.id === id ? { ...tag, ...updates } : tag)),
+    );
   };
 
   const updateImage = (id: string, updates: Partial<CanvasImage>) => {
@@ -742,7 +913,22 @@ const Editor = () => {
     const reader = new FileReader();
     reader.onload = (event) => {
       const src = event.target?.result as string;
-      setLogo(src);
+      const id = `logo-${Date.now()}`;
+      const newLogo: CanvasLogo = {
+        id,
+        src,
+        x: 16,
+        y: 16,
+        width: 48,
+        height: 48,
+        borderRadius: 0,
+      };
+      if (isMultipleLogo) {
+        setLogos((prev) => [...prev, newLogo]);
+      } else {
+        setLogos([newLogo]);
+      }
+      setSelectedLogoId(id);
     };
     reader.readAsDataURL(file);
 
@@ -773,8 +959,14 @@ const Editor = () => {
     setAvatar(null);
   };
 
-  const deleteLogo = () => {
-    setLogo(null);
+  const deleteLogo = (id?: string) => {
+    if (id) {
+      setLogos((prev) => prev.filter((l) => l.id !== id));
+      if (selectedLogoId === id) setSelectedLogoId(null);
+    } else {
+      setLogos([]);
+      setSelectedLogoId(null);
+    }
   };
 
   const deleteImage = (id: string) => {
@@ -788,9 +980,8 @@ const Editor = () => {
     const BASE_W = 900;
     const BASE_H = 630;
 
-    // If explicit contentPosition is set and images exist, use % so it scales at any export size
-    // When there are no images, always center the content
-    if (contentPosition && images.length > 0) {
+    // If explicit contentPosition is set, use % so it scales at any export size
+    if (contentPosition) {
       return {
         position: "absolute" as const,
         top: `${(contentPosition.y / BASE_H) * 100}%`,
@@ -924,6 +1115,10 @@ const Editor = () => {
       gradient: gradients[selectedGradient] || "",
       hasAuthor: showAuthor.toString(),
     });
+    if (logos.length > 0) {
+      const l = logos[0];
+      shareParams.set("logoPosition", JSON.stringify({ x: l.x, y: l.y, width: l.width, height: l.height, borderRadius: l.borderRadius }));
+    }
 
     const shareUrl = `${window.location.origin}${window.location.pathname}?${shareParams.toString()}`;
 
@@ -959,22 +1154,20 @@ const Editor = () => {
 
       await new Promise((resolve) => setTimeout(resolve, 150));
 
-      const [width, height] = exportSize.split("x").map(Number);
-
-      // Get the actual rendered size of the preview canvas
-      const rect = canvasRef.current.getBoundingClientRect();
-      const scaleX = width / rect.width;
-      const scaleY = height / rect.height;
+      const el = canvasRef.current;
+      const baseW = el.offsetWidth;
+      const baseH = el.offsetHeight;
+      const scaleX = 1200 / baseW;
+      const scaleY = 630 / baseH;
 
       const exportOptions = {
-        width,
-        height,
-        // Scale the canvas up to export dimensions instead of cloning + manual rescaling
+        width: 1200,
+        height: 630,
         style: {
           transform: `scale(${scaleX}, ${scaleY})`,
           transformOrigin: "top left",
-          width: `${rect.width}px`,
-          height: `${rect.height}px`,
+          width: `${baseW}px`,
+          height: `${baseH}px`,
         },
         pixelRatio: 1,
         cacheBust: true,
@@ -983,16 +1176,16 @@ const Editor = () => {
       let blob: Blob;
 
       if (exportFormat === "png") {
-        const dataUrl = await toPng(canvasRef.current, exportOptions);
+        const dataUrl = await toPng(el, exportOptions);
         blob = await (await fetch(dataUrl)).blob();
       } else if (exportFormat === "jpg") {
-        const dataUrl = await toJpeg(canvasRef.current, {
+        const dataUrl = await toJpeg(el, {
           ...exportOptions,
           quality: 0.95,
         });
         blob = await (await fetch(dataUrl)).blob();
       } else {
-        const pngDataUrl = await toPng(canvasRef.current, exportOptions);
+        const pngDataUrl = await toPng(el, exportOptions);
         blob = await convertToWebP(pngDataUrl, 0.8);
       }
 
@@ -1106,7 +1299,7 @@ const Editor = () => {
             : 'hidden'
         } lg:relative lg:z-auto lg:block lg:w-72 border-r border-border bg-card shrink-0 h-full overflow-hidden`}>
           <div
-            className="p-4 space-y-6 w-72 overflow-y-auto no-scrollbar h-full"
+            className="p-3 space-y-4 w-72 overflow-y-auto no-scrollbar h-full"
             style={
               {
                 scrollbarWidth: "none",
@@ -1115,14 +1308,14 @@ const Editor = () => {
             }
           >
             <style>{`.no-scrollbar::-webkit-scrollbar { display: none; }`}</style>
-            <div className="pb-4 border-b border-border/30">
+            {/* <div className="pb-4 border-b border-border/30">
               <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                 <span className="inline-flex items-center justify-center w-5 h-5 bg-primary text-primary-foreground rounded text-[10px] font-bold">
                   T
                 </span>
                 Content
               </h3>
-            </div>
+            </div> */}
             <div className="space-y-4">
               <div>
                 <Label className="text-xs text-muted-foreground">Title</Label>
@@ -1243,20 +1436,44 @@ const Editor = () => {
 
             <Separator className="bg-border" />
 
-            {/* AI Section */}
-            {/* <div>
+            {/* Tag Input */}
+            <div>
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-3">
-                <Wand2 className="h-4 w-4 text-secondary" /> AI Assist
+                <Hexagon className="h-4 w-4" /> Tag
               </h3>
-              <Button variant="outline" size="sm" className="w-full mb-2 text-xs">
-                Generate Title from Keywords
-              </Button>
-              <Button variant="outline" size="sm" className="w-full text-xs">
-                Suggest Color Palette
-              </Button>
-            </div> */}
+              {tags.length === 0 ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-xs"
+                  onClick={() => {
+                    const newTag: CanvasTag = {
+                      id: `tag-${Date.now()}-${Math.random()}`,
+                      text: "Tag",
+                      x: 20,
+                      y: 20,
+                      borderWidth: 1,
+                      borderColor: "#3b82f6",
+                      borderRadius: 10,
+                    };
+                    setTags([newTag]);
+                    setSelectedTagId(newTag.id);
+                  }}
+                >
+                  + Add Tag
+                </Button>
+              ) : (
+                <Input
+                  value={tags[0]?.text ?? ""}
+                  onChange={(e) => {
+                    if (tags[0]) updateTag(tags[0].id, { text: e.target.value });
+                  }}
+                  className="bg-background border-border"
+                />
+              )}
+            </div>
 
-            {/* <Separator className="bg-border" /> */}
+            <Separator className="bg-border" />
 
             {/* Logo Upload Section */}
             <div>
@@ -1270,30 +1487,74 @@ const Editor = () => {
                 onChange={handleLogoUpload}
                 className="hidden"
               />
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full text-xs mb-3"
-                onClick={() => logoInputRef.current?.click()}
-              >
-                {logo ? "Change Logo" : "+ Add Logo"}
-              </Button>
 
-              {/* Logo Preview */}
-              {logo && (
-                <div className="bg-background rounded-lg p-2 border border-border flex items-center justify-between">
-                  <img
-                    src={logo}
-                    alt="logo"
-                    className="h-10 w-10 object-contain"
-                  />
-                  <button
-                    onClick={deleteLogo}
-                    className="p-1 hover:bg-destructive/20 rounded transition-colors"
+              {isMultipleLogo ? (
+                <div className="space-y-2">
+                  {logos.map((l) => (
+                    <div
+                      key={l.id}
+                      className={`bg-background rounded-lg p-2 border flex items-center justify-between gap-2 cursor-pointer ${selectedLogoId === l.id ? "border-primary" : "border-border"}`}
+                      onClick={() => setSelectedLogoId(l.id)}
+                    >
+                      <img
+                        src={l.src}
+                        alt="logo"
+                        className="h-8 w-8 object-contain rounded"
+                      />
+                      <button
+                        onClick={(e) => { e.stopPropagation(); deleteLogo(l.id); }}
+                        className="p-1.5 hover:bg-destructive/20 rounded transition-colors"
+                      >
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </button>
+                    </div>
+                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs"
+                    onClick={() => logoInputRef.current?.click()}
                   >
-                    <Trash2 className="h-3 w-3 text-destructive" />
-                  </button>
+                    + Add Logo
+                  </Button>
                 </div>
+              ) : (
+                <>
+                  {logos.length > 0 ? (
+                    <div className="bg-background rounded-lg p-2 border border-border flex items-center justify-between gap-2">
+                      <img
+                        src={logos[0].src}
+                        alt="logo"
+                        className="h-10 w-10 object-contain"
+                      />
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => logoInputRef.current?.click()}
+                          className="text-xs h-8"
+                        >
+                          Change
+                        </Button>
+                        <button
+                          onClick={() => deleteLogo(logos[0].id)}
+                          className="p-2 hover:bg-destructive/20 rounded transition-colors"
+                        >
+                          <Trash2 className="h-3 w-3 text-destructive" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-xs mb-3"
+                      onClick={() => logoInputRef.current?.click()}
+                    >
+                      + Add Logo
+                    </Button>
+                  )}
+                </>
               )}
             </div>
 
@@ -1302,7 +1563,7 @@ const Editor = () => {
             {/* Image Upload Section */}
             <div>
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-3">
-                <ImageIcon className="h-4 w-4" /> Image
+                Image
               </h3>
               <input
                 ref={fileInputRef}
@@ -1312,57 +1573,79 @@ const Editor = () => {
                 className="hidden"
               />
 
-              {images.length === 0 ? (
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-border bg-background/50 rounded-lg p-6 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all"
-                >
-                  <div className="flex items-center justify-center w-8 h-8 rounded bg-primary/20 text-primary">
-                    <ImageIcon className="h-4 w-4" />
-                  </div>
-                  <span className="text-sm font-medium text-foreground">
-                    Add Image
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    PNG, JPG or WEBP (Max. 5MB)
-                  </span>
+              {isMultipleLogo ? (
+                <div className="space-y-2">
+                  {images.map((img) => (
+                    <div
+                      key={img.id}
+                      className={`bg-background rounded-lg p-2 border flex items-center justify-between gap-2 cursor-pointer ${selectedImage === img.id ? "border-primary" : "border-border"}`}
+                      onClick={() => { setSelectedImage(img.id); setImageControlsOpen(true); }}
+                    >
+                      <img
+                        src={img.src}
+                        alt="image"
+                        className="h-8 w-10 object-cover rounded"
+                      />
+                      <button
+                        onClick={(e) => { e.stopPropagation(); deleteImage(img.id); }}
+                        className="p-1.5 hover:bg-destructive/20 rounded transition-colors"
+                      >
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </button>
+                    </div>
+                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    + Add Image
+                  </Button>
                 </div>
               ) : (
-                <div className="bg-background rounded-lg p-3 border border-border flex items-center justify-between">
-                  <img
-                    src={images[0].src}
-                    alt="image"
-                    className="h-12 w-12 object-cover rounded"
-                  />
-                  <div className="flex-1 ml-3">
-                    <p className="text-xs font-medium text-foreground">
-                      Image uploaded
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Click to replace
-                    </p>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteImage(images[0].id);
-                    }}
-                    className="p-1 hover:bg-destructive/20 rounded transition-colors"
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </button>
-                </div>
-              )}
-
-              {images.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full text-xs mt-3"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  Change Image
-                </Button>
+                <>
+                  {images.length === 0 ? (
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border-2 border-dashed border-border bg-background/50 rounded-lg p-6 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all"
+                    >
+                      <span className="text-sm font-medium text-foreground">
+                        Add Image
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        PNG, JPG or WEBP (Max. 5MB)
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="bg-background rounded-lg p-3 border border-border flex items-center justify-between gap-2">
+                      <img
+                        src={images[0].src}
+                        alt="image"
+                        className="h-10 w-14 object-cover rounded"
+                      />
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="text-xs h-8"
+                        >
+                          Change
+                        </Button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteImage(images[0].id);
+                          }}
+                          className="p-2 hover:bg-destructive/20 rounded transition-colors"
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -1381,8 +1664,9 @@ const Editor = () => {
               onClick={(e) => {
                 if (e.target !== e.currentTarget) return;
                 setSelectedImage(null);
-                setSelectedLogo(false);
+                setSelectedLogoId(null);
                 setSelectedTextElement(false);
+                setSelectedTagId(null);
                 setImageControlsOpen(false);
                 setSelectedShapeId(null);
                 if (!selectedTool || selectedTool === "move" || selectedTool === "select")
@@ -1397,22 +1681,26 @@ const Editor = () => {
                 cursor: selectedTool === "move" ? "grab" : "default",
                 fontFamily: fontOptions[selectedFont],
                 ...(backgroundType === "gradient"
+                  ? (() => {
+                      const gradCSS = useCustomGradient
+                        ? `linear-gradient(to bottom right, ${customGradientFrom}, ${customGradientTo})`
+                        : gradientCSSMap[selectedGradient];
+                      return {
+                        backgroundColor: gradientUsesAlpha(gradCSS)
+                          ? APP_BG_DARK
+                          : "transparent",
+                        backgroundImage:
+                          noiseLevel > 0 && noiseImageUrl
+                            ? `${gradCSS}, url(${noiseImageUrl})`
+                            : gradCSS,
+                        backgroundSize:
+                          noiseLevel > 0 && noiseImageUrl
+                            ? "100% 100%, 200px 200px"
+                            : "100% 100%",
+                      };
+                    })()
+                  : backgroundType === "solid"
                   ? {
-                      backgroundColor: gradientUsesAlpha(
-                        gradientCSSMap[selectedGradient],
-                      )
-                        ? APP_BG_DARK
-                        : "transparent",
-                      backgroundImage:
-                        noiseLevel > 0 && noiseImageUrl
-                          ? `${gradientCSSMap[selectedGradient]}, url(${noiseImageUrl})`
-                          : gradientCSSMap[selectedGradient],
-                      backgroundSize:
-                        noiseLevel > 0 && noiseImageUrl
-                          ? "100% 100%, 200px 200px"
-                          : "100% 100%",
-                    }
-                  : {
                       backgroundColor: selectedSolidColor
                         ? colorHexMap[selectedSolidColor] || "#ffffff"
                         : "#ffffff",
@@ -1420,20 +1708,46 @@ const Editor = () => {
                         ? `url(${noiseImageUrl})`
                         : "none",
                       backgroundSize: noiseImageUrl ? "200px 200px" : "0 0",
+                    }
+                  : {
+                      backgroundColor:
+                        selectedPattern !== null && patternMap[selectedPattern]
+                          ? patternMap[selectedPattern].backgroundColor || "#ffffff"
+                          : "#ffffff",
+                      backgroundImage: "none",
+                      backgroundSize: "100% 100%",
                     }),
                 backgroundRepeat: "repeat",
-                backgroundBlendMode: noiseLevel > 0 ? "overlay" : "normal",
+                backgroundBlendMode: "normal",
               }}
             >
+              {backgroundType === "pattern" && selectedPattern !== null && patternMap[selectedPattern] && (
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    backgroundImage: patternMap[selectedPattern].backgroundImage,
+                    backgroundSize: patternMap[selectedPattern].backgroundSize || undefined,
+                    backgroundRepeat: "repeat",
+                    ...(patternMap[selectedPattern].WebkitMaskImage
+                      ? { WebkitMaskImage: patternMap[selectedPattern].WebkitMaskImage }
+                      : {}),
+                    ...(patternMap[selectedPattern].maskImage
+                      ? { maskImage: patternMap[selectedPattern].maskImage }
+                      : {}),
+                    ...(patternMap[selectedPattern].WebkitMaskComposite
+                      ? { WebkitMaskComposite: patternMap[selectedPattern].WebkitMaskComposite as any }
+                      : {}),
+                    ...(patternMap[selectedPattern].maskComposite
+                      ? { maskComposite: patternMap[selectedPattern].maskComposite as any }
+                      : {}),
+                  }}
+                />
+              )}
               {/* Render Images */}
               {images.map((img) => (
                 <div
                   key={img.id}
-                  className={`absolute ${isDragging ? "" : "transition-all duration-200"} ${
-                    selectedImage === img.id
-                      ? " shadow-xl"
-                      : "shadow-lg hover:shadow-2xl"
-                  }`}
+                  className={`absolute ${isDragging ? "" : "transition-all duration-200"}`}
                   style={{
                     left: `${(img.x / 900) * 100}%`,
                     top: `${(img.y / 630) * 100}%`,
@@ -1450,7 +1764,7 @@ const Editor = () => {
                     if (lockedLayers.has("Image")) return;
                     if (frameGridVisible) return;
                     setSelectedImage(img.id);
-                    setSelectedLogo(false);
+                    setSelectedLogoId(null);
                     setSelectedTextElement(false);
                     setImageControlsOpen(true);
                     setActiveSidebar("image");
@@ -1463,7 +1777,7 @@ const Editor = () => {
                     e.preventDefault();
                     e.stopPropagation();
                     setSelectedImage(img.id);
-                    setSelectedLogo(false);
+                    setSelectedLogoId(null);
                     setSelectedTextElement(false);
 
                     const rect = canvasRef.current.getBoundingClientRect();
@@ -1493,33 +1807,33 @@ const Editor = () => {
                           ? `${img.borderWidth}px solid ${img.borderColor || "#000000"}`
                           : "none",
                       boxShadow:
-                        (img.shadowBlur || 0) > 0 ||
-                        (img.shadowSpread || 0) > 0 ||
+                        ((img.shadowBlur || 0) > 0 || (img.shadowSpread || 0) > 0) &&
                         (img.shadowOpacity || 0) > 0
                           ? `0 0 ${img.shadowBlur || 0}px ${img.shadowSpread || 0}px ${hexToRgba(img.shadowColor || "#000000", img.shadowOpacity || 0)}`
-                          : "none",
+                          : "0 0 10px 2px rgba(124,58,237,0.3)",
                     }}
                   />
                 </div>
               ))}
 
-              {/* Logo */}
-              {logo && (
+              {/* Logos */}
+              {logos.map((logo) => (
                 <div
+                  key={logo.id}
                   className={`absolute flex items-center justify-center ${isDragging ? "" : "transition-all duration-200"}`}
                   style={{
-                    left: `${logoProps.x}px`,
-                    top: `${logoProps.y}px`,
-                    width: `${logoProps.width}px`,
-                    height: `${logoProps.height}px`,
+                    left: `${logo.x}px`,
+                    top: `${logo.y}px`,
+                    width: `${logo.width}px`,
+                    height: `${logo.height}px`,
                     zIndex: getLayerZIndex("Logo"),
                     cursor: selectedTool === "move" ? "move" : selectedTool === "select" ? "pointer" : "default",
-                    outline: selectedLogo ? "3px solid #3b82f6" : "none",
+                    outline: selectedLogoId === logo.id ? "3px solid #3b82f6" : "none",
                     outlineOffset: "2px",
                   }}
                   onClick={() => {
                     if (frameGridVisible) return;
-                    setSelectedLogo(true);
+                    setSelectedLogoId(logo.id);
                     setSelectedImage(null);
                     setLogoControlsOpen(true);
                     setImageControlsOpen(true);
@@ -1531,7 +1845,7 @@ const Editor = () => {
                     if (!canvasRef.current) return;
                     e.preventDefault();
                     e.stopPropagation();
-                    setSelectedLogo(true);
+                    setSelectedLogoId(logo.id);
                     setSelectedImage(null);
                     const rect = canvasRef.current.getBoundingClientRect();
                     const scaleX = 900 / rect.width;
@@ -1539,45 +1853,43 @@ const Editor = () => {
                     const mouseBaseX = (e.clientX - rect.left) * scaleX;
                     const mouseBaseY = (e.clientY - rect.top) * scaleY;
                     logoDragRef.current = {
-                      offsetX: mouseBaseX - logoProps.x,
-                      offsetY: mouseBaseY - logoProps.y,
+                      id: logo.id,
+                      offsetX: mouseBaseX - logo.x,
+                      offsetY: mouseBaseY - logo.y,
                     };
                     setIsDragging(true);
                   }}
                 >
                   <img
-                    src={logo}
+                    src={logo.src}
                     alt="logo"
                     className="w-full h-full object-contain"
                     style={{
                       userSelect: "none",
                       pointerEvents: "none",
-                      borderRadius: `${logoProps.borderRadius || 0}px`,
+                      borderRadius: `${logo.borderRadius || 0}px`,
                     }}
                   />
                 </div>
-              )}
+              ))}
 
               {/* Text Content */}
               <div
                 onClick={() => {
                   if (frameGridVisible) return;
                   setSelectedTextElement(true);
-                  setSelectedImage(null);
-                  setSelectedLogo(false);
-                  setImageControlsOpen(true);
+                  setSelectedLogoId(null);
                   setActiveSidebar("text");
                   setTimeout(() => contentPositionRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 50);
                 }}
                 onMouseDown={(e) => {
                   if (selectedTool !== "move") return;
                   if (!canvasRef.current) return;
-                  if (images.length === 0) return;
                   e.preventDefault();
                   e.stopPropagation();
                   setSelectedTextElement(true);
                   setSelectedImage(null);
-                  setSelectedLogo(false);
+                  setSelectedLogoId(null);
                   const rect = canvasRef.current.getBoundingClientRect();
                   const scaleX = 900 / rect.width;
                   const scaleY = 630 / rect.height;
@@ -1596,7 +1908,7 @@ const Editor = () => {
                 }}
                 style={{
                   ...getTextPositioning(),
-                  cursor: selectedTool === "move" && images.length > 0 ? "move" : selectedTool === "select" ? "pointer" : "default",
+                  cursor: selectedTool === "move" ? "move" : selectedTool === "select" ? "pointer" : "default",
                   zIndex: Math.max(getLayerZIndex("Text"), getLayerZIndex("Subtitle")),
                   padding: "2rem",
                   overflow: "hidden",
@@ -1739,7 +2051,7 @@ const Editor = () => {
                         e.stopPropagation();
                         setSelectedShapeId(shape.id);
                         setSelectedImage(null);
-                        setSelectedLogo(false);
+                        setSelectedLogoId(null);
                         setSelectedTextElement(false);
                       }}
                     >
@@ -1814,6 +2126,65 @@ const Editor = () => {
                   );
                 })}
               </svg>
+
+              {/* Tags */}
+              {tags.map((tag) => {
+                const isSelected = selectedTagId === tag.id;
+                return (
+                  <div
+                    key={tag.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedTagId(tag.id);
+                      setSelectedImage(null);
+                      setSelectedLogoId(null);
+                      setSelectedTextElement(false);
+                      setSelectedShapeId(null);
+                    }}
+                    onMouseDown={(e) => {
+                      if (selectedTool !== "move") return;
+                      if (!canvasRef.current) return;
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedTagId(tag.id);
+                      setSelectedImage(null);
+                      setSelectedLogoId(null);
+                      setSelectedTextElement(false);
+                      setSelectedShapeId(null);
+                      const rect = canvasRef.current.getBoundingClientRect();
+                      const scaleX = 900 / rect.width;
+                      const scaleY = 630 / rect.height;
+                      const mouseBaseX = (e.clientX - rect.left) * scaleX;
+                      const mouseBaseY = (e.clientY - rect.top) * scaleY;
+                      tagDragRef.current = {
+                        id: tag.id,
+                        offsetX: mouseBaseX - tag.x,
+                        offsetY: mouseBaseY - tag.y,
+                      };
+                      setIsDragging(true);
+                    }}
+                    style={{
+                      position: "absolute",
+                      left: tag.x,
+                      top: tag.y,
+                      border: `${tag.borderWidth}px solid ${tag.borderColor}`,
+                      borderRadius: tag.borderRadius,
+                      padding: "4px 10px",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: tag.borderColor,
+                      cursor: selectedTool === "move" ? "move" : "pointer",
+                      zIndex: getLayerZIndex("Tag"),
+                      outline: isSelected ? "2px solid #3b82f6" : "none",
+                      outlineOffset: "2px",
+                      userSelect: "none",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {tag.text}
+                  </div>
+                );
+              })}
             </div>
             )}
           </div>
@@ -1873,7 +2244,7 @@ const Editor = () => {
           rightOpen
             ? 'fixed inset-y-0 right-0 z-50 w-80 shadow-2xl'
             : 'hidden'
-        } lg:relative lg:z-auto lg:block lg:w-80 border-l border-border bg-card shrink-0 h-full flex flex-col overflow-y-auto`}>
+        } lg:relative lg:z-auto lg:block lg:w-80 border-l border-border bg-card shrink-0 h-full flex flex-col overflow-y-auto overflow-x-hidden`}>
           {/* Tabs */}
           {/* <div className="flex border-b border-border bg-background/30">
             <button
@@ -1940,6 +2311,16 @@ const Editor = () => {
                     >
                       Solid
                     </button>
+                    <button
+                      onClick={() => setBackgroundType("pattern")}
+                      className={`flex-1 py-1.5 px-2 text-xs rounded-sm border transition-all duration-150 ${
+                        backgroundType === "pattern"
+                          ? "border-primary bg-primary/10 text-foreground font-medium"
+                          : "border-border text-muted-foreground hover:border-muted-foreground"
+                      }`}
+                    >
+                      Pattern
+                    </button>
                   </div>
 
                   {/* Gradients */}
@@ -1951,14 +2332,17 @@ const Editor = () => {
                       <div className="grid grid-cols-7 gap-1">
                         {initialLoading
                           ? Array.from({ length: 14 }).map((_, i) => (
-                              <Skeleton key={i} className="aspect-square rounded-md" />
+                              <Skeleton key={i} className="aspect-square rounded-sm" />
                             ))
-                          : gradients.slice(0, 13).map((g, i) => (
+                          : gradients.slice(0, 12).map((g, i) => (
                               <button
                                 key={i}
-                                onClick={() => setSelectedGradient(i)}
-                                className={`aspect-square rounded-md border transition-all duration-150 ${
-                                  selectedGradient === i
+                                onClick={() => {
+                                  setSelectedGradient(i);
+                                  setUseCustomGradient(false);
+                                }}
+                                className={`aspect-square rounded-sm border transition-all duration-150 ${
+                                  selectedGradient === i && !useCustomGradient
                                     ? "border-primary ring-2 ring-primary"
                                     : "border-border hover:border-muted-foreground"
                                 }`}
@@ -1968,22 +2352,41 @@ const Editor = () => {
                             ))}
                         {showAllGradients && !initialLoading && (
                           gradientsLoading
-                            ? Array.from({ length: gradients.length - 13 }).map((_, i) => (
-                                <Skeleton key={`grad-sk-${i}`} className="aspect-square rounded-md" />
+                            ? Array.from({ length: gradients.length - 12 }).map((_, i) => (
+                                <Skeleton key={`grad-sk-${i}`} className="aspect-square rounded-sm" />
                               ))
-                            : gradients.slice(13).map((g, i) => (
+                            : gradients.slice(12).map((g, i) => (
                                 <button
-                                  key={`gradient-${i + 13}`}
-                                  onClick={() => setSelectedGradient(i + 13)}
-                                  className={`aspect-square rounded-md border transition-all duration-150 ${
-                                    selectedGradient === i + 13
+                                  key={`gradient-${i + 12}`}
+                                  onClick={() => {
+                                    setSelectedGradient(i + 12);
+                                    setUseCustomGradient(false);
+                                  }}
+                                  className={`aspect-square rounded-sm border transition-all duration-150 ${
+                                    selectedGradient === i + 12 && !useCustomGradient
                                       ? "border-primary ring-2 ring-primary"
                                       : "border-border hover:border-muted-foreground"
                                   }`}
-                                  style={{ background: gradientCSSMap[i + 13] }}
-                                  title={`Gradient ${i + 14}`}
+                                  style={{ background: gradientCSSMap[i + 12] }}
+                                  title={`Gradient ${i + 13}`}
                                 />
                               ))
+                        )}
+                        {!initialLoading && (
+                          <button
+                            onClick={() => {
+                              setCustomizeOpen(!customizeOpen);
+                              if (!customizeOpen) setUseCustomGradient(true);
+                            }}
+                            className={`aspect-square rounded-sm border transition-all duration-150 flex items-center justify-center text-[8px] font-medium leading-tight ${
+                              useCustomGradient
+                                ? "border-primary ring-2 ring-primary bg-primary/10 text-foreground"
+                                : "border-border hover:border-muted-foreground text-muted-foreground bg-background"
+                            }`}
+                            title="Customize gradient"
+                          >
+                            <Settings2 className={`h-4 w-4 ${useCustomGradient ? "text-foreground" : "text-muted-foreground"}`} />
+                          </button>
                         )}
                         {!initialLoading && gradients.length > 13 && (
                           <button
@@ -1996,13 +2399,43 @@ const Editor = () => {
                                 setShowAllGradients(false);
                               }
                             }}
-                            className="aspect-square rounded-md border border-border hover:border-muted-foreground transition-all duration-150 flex items-center justify-center bg-background"
+                            className="aspect-square rounded-sm border border-border hover:border-muted-foreground transition-all duration-150 flex items-center justify-center bg-background"
                             title={showAllGradients ? "Show less" : "Show all gradients"}
                           >
                             <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${showAllGradients ? "rotate-180" : ""}`} />
                           </button>
                         )}
                       </div>
+
+                      {customizeOpen && (
+                        <div className="mt-3 pt-3 border-t border-border">
+                          <Label className="text-xs text-muted-foreground mb-2 block">
+                            Custom Gradient
+                          </Label>
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1">
+                              <ColorRow
+                                label="From"
+                                value={customGradientFrom}
+                                onChange={(color) => {
+                                  setCustomGradientFrom(color);
+                                  setUseCustomGradient(true);
+                                }}
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <ColorRow
+                                label="To"
+                                value={customGradientTo}
+                                onChange={(color) => {
+                                  setCustomGradientTo(color);
+                                  setUseCustomGradient(true);
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -2015,13 +2448,13 @@ const Editor = () => {
                       <div className="grid grid-cols-7 gap-1.5">
                         {initialLoading
                           ? Array.from({ length: 14 }).map((_, i) => (
-                              <Skeleton key={i} className="aspect-square rounded-md" />
+                              <Skeleton key={i} className="aspect-square rounded-sm" />
                             ))
                           : solidColors.slice(0, 13).map((color, i) => (
                           <button
                             key={i}
                             onClick={() => setSelectedSolidColor(color)}
-                            className={`aspect-square rounded-md ${color} border-2 transition-all duration-150 ${
+                            className={`aspect-square rounded-sm ${color} border-2 transition-all duration-150 ${
                               selectedSolidColor === color
                                 ? "border-white ring-2 ring-white"
                                 : "border-border hover:border-gray-400"
@@ -2032,13 +2465,13 @@ const Editor = () => {
                         {showAllSolidColors && !initialLoading && (
                           solidColorsLoading
                             ? Array.from({ length: solidColors.length - 13 }).map((_, i) => (
-                                <Skeleton key={`solid-sk-${i}`} className="aspect-square rounded-md" />
+                                <Skeleton key={`solid-sk-${i}`} className="aspect-square rounded-sm" />
                               ))
                             : solidColors.slice(13).map((color, i) => (
                                 <button
                                   key={`solid-${i + 13}`}
                                   onClick={() => setSelectedSolidColor(color)}
-                                  className={`aspect-square rounded-md ${color} border-2 transition-all duration-150 ${
+                                  className={`aspect-square rounded-sm ${color} border-2 transition-all duration-150 ${
                                     selectedSolidColor === color
                                       ? "border-white ring-2 ring-white"
                                       : "border-border hover:border-gray-400"
@@ -2058,7 +2491,7 @@ const Editor = () => {
                                 setShowAllSolidColors(false);
                               }
                             }}
-                            className="aspect-square rounded-md border-2 border-border hover:border-gray-400 transition-all duration-150 flex items-center justify-center bg-transparent"
+                            className="aspect-square rounded-sm border-2 border-border hover:border-gray-400 transition-all duration-150 flex items-center justify-center bg-transparent"
                             title={showAllSolidColors ? "Show less" : "Show all colors"}
                           >
                             <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${showAllSolidColors ? "rotate-180" : ""}`} />
@@ -2068,106 +2501,88 @@ const Editor = () => {
                     </div>
                   )}
 
-                  <Separator className="bg-border my-3" />
-
-                  {/* Noise Section */}
-                  <div>
-                    <Label className="text-xs text-muted-foreground mb-2 block">
-                      Noise Overlay
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={noiseLevel}
-                        onChange={(e) =>
-                          setNoiseLevel(
-                            Math.max(
-                              0,
-                              Math.min(100, Number(e.target.value) || 0),
-                            ),
-                          )
-                        }
-                        className="flex-1 [&]:h-auto [&]:border-0 [&]:px-0 [&]:py-0"
-                      />
-                      <span className="text-xs text-muted-foreground w-8 text-right tabular-nums">
-                        {noiseLevel}%
-                      </span>
-                    </div>
-                  </div>
-
-                  <Separator className="bg-border my-3" />
-
-                  {/* Layers */}
-                  <div className="mb-6">
-                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-3">
-                      <Layers className="h-4 w-4" /> Layers
-                    </h3>
-                    <div className="space-y-1">
-                      {visibleLayers.map((layer, i) => {
-                        const locked = lockedLayers.has(layer.name);
-                        const isFirst = i === 0;
-                        const isLast = i === visibleLayers.length - 1;
-                        return (
-                          <div
-                            key={layer.name}
-                            draggable
-                            onDragStart={() => handleDragStart(layer.name)}
-                            onDragOver={(e) => handleDragOver(e, i)}
-                            onDragLeave={handleDragLeave}
-                            onDrop={() => handleDrop(layer.name)}
-                            onDragEnd={handleDragEnd}
-                            className={`flex items-center gap-1 group cursor-grab active:cursor-grabbing rounded transition-colors ${
-                              dragOverIndex === i ? "bg-accent/50" : ""
+                  {/* Patterns */}
+                  {backgroundType === "pattern" && (
+                    <div>
+                      <Label className="text-xs text-muted-foreground mb-2 block">
+                        Patterns
+                      </Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {patternMap.map((pattern, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setSelectedPattern(i)}
+                            className={`relative rounded-sm border-2 overflow-hidden transition-all duration-150 ${
+                              selectedPattern === i
+                                ? "border-primary ring-2 ring-primary"
+                                : "border-border hover:border-muted-foreground"
                             }`}
+                            title={pattern.name}
+                            style={{ aspectRatio: "16 / 10" }}
                           >
-                            <button
-                              onClick={layer.onClick}
-                              className="flex-1 flex items-center gap-2 px-2 py-2 text-xs rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-all"
-                            >
-                              {layer.icon}
-                              {layer.name}
-                            </button>
-                            <button
-                              onClick={() => {
-                                const next = new Set(lockedLayers);
-                                if (locked) next.delete(layer.name);
-                                else next.add(layer.name);
-                                setLockedLayers(next);
+                            <div
+                              className="absolute inset-0"
+                              style={{
+                                backgroundColor: pattern.backgroundColor || "#ffffff",
                               }}
-                              className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-all"
                             >
-                              {locked ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
-                            </button>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <button className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-all ">
-                                  <MoreVertical className="h-3 w-3" />
-                                </button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="min-w-[130px]">
-                                <DropdownMenuItem disabled={isFirst} onClick={() => moveLayerUp(layer.name)}>
-                                  <ChevronUp className="h-3.5 w-3.5 mr-2" /> Move Up
-                                </DropdownMenuItem>
-                                <DropdownMenuItem disabled={isLast} onClick={() => moveLayerDown(layer.name)}>
-                                  <ChevronDown className="h-3.5 w-3.5 mr-2" /> Move Down
-                                </DropdownMenuItem>
-                                {layer.name !== "Card" && (
-                                  <DropdownMenuItem
-                                    className="text-destructive focus:text-destructive"
-                                    onClick={() => setLayerDeleteConfirm(layer.name)}
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
-                                  </DropdownMenuItem>
-                                )}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        );
-                      })}
+                              <div
+                                className="absolute inset-0"
+                                style={{
+                                  backgroundImage: pattern.backgroundImage,
+                                  backgroundSize: pattern.backgroundSize || undefined,
+                                  backgroundRepeat: "repeat",
+                                  WebkitMaskImage: pattern.WebkitMaskImage || undefined,
+                                  maskImage: pattern.maskImage || undefined,
+                                  WebkitMaskComposite: pattern.WebkitMaskComposite as any || undefined,
+                                  maskComposite: pattern.maskComposite as any || undefined,
+                                }}
+                              />
+                            </div>
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent p-1">
+                              <span className="text-[10px] text-white font-medium block truncate">
+                                {pattern.name}
+                              </span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
+
+                  {backgroundType !== "pattern" && (
+                    <>
+                      <Separator className="bg-border my-3" />
+                      <div>
+                        <Label className="text-xs text-muted-foreground mb-2 block">
+                          Noise Overlay
+                        </Label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={noiseLevel}
+                            onChange={(e) =>
+                              setNoiseLevel(
+                                Math.max(
+                                  0,
+                                  Math.min(100, Number(e.target.value) || 0),
+                                ),
+                              )
+                            }
+                            className="flex-1 [&]:h-auto [&]:border-0 [&]:px-0 [&]:py-0"
+                          />
+                          <span className="text-xs text-muted-foreground w-8 text-right tabular-nums">
+                            {noiseLevel}%
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  <Separator className="bg-border" />
+
+
 
                   {/* Text Colors */}
                   <div>
@@ -2408,114 +2823,6 @@ const Editor = () => {
                                 placeholder="0"
                               />
                             </div>
-
-                            <div>
-                              <Label className="text-xs text-muted-foreground mb-2 block">
-                                Box Shadow
-                              </Label>
-                              <div className="grid grid-cols-2 gap-3 mb-3">
-                                <div>
-                                  <Label className="text-xs text-muted-foreground">
-                                    Blur
-                                  </Label>
-                                  <Input
-                                    type="number"
-                                    min="0"
-                                    max="50"
-                                    value={
-                                      images.find(
-                                        (img) => img.id === selectedImage,
-                                      )?.shadowBlur || 0
-                                    }
-                                    onChange={(e) =>
-                                      updateImage(selectedImage, {
-                                        shadowBlur: Math.max(
-                                          0,
-                                          Math.min(
-                                            50,
-                                            Number(e.target.value) || 0,
-                                          ),
-                                        ),
-                                      })
-                                    }
-                                    className="mt-1 bg-card border-border text-xs"
-                                  />
-                                </div>
-                                <div>
-                                  <Label className="text-xs text-muted-foreground">
-                                    Spread
-                                  </Label>
-                                  <Input
-                                    type="number"
-                                    min="0"
-                                    max="50"
-                                    value={
-                                      images.find(
-                                        (img) => img.id === selectedImage,
-                                      )?.shadowSpread || 0
-                                    }
-                                    onChange={(e) =>
-                                      updateImage(selectedImage, {
-                                        shadowSpread: Math.max(
-                                          0,
-                                          Math.min(
-                                            50,
-                                            Number(e.target.value) || 0,
-                                          ),
-                                        ),
-                                      })
-                                    }
-                                    className="mt-1 bg-card border-border text-xs"
-                                  />
-                                </div>
-                                <div>
-                                  <Label className="text-xs text-muted-foreground">
-                                    Color
-                                  </Label>
-                                  <Input
-                                    type="color"
-                                    value={
-                                      images.find(
-                                        (img) => img.id === selectedImage,
-                                      )?.shadowColor || "#000000"
-                                    }
-                                    onChange={(e) =>
-                                      updateImage(selectedImage, {
-                                        shadowColor: e.target.value,
-                                      })
-                                    }
-                                    className="mt-1 bg-card border-border text-xs "
-                                  />
-                                </div>
-                                <div>
-                                  <Label className="text-xs text-muted-foreground">
-                                    Opacity
-                                  </Label>
-                                  <Input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    value={
-                                      images.find(
-                                        (img) => img.id === selectedImage,
-                                      )?.shadowOpacity || 0
-                                    }
-                                    onChange={(e) =>
-                                      updateImage(selectedImage, {
-                                        shadowOpacity: Math.max(
-                                          0,
-                                          Math.min(
-                                            100,
-                                            Number(e.target.value) || 0,
-                                          ),
-                                        ),
-                                      })
-                                    }
-                                    className="mt-1 bg-card border-border text-xs"
-                                  />
-                                </div>
-                              </div>
-                            </div>
                           </div>
                         )}
                       </div>
@@ -2525,7 +2832,7 @@ const Editor = () => {
                     <Separator className="bg-border" />
                     </>
                   )}
-                {logo && (
+                {activeLogo && (
                   <div ref={logoControlsRef}>
                     <div>
                       <div className="flex items-center justify-between mb-3">
@@ -2556,10 +2863,9 @@ const Editor = () => {
                               </Label>
                               <Input
                                 type="number"
-                                value={logoProps.x}
+                                value={activeLogo.x}
                                 onChange={(e) =>
-                                  setLogoProps({
-                                    ...logoProps,
+                                  updateLogo(activeLogo.id, {
                                     x: Math.max(0, Number(e.target.value)),
                                   })
                                 }
@@ -2572,10 +2878,9 @@ const Editor = () => {
                               </Label>
                               <Input
                                 type="number"
-                                value={logoProps.y}
+                                value={activeLogo.y}
                                 onChange={(e) =>
-                                  setLogoProps({
-                                    ...logoProps,
+                                  updateLogo(activeLogo.id, {
                                     y: Math.max(0, Number(e.target.value)),
                                   })
                                 }
@@ -2588,10 +2893,9 @@ const Editor = () => {
                               </Label>
                               <Input
                                 type="number"
-                                value={logoProps.width}
+                                value={activeLogo.width}
                                 onChange={(e) =>
-                                  setLogoProps({
-                                    ...logoProps,
+                                  updateLogo(activeLogo.id, {
                                     width: Number(e.target.value) || 20,
                                   })
                                 }
@@ -2604,10 +2908,9 @@ const Editor = () => {
                               </Label>
                               <Input
                                 type="number"
-                                value={logoProps.height}
+                                value={activeLogo.height}
                                 onChange={(e) =>
-                                  setLogoProps({
-                                    ...logoProps,
+                                  updateLogo(activeLogo.id, {
                                     height: Number(e.target.value) || 20,
                                   })
                                 }
@@ -2623,10 +2926,9 @@ const Editor = () => {
                               type="number"
                               min="0"
                               max="50"
-                              value={logoProps.borderRadius || 0}
+                              value={activeLogo.borderRadius || 0}
                               onChange={(e) =>
-                                setLogoProps({
-                                  ...logoProps,
+                                updateLogo(activeLogo.id, {
                                   borderRadius: Math.max(
                                     0,
                                     Math.min(50, Number(e.target.value) || 0),
@@ -2876,8 +3178,69 @@ const Editor = () => {
                               />
                             </div>
                           </div>
+                          
                         </div>
                       </>
+                    );
+                  })()}
+                                      <Separator className="bg-border" />
+
+
+                {/* Tag Settings */}
+                {selectedTagId &&
+                  (() => {
+                    const tag = tags.find((t) => t.id === selectedTagId);
+                    if (!tag) return null;
+                    return (
+                      <div ref={tagControlsRef}>
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                            <Hexagon className="h-4 w-4" /> Tag
+                          </h3>
+                          <button
+                            onClick={() => {
+                              setTags([]);
+                              setSelectedTagId(null);
+                            }}
+                            className="p-1 hover:bg-destructive/20 rounded transition-colors"
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </button>
+                        </div>
+                        <div className="bg-background rounded-lg p-3 border border-border space-y-3">
+                          <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <Label className="text-xs text-muted-foreground">Border Radius</Label>
+                            <Input
+                              type="number"
+                              min={0}
+                              max={50}
+                              value={tag.borderRadius}
+                              onChange={(e) => updateTag(tag.id, { borderRadius: Math.max(0, Number(e.target.value) || 0) })}
+                              className="mt-1 bg-card border-border text-xs"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground">Border Size</Label>
+                            <Input
+                              type="number"
+                              min={0}
+                              max={10}
+                              value={tag.borderWidth}
+                              onChange={(e) => updateTag(tag.id, { borderWidth: Math.max(0, Number(e.target.value) || 0) })}
+                              className="mt-1 bg-card border-border text-xs"
+                            />
+                          </div>
+                          </div>
+                          
+                          <ColorRow
+                            label="Border Color"
+                            value={tag.borderColor}
+                            onChange={(color) => updateTag(tag.id, { borderColor: color })}
+                          />
+                          
+                        </div>
+                      </div>
                     );
                   })()}
 
@@ -2952,7 +3315,7 @@ const Editor = () => {
                       }}
                       className={`group w-full aspect-[1200/630] rounded-lg overflow-hidden border border-border hover:border-primary transition-all duration-200 text-left relative bg-card bg-gradient-to-br ${template.preview.bg}`}
                     >
-                      <div className="absolute inset-0 transition-all duration-200 group-hover:scale-[1.05]">
+                      <div className="absolute inset-0 transition-all duration-200 ">
                       {template.hasImage && template.imagePosition && (
                         <div
                           className="absolute bg-white/10 rounded border border-white/10"
@@ -3078,7 +3441,7 @@ const Editor = () => {
           <DialogHeader>
             <DialogTitle>Export Image</DialogTitle>
             <DialogDescription>
-              Choose your preferred format and size.
+              Choose your preferred format.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -3098,19 +3461,9 @@ const Editor = () => {
             </div>
             <div>
               <Label className="text-sm font-medium">Size</Label>
-              <select
-                value={exportSize}
-                onChange={(e) =>
-                  setExportSize(
-                    e.target.value as "800x420" | "1200x630" | "1920x1008",
-                  )
-                }
-                className="w-full mt-2 px-3 py-2 bg-card border border-border rounded text-sm text-foreground"
-              >
-                <option value="800x420">800 × 420 (Small)</option>
-                <option value="1200x630">1200 × 630 (Standard)</option>
-                <option value="1920x1008">1920 × 1008 (Large)</option>
-              </select>
+              <div className="w-full mt-2 px-3 py-2 bg-card border border-border rounded text-sm text-foreground">
+                1200 × 630 (Standard)
+              </div>
             </div>
           </div>
           <DialogFooter>

@@ -19,10 +19,10 @@ import {
   Search,
   SlidersHorizontal,
   LogOut,
-  User as UserIcon,
-  Settings,
+  Crown,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
+import { clearSessionStorage } from "@/lib/token-storage";
 import { templates, categories } from "@/templates";
 import { gradients, solidColors } from "@/lib/colors";
 
@@ -197,7 +197,7 @@ const Dashboard = () => {
                       <Skeleton className="h-5 w-32 mb-2" />
                       <Skeleton className="h-4 w-24" />
                     </div>
-                    <Skeleton className="h-10 w-full mt-auto rounded-md" />
+                    <Skeleton className="h-10 w-full mt-auto rounded-sm" />
                   </div>
                 </div>
               </div>
@@ -218,6 +218,10 @@ const Dashboard = () => {
   });
 
   const handleLogout = async () => {
+    clearSessionStorage();
+    localStorage.removeItem("next-auth.session-data");
+    localStorage.removeItem("next-auth.callback-url");
+    localStorage.removeItem("next-auth.csrf-token");
     await signOut({ callbackUrl: "/" });
   };
 
@@ -262,7 +266,7 @@ const Dashboard = () => {
                   variant="ghost"
                   className="relative h-9 w-9 rounded-full"
                 >
-                  <Avatar className="h-9 w-9 border border-border">
+                  <Avatar className="h-9 w-9 border border-border btn-shimmer">
                     <AvatarImage
                       src={user?.image || ""}
                       alt={user?.name || "User"}
@@ -270,33 +274,28 @@ const Dashboard = () => {
                     <AvatarFallback className="bg-primary/10 text-primary font-bold">
                       {userInitial.toUpperCase()}
                     </AvatarFallback>
+                    {(user as any)?.isPremium && (
+                      <div className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-5 h-5 rounded-full bg-amber-500 shadow-sm">
+                        <Crown className="h-3 w-3 text-white" />
+                      </div>
+                    )}
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
+                    <p className="text-sm font-medium leading-none flex items-center gap-1.5">
                       {user?.name || "Anonymous"}
+                      {(user as any)?.isPremium && (
+                        <Crown className="h-3.5 w-3.5 text-amber-500" />
+                      )}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
                       {user?.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/profile" className="cursor-pointer">
-                    <UserIcon className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/settings" className="cursor-pointer">
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </Link>
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-destructive focus:text-destructive cursor-pointer"
@@ -398,7 +397,7 @@ const Dashboard = () => {
             >
               <Link
                 to={`/editor?template=${template.id}&title=${encodeURIComponent(template.title)}&subtitle=${encodeURIComponent(template.subtitle)}&gradient=${encodeURIComponent(template.gradient)}&titleColor=${encodeURIComponent(template.titleColor)}&subtitleColor=${encodeURIComponent(template.subtitleColor)}&authorColor=${encodeURIComponent("authorColor" in template && template.authorColor ? template.authorColor : template.subtitleColor)}&titleSize=${template.titleSize}&logo=${template.hasLogo && template.logoUrl ? template.logoUrl : ""}&image=${template.hasImage && template.imageUrl ? template.imageUrl : ""}${template.imagePosition ? `&imagePosition=${encodeURIComponent(JSON.stringify(template.imagePosition))}` : ""}${template.logoPosition ? `&logoPosition=${encodeURIComponent(JSON.stringify(template.logoPosition))}` : ""}${template.contentPosition ? `&contentPosition=${encodeURIComponent(JSON.stringify(template.contentPosition))}` : ""}&hasAuthor=${template.hasAuthor}`}
-                className="block group h-full rounded-md border border-border bg-card overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-200"
+                className="block group h-full rounded-sm border border-border bg-card overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-200"
               >
                 <TemplatePreview template={template} />
               </Link>

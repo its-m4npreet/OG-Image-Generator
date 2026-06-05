@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS users (
   email TEXT UNIQUE,
   "emailVerified" TIMESTAMPTZ,
   image TEXT,
-  role TEXT DEFAULT 'user'
+  role TEXT DEFAULT 'user',
+  is_premium BOOLEAN DEFAULT false
 );
 
 -- accounts: snake_case column names required by @auth/pg-adapter

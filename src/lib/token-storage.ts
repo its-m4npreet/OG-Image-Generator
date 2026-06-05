@@ -14,6 +14,7 @@ export interface StoredSession {
     name?: string;
     image?: string;
     role?: string;
+    isPremium?: boolean;
   };
   expires: string;
 }
