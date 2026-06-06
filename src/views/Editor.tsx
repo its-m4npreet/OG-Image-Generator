@@ -753,27 +753,25 @@ const Editor = () => {
           ),
         ).then((results) => {
           const srcs = results.filter(Boolean) as string[];
-          const rawPositions:
-            | { x: number; y: number; width: number; height: number; borderRadius?: number }[]
-            | null =
+          const rawPositions: { x: number; y: number; width: number; height: number; borderRadius?: number }[] | null =
             "logoPositions" in template && template.logoPositions
               ? (template.logoPositions as unknown as { x: number; y: number; width: number; height: number; borderRadius?: number }[])
               : null;
-          const pos = ("logoPosition" in template && template.logoPosition) || {
-            x: 16,
-            y: 16,
-            width: 48,
-            height: 48,
-          };
-          const newLogos: CanvasLogo[] = srcs.map((src, i) => ({
-            id: `logo-${Date.now()}-${i}`,
-            src,
-            x: rawPositions ? rawPositions[i]?.x ?? pos.x : pos.x + i * 20,
-            y: rawPositions ? rawPositions[i]?.y ?? pos.y : pos.y + i * 20,
-            width: rawPositions ? rawPositions[i]?.width ?? pos.width : pos.width,
-            height: rawPositions ? rawPositions[i]?.height ?? pos.height : pos.height,
-            borderRadius: rawPositions ? rawPositions[i]?.borderRadius ?? 0 : 0,
-          }));
+          const pos: { x: number; y: number; width: number; height: number } = "logoPosition" in template && template.logoPosition
+            ? template.logoPosition as { x: number; y: number; width: number; height: number }
+            : { x: 16, y: 16, width: 48, height: 48 };
+          const newLogos: CanvasLogo[] = srcs.map((src, i) => {
+            const p: { x: number; y: number; width: number; height: number; borderRadius?: number } | undefined = rawPositions?.[i];
+            return {
+              id: `logo-${Date.now()}-${i}`,
+              src,
+              x: p ? p.x : pos.x + i * 20,
+              y: p ? p.y : pos.y + i * 20,
+              width: p ? p.width : pos.width,
+              height: p ? p.height : pos.height,
+              borderRadius: p ? (p.borderRadius ?? 0) : 0,
+            };
+          });
           setLogos(newLogos);
           if (newLogos.length > 0) setSelectedLogoId(newLogos[0].id);
         });
