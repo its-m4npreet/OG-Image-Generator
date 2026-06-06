@@ -83,6 +83,13 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
           />
         )}
 
+        {"blurred" in template && template.blurred && (
+          <div
+            className="absolute inset-0"
+            style={{ backdropFilter: "blur(1.5px)" }}
+          />
+        )}
+
         {template.hasImage &&
           template.imageUrl &&
           template.imagePosition && (
@@ -106,6 +113,47 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
             />
           )}
 
+        {"istag" in template && template.istag && template.tag && "tagPosition" in template && template.tagPosition && (() => {
+          const tagY = template.tagPosition.y * (350 / 630);
+          const contentY = template.contentPosition?.y ? template.contentPosition.y * (350 / 630) : 0;
+          const tagHeight = 20;
+          const adjustedY = contentY && (tagY + tagHeight > contentY) ? contentY - tagHeight - 4 : tagY;
+          return (
+          <div
+            style={{
+              position: "absolute",
+              left: template.tagPosition.x * (550 / 900),
+              top: adjustedY,
+              border: `${template.tagPosition.borderWidth || 1}px solid ${template.tagPosition.borderColor || "#3b82f6"}`,
+              borderRadius: template.tagPosition.borderRadius || 10,
+              padding: "4px 10px",
+              fontSize: "11px",
+              fontWeight: 600,
+              color: template.tagPosition.borderColor || "#3b82f6",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {template.tag}
+          </div>
+          );
+        })()}
+
+        {"hasLogo" in template && template.hasLogo && "logoPositions" in template && template.logoPositions && template.logoPositions.map((logoPos, i) => (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: logoPos.x * (550 / 900),
+              top: logoPos.y * (350 / 630),
+              width: logoPos.width * (550 / 900),
+              height: logoPos.height * (350 / 630),
+              borderRadius: logoPos.borderRadius ? `${logoPos.borderRadius}%` : 0,
+              background: "rgba(255,255,255,0.15)",
+              border: "1px solid rgba(255,255,255,0.2)",
+            }}
+          />
+        ))}
+
         {template.contentPosition &&
           (() => {
             const cp = template.contentPosition;
@@ -117,13 +165,7 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
             const titleSize = template.hasImage ? 32 : 24;
             const subtitleSize = template.hasImage ? 15 : 14;
 
-            let top = cp.y * scaleY;
-            if (!template.hasImage) {
-              const estimatedHeight =
-                titleSize * 1.5 +
-                subtitleSize * 1.5;
-              top = (350 - estimatedHeight) / 2;
-            }
+            const top = cp.y * scaleY;
 
             return (
               <div
@@ -147,16 +189,18 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
                 >
                   {template.title}
                 </div>
-                <div
-                  style={{
-                    fontSize: subtitleSize,
-                    color: template.subtitleColor,
-                    lineHeight: 1.4,
-                    wordBreak: "break-word",
-                  }}
-                >
-                  {template.subtitle}
-                </div>
+                {template.subtitle && (
+                  <div
+                    style={{
+                      fontSize: subtitleSize,
+                      color: template.subtitleColor,
+                      lineHeight: 1.4,
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    {template.subtitle}
+                  </div>
+                )}
               </div>
             );
           })()}
@@ -422,7 +466,7 @@ const Dashboard = () => {
               className="h-full"
             >
               <Link
-                to={`/editor?template=${template.id}&title=${encodeURIComponent(template.title)}&subtitle=${encodeURIComponent(template.subtitle)}&gradient=${encodeURIComponent(template.gradient)}&titleColor=${encodeURIComponent(template.titleColor)}&subtitleColor=${encodeURIComponent(template.subtitleColor)}&authorColor=${encodeURIComponent("authorColor" in template && template.authorColor ? template.authorColor : template.subtitleColor)}&titleSize=${template.titleSize}&logo=${template.hasLogo && template.logoUrl ? template.logoUrl : ""}&image=${template.hasImage && template.imageUrl ? template.imageUrl : ""}${template.imagePosition ? `&imagePosition=${encodeURIComponent(JSON.stringify(template.imagePosition))}` : ""}${template.logoPosition ? `&logoPosition=${encodeURIComponent(JSON.stringify(template.logoPosition))}` : ""}${template.contentPosition ? `&contentPosition=${encodeURIComponent(JSON.stringify(template.contentPosition))}` : ""}&hasAuthor=${template.hasAuthor}${"pattern" in template && template.pattern !== undefined ? `&backgroundType=pattern&pattern=${template.pattern}` : ""}`}
+                to={`/editor?template=${template.id}&title=${encodeURIComponent(template.title)}&subtitle=${encodeURIComponent(template.subtitle)}&gradient=${encodeURIComponent(template.gradient)}&titleColor=${encodeURIComponent(template.titleColor)}&subtitleColor=${encodeURIComponent(template.subtitleColor)}&authorColor=${encodeURIComponent("authorColor" in template && template.authorColor ? template.authorColor : template.subtitleColor)}&titleSize=${template.titleSize}&logo=${template.hasLogo && template.logoUrl ? template.logoUrl : ""}&image=${template.hasImage && template.imageUrl ? template.imageUrl : ""}${template.imagePosition ? `&imagePosition=${encodeURIComponent(JSON.stringify(template.imagePosition))}` : ""}${template.logoPosition ? `&logoPosition=${encodeURIComponent(JSON.stringify(template.logoPosition))}` : ""}${"logoPositions" in template && template.logoPositions ? `&logoPositions=${encodeURIComponent(JSON.stringify(template.logoPositions))}` : ""}${template.contentPosition ? `&contentPosition=${encodeURIComponent(JSON.stringify(template.contentPosition))}` : ""}&hasAuthor=${template.hasAuthor}${"pattern" in template && template.pattern !== undefined ? `&backgroundType=pattern&pattern=${template.pattern}` : ""}${"logoUrls" in template && template.logoUrls ? `&logoUrls=${encodeURIComponent(JSON.stringify(template.logoUrls))}` : ""}${"istag" in template && template.istag && template.tag ? `&istag=true&tag=${encodeURIComponent(template.tag)}` : ""}${"tagPosition" in template && template.tagPosition ? `&tagPosition=${encodeURIComponent(JSON.stringify(template.tagPosition))}` : ""}`}
                 className="block group h-full rounded-sm border border-border bg-card overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-200"
               >
                 <TemplatePreview template={template} />

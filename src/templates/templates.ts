@@ -34,7 +34,12 @@ export const templates = [
       shadowOpacity: 0.25,
     },
 
-    logoPosition: undefined,
+    logoPosition: {
+      x: 60,
+      y: 120,
+      width: 50,
+      height: 50,
+    },
     contentPosition: {
       x: 60,
       y: 210,
@@ -108,7 +113,12 @@ export const templates = [
       shadowColor: "#000000",
       shadowOpacity: 0,
     },
-    logoPosition: undefined,
+    logoPosition: {
+      x: 490,
+      y: 90,
+      width: 55,
+      height: 55,
+    },
     contentPosition: {
       x: 480,
       y: 200,
@@ -149,7 +159,12 @@ export const templates = [
       shadowColor: "#000000",
       shadowOpacity: 0,
     },
-    logoPosition: undefined,
+    logoPosition: {
+      x: 30,
+      y: 40,
+      width: 55,
+      height: 55,
+    },
     contentPosition: {
       x: 30,
       y: 120,
@@ -224,7 +239,12 @@ export const templates = [
       shadowColor: "#000000",
       shadowOpacity: 0.35,
     },
-    logoPosition: undefined,
+    logoPosition: {
+      x: 50,
+      y: 70,
+      width: 55,
+      height: 55,
+    },
     contentPosition: {
       x: 50,
       y: 160,
@@ -299,7 +319,12 @@ export const templates = [
       shadowColor: "#000000",
       shadowOpacity: 0,
     },
-    logoPosition: undefined,
+    logoPosition: {
+      x: 490,
+      y: 90,
+      width: 60,
+      height: 60,
+    },
     contentPosition: {
       x: 490,
       y: 230,
@@ -309,90 +334,6 @@ export const templates = [
     preview: {
       bg: "from-violet-600/30 to-indigo-600/20",
       text: "light",
-    },
-  },
-  {
-    id: 8,
-    name: "Launch Day Bold",
-    category: "Product Launch",
-    tag: "",
-    istag: false,
-    gradient: "from-[#7F1D1D] via-[#DC2626] to-[#F97316]",
-    title: "Breaking News: SuperApp v2",
-    subtitle: "Faster, smarter, more powerful",
-    titleColor: "#FFFFFF",
-    subtitleColor: "#FEE2E2",
-    titleSize: 52,
-    hasImage: true,
-    hasLogo: true,
-    hasAuthor: false,
-    ismultiple: false,
-    imageUrl: "/ogImage.png",
-    logoUrl: "",
-    imagePosition: {
-      x: 370,
-      y: 160,
-      width: 530,
-      height: 470,
-      rotation: 0,
-      shadowBlur: 0,
-      shadowSpread: 0,
-      shadowColor: "#000000",
-      shadowOpacity: 0,
-    },
-    logoPosition: undefined,
-    contentPosition: {
-      x: 30,
-      y: 140,
-      width: 320,
-      textAlign: "left",
-    },
-    preview: {
-      bg: "from-red-500 to-pink-500",
-      text: "white",
-    },
-  },
-
-  // Social Media Templates
-  {
-    id: 9,
-    name: "Social Media Vibes",
-    category: "Social Media",
-    tag: "",
-    istag: false,
-    gradient: "from-[#78350F] via-[#EA580C] to-[#FDBA74]",
-    title: "Check Out My Latest Post!",
-    subtitle: "Join the conversation",
-    titleColor: "#FFFFFF",
-    subtitleColor: "#FEF3C7",
-    titleSize: 44,
-    hasImage: true,
-    hasLogo: false,
-    hasAuthor: false,
-    ismultiple: false,
-    imageUrl: "/ogImage.png",
-    logoUrl: "",
-    imagePosition: {
-      x: 370,
-      y: 120,
-      width: 500,
-      height: 430,
-      rotation: 0,
-      shadowBlur: 0,
-      shadowSpread: 0,
-      shadowColor: "#000000",
-      shadowOpacity: 0,
-    },
-    logoPosition: undefined,
-    contentPosition: {
-      x: 25,
-      y: 210,
-      width: 320,
-      textAlign: "left",
-    },
-    preview: {
-      bg: "from-yellow-100/40 to-orange-100/20",
-      text: "dark",
     },
   },
   {
@@ -424,7 +365,12 @@ export const templates = [
       shadowColor: "#000000",
       shadowOpacity: 0,
     },
-    logoPosition: undefined,
+    logoPosition: {
+      x: 50,
+      y: 110,
+      width: 55,
+      height: 55,
+    },
     contentPosition: {
       x: 50,
       y: 210,
@@ -471,7 +417,12 @@ export const templates = [
       shadowOpacity: 0.35,
     },
 
-    logoPosition: undefined,
+    logoPosition: {
+      x: 520,
+      y: 100,
+      width: 60,
+      height: 60,
+    },
 
     contentPosition: {
       x: 520,
@@ -482,53 +433,6 @@ export const templates = [
 
     preview: {
       bg: "radial-teal-glow",
-      text: "white",
-    },
-  },
-
-
-
-  {
-    id: 12,
-    name: "Portfolio Showcase Left",
-    category: "Portfolio",
-    tag: "",
-    istag: false,
-    gradient: "from-[#172554] via-[#1D4ED8] to-[#38BDF8]",
-    title: "Crafting Digital Experiences",
-    subtitle: "Interactive products with modern aesthetics",
-    titleColor: "#FFFFFF",
-    subtitleColor: "#DBEAFE",
-    authorColor: "#93C5FD",
-    titleSize: 48,
-    hasImage: true,
-    hasLogo: true,
-    hasAuthor: true,
-    ismultiple: false,
-    imageUrl: "/ogImage.png",
-    logoUrl: "",
-
-    imagePosition: {
-      x: -80,
-      y: 150,
-      width: 560,
-      height: 340,
-      rotation: 0,
-
-      shadowBlur: 90,
-      shadowSpread: 18,
-      shadowColor: "#000000",
-      shadowOpacity: 0.28,
-    },
-    logoPosition: undefined,
-    contentPosition: {
-      x: 510,
-      y: 180,
-      width: 360,
-      textAlign: "left",
-    },
-    preview: {
-      bg: "from-[#172554] via-[#1E3A8A] to-[#1D4ED8]",
       text: "white",
     },
   },
@@ -566,7 +470,12 @@ export const templates = [
       shadowOpacity: 0.45,
     },
 
-    logoPosition: undefined,
+    logoPosition: {
+      x: 560,
+      y: 80,
+      width: 65,
+      height: 65,
+    },
 
     contentPosition: {
       x: 560,
@@ -627,8 +536,8 @@ export const templates = [
     id: 15,
     name: "Blurred Gradient",
     category: "Social Media",
-    tag: "",
-    istag: false,
+    tag: "OG Studio",
+    istag: true,
     blurred: true,
     gradient: "radial-azure-depths",
 
@@ -645,11 +554,23 @@ export const templates = [
     ismultiple: true,
 
     logoUrl: "",
-    logoUrls: ["/ogImage.png", "/ogImage.png"],
+    logoUrls: ["/ogImage.png", "/ogImage.png","/ogImage.png"],
 
     imagePosition: undefined,
 
-    logoPosition: undefined,
+    logoPositions: [
+      { x: 310, y: 312, width: 62, height: 62, borderRadius: 50 },
+      { x: 420, y: 312, width: 62, height: 62, borderRadius: 50 },
+      { x: 530, y: 312, width: 62, height: 62, borderRadius: 50 },
+    ],
+
+    tagPosition: {
+      x: 415,
+      y: 180,
+      borderWidth: 1,
+      borderColor: "#3b82f6",
+      borderRadius: 10,
+    },
     contentPosition: {
       x: 168,
       y: 195,

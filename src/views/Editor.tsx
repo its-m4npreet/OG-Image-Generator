@@ -27,7 +27,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import {
@@ -152,18 +156,40 @@ const hexToRgba = (hex: string, opacity: number): string => {
 
 const Editor = () => {
   // Get URL parameters for template loading
-  const searchParams = new URLSearchParams(window.location.search);
+  const searchParams = useMemo(
+    () => new URLSearchParams(window.location.search),
+    [],
+  );
 
   // Extract parameters at component level
   const templateTitle = searchParams.get("title") || "Your Amazing Blog Title";
-  const templateSubtitle =
-    searchParams.get("subtitle") ||
-    "A compelling description that captures attention";
+  const templateSubtitle = searchParams.get("subtitle") ?? "A compelling description that captures attention";
   const templateGradient = searchParams.get("gradient");
   const templateLogo = searchParams.get("logo");
   const templateImage = searchParams.get("image");
   const templateImagePosition = searchParams.get("imagePosition");
   const templateLogoPosition = searchParams.get("logoPosition");
+  const templateLogoPositions = useMemo(() => {
+    const param = searchParams.get("logoPositions");
+    if (!param) return null;
+    try {
+      return JSON.parse(param) as { x: number; y: number; width: number; height: number; borderRadius?: number }[];
+    } catch {
+      return null;
+    }
+  }, [searchParams]);
+  const templateLogoUrls = useMemo<string[]>(() => {
+    const param = searchParams.get("logoUrls");
+    return param
+      ? (() => {
+          try {
+            return JSON.parse(param);
+          } catch {
+            return [];
+          }
+        })()
+      : [];
+  }, [searchParams]);
   const templateContentPosition = searchParams.get("contentPosition");
   const templateTitleColor = searchParams.get("titleColor");
   const templateSubtitleColor = searchParams.get("subtitleColor");
@@ -172,8 +198,14 @@ const Editor = () => {
     ? Number(searchParams.get("titleSize"))
     : 40;
   const templateHasAuthor = searchParams.get("hasAuthor") !== "false"; // Default to true
-  const templateBackgroundType = searchParams.get("backgroundType") as "gradient" | "solid" | "pattern" | null;
-  const templatePattern = searchParams.get("pattern") ? Number(searchParams.get("pattern")) : null;
+  const templateBackgroundType = searchParams.get("backgroundType") as
+    | "gradient"
+    | "solid"
+    | "pattern"
+    | null;
+  const templatePattern = searchParams.get("pattern")
+    ? Number(searchParams.get("pattern"))
+    : null;
 
   // Helper function to get initial gradient index
   const getInitialGradient = () => {
@@ -186,7 +218,7 @@ const Editor = () => {
   const [subtitle, setSubtitle] = useState(templateSubtitle);
   const [author, setAuthor] = useState("Author Name");
   const [avatar, setAvatar] = useState<string | null>(null);
-  const [showSubtitle, setShowSubtitle] = useState(true);
+  const [showSubtitle, setShowSubtitle] = useState(templateSubtitle !== "");
   const [showAuthor, setShowAuthor] = useState(templateHasAuthor);
   const [showAvatar, setShowAvatar] = useState(true);
   const [selectedGradient, setSelectedGradient] =
@@ -203,11 +235,13 @@ const Editor = () => {
   const [showAllSolidColors, setShowAllSolidColors] = useState(false);
   const [solidColorsLoading, setSolidColorsLoading] = useState(false);
   const [selectedPattern, setSelectedPattern] = useState<number | null>(
-    templateBackgroundType === "pattern" && templatePattern !== null ? templatePattern : 0,
+    templateBackgroundType === "pattern" && templatePattern !== null
+      ? templatePattern
+      : 0,
   );
-  const [backgroundType, setBackgroundType] = useState<"gradient" | "solid" | "pattern">(
-    templateBackgroundType || "gradient",
-  );
+  const [backgroundType, setBackgroundType] = useState<
+    "gradient" | "solid" | "pattern"
+  >(templateBackgroundType || "gradient");
   const [noiseLevel, setNoiseLevel] = useState(0); // 0-100 range
   const [noiseImageUrl, setNoiseImageUrl] = useState("");
   const [selectedFont, setSelectedFont] = useState(0);
@@ -226,8 +260,24 @@ const Editor = () => {
   const [selectedTextElement, setSelectedTextElement] = useState(false);
   const [tags, setTags] = useState<CanvasTag[]>([]);
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
-  const [templateTag, setTemplateTag] = useState("");
-  const [templateIsTag, setTemplateIsTag] = useState(false);
+  const [templateTag, setTemplateTag] = useState(searchParams.get("tag") || "");
+  const [templateIsTag, setTemplateIsTag] = useState(
+    searchParams.get("istag") === "true",
+  );
+  const [templateTagPosition, setTemplateTagPosition] = useState<Pick<
+    CanvasTag,
+    "x" | "y" | "borderWidth" | "borderColor" | "borderRadius"
+  > | null>(() => {
+    const tp = searchParams.get("tagPosition");
+    if (tp) {
+      try {
+        return JSON.parse(tp);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
 
   const [logos, setLogos] = useState<CanvasLogo[]>([]);
   const [selectedLogoId, setSelectedLogoId] = useState<string | null>(null);
@@ -243,20 +293,31 @@ const Editor = () => {
   const [contentPosition, setContentPosition] =
     useState<ContentPosition | null>(null);
   const [lockedLayers, setLockedLayers] = useState<Set<string>>(new Set());
-  const [layerOrder, setLayerOrder] = useState<string[]>(["Card", "Text", "Subtitle", "Author", "Avatar", "Tag"]);
-  const [layerDeleteConfirm, setLayerDeleteConfirm] = useState<string | null>(null);
+  const [layerOrder, setLayerOrder] = useState<string[]>([
+    "Card",
+    "Text",
+    "Subtitle",
+    "Author",
+    "Avatar",
+    "Tag",
+  ]);
+  const [layerDeleteConfirm, setLayerDeleteConfirm] = useState<string | null>(
+    null,
+  );
   const [rightTab, setRightTab] = useState<"design" | "templates" | "library">(
     "design",
   );
   const [zoom, setZoom] = useState(90);
-  const [selectedTool, setSelectedTool] = useState<
-    "move" | "select" | null
-  >("select");
+  const [selectedTool, setSelectedTool] = useState<"move" | "select" | null>(
+    "select",
+  );
+  const [blurred, setBlurred] = useState(false);
   const [frameGridVisible, setFrameGridVisible] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
   const activeLogo = useMemo(() => {
-    if (isMultipleLogo && selectedLogoId) return logos.find(l => l.id === selectedLogoId) || null;
+    if (isMultipleLogo && selectedLogoId)
+      return logos.find((l) => l.id === selectedLogoId) || null;
     if (!isMultipleLogo && logos.length > 0) return logos[0];
     return null;
   }, [logos, selectedLogoId, isMultipleLogo]);
@@ -274,44 +335,67 @@ const Editor = () => {
 
   // Sync layerOrder with images/logo/tags
   useEffect(() => {
-    setLayerOrder(prev => {
-      const next = [...prev];
+    setLayerOrder((prev) => {
+      let next = [...prev];
+      if (images.length === 0) next = next.filter((l) => l !== "Image");
+      if (logos.length === 0) next = next.filter((l) => l !== "Logo");
+      if (tags.length === 0) next = next.filter((l) => l !== "Tag");
       if (images.length > 0 && !next.includes("Image")) next.push("Image");
-      else if (images.length === 0) return next.filter(l => l !== "Image");
       if (logos.length > 0 && !next.includes("Logo")) next.push("Logo");
-      else if (logos.length === 0) return next.filter(l => l !== "Logo");
       if (tags.length > 0 && !next.includes("Tag")) next.push("Tag");
-      else if (tags.length === 0) return next.filter(l => l !== "Tag");
       return next;
     });
   }, [images.length, logos.length, tags.length]);
 
   const visibleLayers = useMemo(() => {
-    const layerMap: Record<string, { name: string; icon: React.ReactNode; onClick: () => void }> = {
+    const layerMap: Record<
+      string,
+      { name: string; icon: React.ReactNode; onClick: () => void }
+    > = {
       Card: {
         name: "Card",
         icon: <Palette className="h-3.5 w-3.5" />,
-        onClick: () => backgroundRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+        onClick: () =>
+          backgroundRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          }),
       },
       Text: {
         name: "Text",
         icon: <Type className="h-3.5 w-3.5" />,
-        onClick: () => contentPositionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+        onClick: () =>
+          contentPositionRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          }),
       },
       Subtitle: {
         name: "Subtitle",
         icon: <Type className="h-3.5 w-3.5" />,
-        onClick: () => contentPositionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+        onClick: () =>
+          contentPositionRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          }),
       },
       Author: {
         name: "Author",
         icon: <Type className="h-3.5 w-3.5" />,
-        onClick: () => contentPositionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+        onClick: () =>
+          contentPositionRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          }),
       },
       Avatar: {
         name: "Avatar",
         icon: <ImageIcon className="h-3.5 w-3.5" />,
-        onClick: () => contentPositionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+        onClick: () =>
+          contentPositionRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          }),
       },
       Image: {
         name: "Image",
@@ -320,34 +404,49 @@ const Editor = () => {
           if (images.length > 0) {
             setSelectedImage(images[0]?.id ?? null);
             setImageControlsOpen(true);
-            setTimeout(() => imageControlsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+            setTimeout(
+              () =>
+                imageControlsRef.current?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                }),
+              50,
+            );
           }
         },
       },
       Logo: {
         name: "Logo",
         icon: <ImageIcon className="h-3.5 w-3.5" />,
-        onClick: () => logoControlsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+        onClick: () =>
+          logoControlsRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          }),
       },
       Tag: {
         name: "Tag",
         icon: <Hexagon className="h-3.5 w-3.5" />,
-        onClick: () => tagControlsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+        onClick: () =>
+          tagControlsRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          }),
       },
     };
 
     return layerOrder
-      .filter(name => {
+      .filter((name) => {
         if (name === "Image") return images.length > 0;
         if (name === "Logo") return logos.length > 0;
         if (name === "Tag") return tags.length > 0;
         return true;
       })
-      .map(name => layerMap[name]);
+      .map((name) => layerMap[name]);
   }, [layerOrder, images, logos, tags]);
 
   const moveLayerUp = (name: string) => {
-    setLayerOrder(prev => {
+    setLayerOrder((prev) => {
       const idx = prev.indexOf(name);
       if (idx <= 0) return prev;
       const next = [...prev];
@@ -357,7 +456,7 @@ const Editor = () => {
   };
 
   const moveLayerDown = (name: string) => {
-    setLayerOrder(prev => {
+    setLayerOrder((prev) => {
       const idx = prev.indexOf(name);
       if (idx === -1 || idx >= prev.length - 1) return prev;
       const next = [...prev];
@@ -387,7 +486,7 @@ const Editor = () => {
       setDragOverIndex(null);
       return;
     }
-    setLayerOrder(prev => {
+    setLayerOrder((prev) => {
       const sourceIdx = prev.indexOf(sourceName);
       const targetIdx = prev.indexOf(targetName);
       if (sourceIdx === -1 || targetIdx === -1) return prev;
@@ -419,13 +518,14 @@ const Editor = () => {
       setSelectedTagId(null);
       setTemplateIsTag(false);
       setTemplateTag("");
+      setTemplateTagPosition(null);
     }
-    setLayerOrder(prev => prev.filter(l => l !== name));
+    setLayerOrder((prev) => prev.filter((l) => l !== name));
     setLayerDeleteConfirm(null);
   };
 
   const getLayerZIndex = (layerName: string): number => {
-    const idx = visibleLayers.findIndex(l => l.name === layerName);
+    const idx = visibleLayers.findIndex((l) => l.name === layerName);
     if (idx === -1) return 0;
     return (idx + 1) * 10;
   };
@@ -444,26 +544,50 @@ const Editor = () => {
 
   const getDefaultTitleColor = () => {
     if (templateTitleColor) return templateTitleColor;
-    if (backgroundType === "pattern" && selectedPattern !== null && isLightBackground(backgroundType, selectedGradient, selectedSolidColor, selectedPattern)) return "#292929";
-    return getIsLightBackground()
-      ? "#000000"
-      : "#FFFFFF";
+    if (
+      backgroundType === "pattern" &&
+      selectedPattern !== null &&
+      isLightBackground(
+        backgroundType,
+        selectedGradient,
+        selectedSolidColor,
+        selectedPattern,
+      )
+    )
+      return "#292929";
+    return getIsLightBackground() ? "#000000" : "#FFFFFF";
   };
 
   const getDefaultSubtitleColor = () => {
     if (templateSubtitleColor) return templateSubtitleColor;
-    if (backgroundType === "pattern" && selectedPattern !== null && isLightBackground(backgroundType, selectedGradient, selectedSolidColor, selectedPattern)) return "#545454";
-    return getIsLightBackground()
-      ? "#1F2937"
-      : "#E5E7EB";
+    if (
+      backgroundType === "pattern" &&
+      selectedPattern !== null &&
+      isLightBackground(
+        backgroundType,
+        selectedGradient,
+        selectedSolidColor,
+        selectedPattern,
+      )
+    )
+      return "#545454";
+    return getIsLightBackground() ? "#1F2937" : "#E5E7EB";
   };
 
   const getDefaultAuthorColor = () => {
     if (templateAuthorColor) return templateAuthorColor;
-    if (backgroundType === "pattern" && selectedPattern !== null && isLightBackground(backgroundType, selectedGradient, selectedSolidColor, selectedPattern)) return "#383838";
-    return getIsLightBackground()
-      ? "#4B5563"
-      : "#9CA3AF";
+    if (
+      backgroundType === "pattern" &&
+      selectedPattern !== null &&
+      isLightBackground(
+        backgroundType,
+        selectedGradient,
+        selectedSolidColor,
+        selectedPattern,
+      )
+    )
+      return "#383838";
+    return getIsLightBackground() ? "#4B5563" : "#9CA3AF";
   };
 
   const [titleColor, setTitleColor] = useState(getDefaultTitleColor());
@@ -500,6 +624,8 @@ const Editor = () => {
   const logoControlsRef = useRef<HTMLDivElement>(null);
   const dragLayerRef = useRef<string | null>(null);
   const tagControlsRef = useRef<HTMLDivElement>(null);
+  const logoReplaceRef = useRef<string | null>(null);
+  const templateColorRef = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
 
   // Handle keyboard zoom shortcuts
@@ -552,12 +678,12 @@ const Editor = () => {
     }
     setTitle(template.title);
     setSubtitle(template.subtitle);
-    if (!("pattern" in template)) {
-      setTitleColor(template.titleColor);
-      setSubtitleColor(template.subtitleColor);
-      if ("authorColor" in template && template.authorColor)
-        setAuthorColor(template.authorColor);
-    }
+    setShowSubtitle(template.subtitle !== "");
+    templateColorRef.current = true;
+    setTitleColor(template.titleColor);
+    setSubtitleColor(template.subtitleColor);
+    if ("authorColor" in template && template.authorColor)
+      setAuthorColor(template.authorColor);
     setFontSize(template.titleSize);
     setShowAuthor(template.hasAuthor);
     if (template.contentPosition) setContentPosition(template.contentPosition);
@@ -569,55 +695,150 @@ const Editor = () => {
     setSelectedLogoId(null);
     setTemplateTag(template.tag ?? "");
     setTemplateIsTag(template.istag ?? false);
+    setBlurred("blurred" in template ? !!template.blurred : false);
+    // AFTER
+    const tp =
+      "tagPosition" in template && template.tagPosition
+        ? { ...template.tagPosition } // spread to strip readonly
+        : null;
+    setTemplateTagPosition(tp);
     if (template.istag && template.tag) {
-      setTags([{
-        id: `tag-${Date.now()}-${Math.random()}`,
-        text: template.tag,
+      const pos = tp ?? {
         x: 20,
         y: 20,
         borderWidth: 1,
         borderColor: "#3b82f6",
         borderRadius: 10,
-      }]);
+      };
+      setTags([
+        {
+          id: `tag-${Date.now()}-${Math.random()}`,
+          text: template.tag,
+          x: pos.x,
+          y: pos.y,
+          borderWidth: pos.borderWidth,
+          borderColor: pos.borderColor,
+          borderRadius: pos.borderRadius,
+        },
+      ]);
       setSelectedTagId(null);
     } else {
       setTags([]);
       setSelectedTagId(null);
     }
 
-    if ("logoUrls" in template && template.logoUrls && Array.isArray(template.logoUrls)) {
-      template.logoUrls.forEach((url: string, i: number) => {
-        if (!url) return;
-        fetch(url)
-          .then((res) => res.blob())
-          .then((blob) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              const id = `logo-${Date.now()}-${i}`;
-              const pos = ("logoPosition" in template && template.logoPosition) || { x: 16, y: 16, width: 48, height: 48 };
-              const newLogo: CanvasLogo = {
-                id,
-                src: e.target?.result as string,
-                x: pos.x + i * 20,
-                y: pos.y + i * 20,
-                width: pos.width,
-                height: pos.height,
-                borderRadius: 0,
-              };
-              setLogos((prev) => [...prev, newLogo]);
-              if (i === 0) setSelectedLogoId(id);
-            };
-            reader.readAsDataURL(blob);
-          })
-          .catch((err) => console.log("Logo load skipped:", err));
-      });
+    if (
+      "logoUrls" in template &&
+      template.logoUrls &&
+      Array.isArray(template.logoUrls)
+    ) {
+      const urls = template.logoUrls.filter(Boolean);
+      if (urls.length > 0) {
+        Promise.all(
+          urls.map((url, i) =>
+            fetch(url)
+              .then((res) => res.blob())
+              .then(
+                (blob) =>
+                  new Promise<string>((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target?.result as string);
+                    reader.readAsDataURL(blob);
+                  }),
+              )
+              .catch((err) => {
+                console.log("Logo load skipped:", err);
+                return null;
+              }),
+          ),
+        ).then((results) => {
+          const srcs = results.filter(Boolean) as string[];
+          const rawPositions:
+            | { x: number; y: number; width: number; height: number; borderRadius?: number }[]
+            | null =
+            "logoPositions" in template && template.logoPositions
+              ? (template.logoPositions as unknown as { x: number; y: number; width: number; height: number; borderRadius?: number }[])
+              : null;
+          const pos = ("logoPosition" in template && template.logoPosition) || {
+            x: 16,
+            y: 16,
+            width: 48,
+            height: 48,
+          };
+          const newLogos: CanvasLogo[] = srcs.map((src, i) => ({
+            id: `logo-${Date.now()}-${i}`,
+            src,
+            x: rawPositions ? rawPositions[i]?.x ?? pos.x : pos.x + i * 20,
+            y: rawPositions ? rawPositions[i]?.y ?? pos.y : pos.y + i * 20,
+            width: rawPositions ? rawPositions[i]?.width ?? pos.width : pos.width,
+            height: rawPositions ? rawPositions[i]?.height ?? pos.height : pos.height,
+            borderRadius: rawPositions ? rawPositions[i]?.borderRadius ?? 0 : 0,
+          }));
+          setLogos(newLogos);
+          if (newLogos.length > 0) setSelectedLogoId(newLogos[0].id);
+        });
+      }
     }
   };
 
   // Load template data from URL parameters
   useEffect(() => {
-    if (templateLogo && templateLogo.trim()) {
-      // Load logo from template
+    let cancelled = false;
+    if (templateLogoUrls.length > 0) {
+      setIsMultipleLogo(true);
+      setLogos([]);
+      const urls = templateLogoUrls.filter(Boolean);
+      if (urls.length > 0) {
+        Promise.all(
+          urls.map((url, i) =>
+            fetch(url)
+              .then((res) => res.blob())
+              .then(
+                (blob) =>
+                  new Promise<string>((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target?.result as string);
+                    reader.readAsDataURL(blob);
+                  }),
+              )
+              .catch((err) => {
+                console.log("Logo load skipped:", err);
+                return null;
+              }),
+          ),
+        ).then((results) => {
+          if (cancelled) return;
+          const srcs = results.filter(Boolean) as string[];
+          let pos: {
+            x?: number;
+            y?: number;
+            width?: number;
+            height?: number;
+            borderRadius?: number;
+          } | null = null;
+          if (templateLogoPosition) {
+            try {
+              pos = JSON.parse(templateLogoPosition);
+            } catch {
+              /* ignore */
+            }
+          }
+          const baseX = pos?.x ?? 16;
+          const baseY = pos?.y ?? 16;
+          const newLogos: CanvasLogo[] = srcs.map((src, i) => ({
+            id: `logo-${Date.now()}-${i}`,
+            src,
+            x: templateLogoPositions?.[i]?.x ?? baseX + i * 20,
+            y: templateLogoPositions?.[i]?.y ?? baseY + i * 20,
+            width: templateLogoPositions?.[i]?.width ?? pos?.width ?? 48,
+            height: templateLogoPositions?.[i]?.height ?? pos?.height ?? 48,
+            borderRadius: templateLogoPositions?.[i]?.borderRadius ?? pos?.borderRadius ?? 0,
+          }));
+          setLogos(newLogos);
+          if (newLogos.length > 0) setSelectedLogoId(newLogos[0].id);
+        });
+      }
+    } else if (templateLogo && templateLogo.trim()) {
       fetch(templateLogo)
         .then((res) => res.blob())
         .then((blob) => {
@@ -633,6 +854,7 @@ const Editor = () => {
               height: 48,
               borderRadius: 0,
             };
+            if (cancelled) return;
             if (templateLogoPosition) {
               try {
                 const pos = JSON.parse(templateLogoPosition);
@@ -645,6 +867,7 @@ const Editor = () => {
                 console.log("Could not parse logo position:", err);
               }
             }
+            if (cancelled) return;
             setLogos([newLogo]);
             setSelectedLogoId(id);
           };
@@ -666,6 +889,27 @@ const Editor = () => {
         }
       } catch (err) {
         console.log("Could not parse content position:", err);
+      }
+    }
+
+    // AFTER
+if (searchParams.get("istag") === "true") {
+  const tagText = searchParams.get("tag");
+  if (tagText) {
+    const tp = searchParams.get("tagPosition");
+     let pos: { x: number; y: number; borderWidth: number; borderColor: string; borderRadius: number } = { x: 45, y: 26, borderWidth: 1, borderColor: "#3b82f6", borderRadius: 10 };
+    if (tp) { try { pos = JSON.parse(tp); } catch { /* ignore */ } }
+        setTags([
+          {
+            id: `tag-${Date.now()}-${Math.random()}`,
+            text: tagText,
+            x: pos.x,
+            y: pos.y,
+            borderWidth: pos.borderWidth,
+            borderColor: pos.borderColor,
+            borderRadius: pos.borderRadius,
+          },
+        ]);
       }
     }
 
@@ -732,17 +976,27 @@ const Editor = () => {
         })
         .catch((err) => console.log("Image load skipped:", err));
     }
+    return () => {
+      cancelled = true;
+    };
   }, [
     templateLogo,
     templateImage,
     templateImagePosition,
     templateContentPosition,
     templateLogoPosition,
+    templateLogoPositions,
+    templateLogoUrls,
+    searchParams,
   ]);
 
   // Update text colors when switching to pattern backgrounds
   useEffect(() => {
     if (backgroundType !== "pattern" || selectedPattern === null) return;
+    if (templateColorRef.current) {
+      templateColorRef.current = false;
+      return;
+    }
     const p = patternMap[selectedPattern];
     if (!p) return;
     const hex = p.backgroundColor?.replace("#", "") || "ffffff";
@@ -800,7 +1054,7 @@ const Editor = () => {
       if (contentDragRef.current) {
         const newX = Math.max(0, mouseBaseX - contentDragRef.current.offsetX);
         const newY = Math.max(0, mouseBaseY - contentDragRef.current.offsetY);
-        setContentPosition(prev => ({
+        setContentPosition((prev) => ({
           x: newX,
           y: newY,
           width: prev?.width ?? 400,
@@ -836,6 +1090,20 @@ const Editor = () => {
     };
   }, []);
 
+  // Sync templateTagPosition when the first tag's position/style changes
+  useEffect(() => {
+    if (tags.length > 0) {
+      const t = tags[0];
+      setTemplateTagPosition({
+        x: t.x,
+        y: t.y,
+        borderWidth: t.borderWidth,
+        borderColor: t.borderColor,
+        borderRadius: t.borderRadius,
+      });
+    }
+  }, [tags]);
+
   // Pre-render noise as a PNG so html-to-image captures it correctly
   useEffect(() => {
     let cancelled = false;
@@ -848,8 +1116,8 @@ const Editor = () => {
         backgroundType === "solid" && selectedSolidColor
           ? colorHexMap[selectedSolidColor]
           : backgroundType === "gradient" && selectedGradient !== undefined
-          ? undefined
-          : undefined;
+            ? undefined
+            : undefined;
       const url = await getNoiseDataUrl(noiseLevel, bgColor);
       if (!cancelled) setNoiseImageUrl(url);
     };
@@ -914,9 +1182,9 @@ const Editor = () => {
 
         const updated = { ...img, ...updates };
 
-        // Boundary constraints - X: negative to 700, Y: negative to 300
-        updated.x = Math.min(updated.x, 700);
-        updated.y = Math.min(updated.y, 300);
+        // Boundary constraints - X: -500 to 700, Y: -500 to 300
+        updated.x = Math.min(700, Math.max(-500, updated.x));
+        updated.y = Math.min(300, Math.max(-500, updated.y));
         updated.width = Math.max(0, Math.min(updated.width, 900));
         updated.height = Math.max(0, Math.min(updated.height, 630));
 
@@ -954,29 +1222,38 @@ const Editor = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const replaceId = logoReplaceRef.current;
+    logoReplaceRef.current = null;
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const src = event.target?.result as string;
-      const id = `logo-${Date.now()}`;
-      const newLogo: CanvasLogo = {
-        id,
-        src,
-        x: 16,
-        y: 16,
-        width: 48,
-        height: 48,
-        borderRadius: 0,
-      };
-      if (isMultipleLogo) {
-        setLogos((prev) => [...prev, newLogo]);
+      if (replaceId) {
+        setLogos((prev) =>
+          prev.map((l) => (l.id === replaceId ? { ...l, src } : l)),
+        );
+        setSelectedLogoId(replaceId);
       } else {
-        setLogos([newLogo]);
+        const id = `logo-${Date.now()}`;
+        const newLogo: CanvasLogo = {
+          id,
+          src,
+          x: 16,
+          y: 16,
+          width: 48,
+          height: 48,
+          borderRadius: 0,
+        };
+        if (isMultipleLogo) {
+          setLogos((prev) => [...prev, newLogo]);
+        } else {
+          setLogos([newLogo]);
+        }
+        setSelectedLogoId(id);
       }
-      setSelectedLogoId(id);
     };
     reader.readAsDataURL(file);
 
-    // Reset input
     if (logoInputRef.current) {
       logoInputRef.current.value = "";
     }
@@ -1161,8 +1438,35 @@ const Editor = () => {
     });
     if (logos.length > 0) {
       const l = logos[0];
-      shareParams.set("logoPosition", JSON.stringify({ x: l.x, y: l.y, width: l.width, height: l.height, borderRadius: l.borderRadius }));
+      shareParams.set(
+        "logoPosition",
+        JSON.stringify({
+          x: l.x,
+          y: l.y,
+          width: l.width,
+          height: l.height,
+          borderRadius: l.borderRadius,
+        }),
+      );
+      if (logos.length > 1) {
+        shareParams.set(
+          "logoPositions",
+          JSON.stringify(
+            logos.map((logo) => ({
+              x: logo.x,
+              y: logo.y,
+              width: logo.width,
+              height: logo.height,
+              borderRadius: logo.borderRadius,
+            })),
+          ),
+        );
+      }
     }
+    if (templateTag) shareParams.set("tag", templateTag);
+    if (templateIsTag) shareParams.set("istag", "true");
+    if (templateTagPosition)
+      shareParams.set("tagPosition", JSON.stringify(templateTagPosition));
 
     const shareUrl = `${window.location.origin}${window.location.pathname}?${shareParams.toString()}`;
 
@@ -1322,7 +1626,12 @@ const Editor = () => {
           >
             <PanelRight className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={handleShare}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="hidden sm:inline-flex"
+            onClick={handleShare}
+          >
             <Share2 className="h-4 w-4 mr-1" /> Share
           </Button>
           <Button variant="hero" size="sm" onClick={handleExport}>
@@ -1332,16 +1641,22 @@ const Editor = () => {
       </header>
 
       {(leftOpen || rightOpen) && (
-        <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => { setLeftOpen(false); setRightOpen(false); }} />
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={() => {
+            setLeftOpen(false);
+            setRightOpen(false);
+          }}
+        />
       )}
 
       <div className="flex flex-1 overflow-hidden h-full">
         {/* Left Panel */}
-        <div className={`${
-          leftOpen
-            ? 'fixed inset-y-0 left-0 z-50 w-72 shadow-2xl'
-            : 'hidden'
-        } lg:relative lg:z-auto lg:block lg:w-72 border-r border-border bg-card shrink-0 h-full overflow-hidden`}>
+        <div
+          className={`${
+            leftOpen ? "fixed inset-y-0 left-0 z-50 w-72 shadow-2xl" : "hidden"
+          } lg:relative lg:z-auto lg:block lg:w-72 border-r border-border bg-card shrink-0 h-full overflow-hidden`}
+        >
           <div
             className="p-3 space-y-4 w-72 overflow-y-auto no-scrollbar h-full"
             style={
@@ -1492,21 +1807,28 @@ const Editor = () => {
                   className="w-full text-xs"
                   onClick={() => {
                     const text = templateTag || "Tag";
-                    const newTag: CanvasTag = {
-                      id: `tag-${Date.now()}-${Math.random()}`,
-                      text,
+                    const pos = templateTagPosition || {
                       x: 20,
                       y: 20,
                       borderWidth: 1,
                       borderColor: "#3b82f6",
                       borderRadius: 10,
                     };
+                    const newTag: CanvasTag = {
+                      id: `tag-${Date.now()}-${Math.random()}`,
+                      text,
+                      x: pos.x,
+                      y: pos.y,
+                      borderWidth: pos.borderWidth,
+                      borderColor: pos.borderColor,
+                      borderRadius: pos.borderRadius,
+                    };
                     setTags([newTag]);
                     setSelectedTagId(newTag.id);
                     setTemplateIsTag(true);
                   }}
                 >
-                  + Add Tag
+                  + Add Tag{templateTag ? ` "${templateTag}"` : ""}
                 </Button>
               ) : (
                 <Input
@@ -1515,7 +1837,7 @@ const Editor = () => {
                     const val = e.target.value;
                     if (tags[0]) updateTag(tags[0].id, { text: val });
                     setTemplateTag(val);
-                    setTemplateIsTag(true);
+                    setTemplateIsTag(val.trim() !== "");
                   }}
                   className="bg-background border-border"
                 />
@@ -1550,19 +1872,37 @@ const Editor = () => {
                         alt="logo"
                         className="h-8 w-8 object-contain rounded"
                       />
-                      <button
-                        onClick={(e) => { e.stopPropagation(); deleteLogo(l.id); }}
-                        className="p-1.5 hover:bg-destructive/20 rounded transition-colors"
-                      >
-                        <Trash2 className="h-3 w-3 text-destructive" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            logoReplaceRef.current = l.id;
+                            logoInputRef.current?.click();
+                          }}
+                          className="text-xs h-6 px-2 hover:bg-accent rounded transition-colors"
+                        >
+                          change
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteLogo(l.id);
+                          }}
+                          className="p-1.5 hover:bg-destructive/20 rounded transition-colors text-xs"
+                        >
+                          <Trash2 className="h-3 w-3 text-destructive" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                   <Button
                     variant="outline"
                     size="sm"
                     className="w-full text-xs"
-                    onClick={() => logoInputRef.current?.click()}
+                    onClick={() => {
+                      logoReplaceRef.current = null;
+                      logoInputRef.current?.click();
+                    }}
                   >
                     + Add Logo
                   </Button>
@@ -1628,7 +1968,10 @@ const Editor = () => {
                     <div
                       key={img.id}
                       className={`bg-background rounded-lg p-2 border flex items-center justify-between gap-2 cursor-pointer ${selectedImage === img.id ? "border-primary" : "border-border"}`}
-                      onClick={() => { setSelectedImage(img.id); setImageControlsOpen(true); }}
+                      onClick={() => {
+                        setSelectedImage(img.id);
+                        setImageControlsOpen(true);
+                      }}
                     >
                       <img
                         src={img.src}
@@ -1636,7 +1979,10 @@ const Editor = () => {
                         className="h-8 w-10 object-cover rounded"
                       />
                       <button
-                        onClick={(e) => { e.stopPropagation(); deleteImage(img.id); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteImage(img.id);
+                        }}
                         className="p-1.5 hover:bg-destructive/20 rounded transition-colors"
                       >
                         <Trash2 className="h-3 w-3 text-destructive" />
@@ -1707,532 +2053,508 @@ const Editor = () => {
             {initialLoading ? (
               <Skeleton className="w-[900px] aspect-[1200/630] rounded-xl" />
             ) : (
-            <div
-              ref={canvasRef}
-              className={`flex-shrink-0 shadow-2xl relative overflow-hidden flex items-center justify-center`}
-              onClick={(e) => {
-                if (e.target !== e.currentTarget) return;
-                setSelectedImage(null);
-                setSelectedLogoId(null);
-                setSelectedTextElement(false);
-                setSelectedTagId(null);
-                setImageControlsOpen(false);
-                setSelectedShapeId(null);
-                if (!selectedTool || selectedTool === "move" || selectedTool === "select")
-                  return;
-              }}
-              style={{
-                width: "900px",
-                aspectRatio: "1200 / 630",
-                transform: `scale(${zoom / 100})`,
-                transformOrigin: "center",
-                transition: "transform 0.2s ease-out",
-                cursor: selectedTool === "move" ? "grab" : "default",
-                fontFamily: fontOptions[selectedFont],
-                ...(backgroundType === "gradient"
-                  ? (() => {
-                      const gradCSS = useCustomGradient
-                        ? `linear-gradient(to bottom right, ${customGradientFrom}, ${customGradientTo})`
-                        : gradientCSSMap[selectedGradient];
-                      return {
-                        backgroundColor: gradientUsesAlpha(gradCSS)
-                          ? APP_BG_DARK
-                          : "transparent",
-                        backgroundImage:
-                          noiseLevel > 0 && noiseImageUrl
-                            ? `${gradCSS}, url(${noiseImageUrl})`
-                            : gradCSS,
-                        backgroundSize:
-                          noiseLevel > 0 && noiseImageUrl
-                            ? "100% 100%, 200px 200px"
-                            : "100% 100%",
-                      };
-                    })()
-                  : backgroundType === "solid"
-                  ? {
-                      backgroundColor: selectedSolidColor
-                        ? colorHexMap[selectedSolidColor] || "#ffffff"
-                        : "#ffffff",
-                      backgroundImage: noiseImageUrl
-                        ? `url(${noiseImageUrl})`
-                        : "none",
-                      backgroundSize: noiseImageUrl ? "200px 200px" : "0 0",
-                    }
-                  : {
-                      backgroundColor:
-                        selectedPattern !== null && patternMap[selectedPattern]
-                          ? patternMap[selectedPattern].backgroundColor || "#ffffff"
-                          : "#ffffff",
-                      backgroundImage: "none",
-                      backgroundSize: "100% 100%",
-                    }),
-                backgroundRepeat: "repeat",
-                backgroundBlendMode: "normal",
-              }}
-            >
-              {backgroundType === "pattern" && selectedPattern !== null && patternMap[selectedPattern] && (
-                <div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{
-                    backgroundImage: patternMap[selectedPattern].backgroundImage,
-                    backgroundSize: patternMap[selectedPattern].backgroundSize || undefined,
-                    backgroundRepeat: "repeat",
-                    ...(patternMap[selectedPattern].WebkitMaskImage
-                      ? { WebkitMaskImage: patternMap[selectedPattern].WebkitMaskImage }
-                      : {}),
-                    ...(patternMap[selectedPattern].maskImage
-                      ? { maskImage: patternMap[selectedPattern].maskImage }
-                      : {}),
-                    ...(patternMap[selectedPattern].WebkitMaskComposite
-                      ? { WebkitMaskComposite: patternMap[selectedPattern].WebkitMaskComposite as React.CSSProperties['WebkitMaskComposite'] }
-                      : {}),
-                    ...(patternMap[selectedPattern].maskComposite
-                      ? { maskComposite: patternMap[selectedPattern].maskComposite as React.CSSProperties['maskComposite'] }
-                      : {}),
-                  }}
-                />
-              )}
-              {/* Render Images */}
-              {images.map((img) => (
-                <div
-                  key={img.id}
-                  className={`absolute ${isDragging ? "" : "transition-all duration-200"}`}
-                  style={{
-                    left: `${(img.x / 900) * 100}%`,
-                    top: `${(img.y / 630) * 100}%`,
-                    width: `${(img.width / 900) * 100}%`,
-                    height: `${(img.height / 630) * 100}%`,
-                    cursor: selectedTool === "move" ? "move" : selectedTool === "select" ? "pointer" : "default",
-                    transform: `rotate(${img.rotation || 0}deg)`,
-                    touchAction: "none",
-                    zIndex: getLayerZIndex("Image"),
-                    outline: selectedImage === img.id ? "3px solid #3b82f6" : "none",
-                    outlineOffset: "2px",
-                  }}
-                  onClick={() => {
-                    if (lockedLayers.has("Image")) return;
-                    if (frameGridVisible) return;
-                    setSelectedImage(img.id);
-                    setSelectedLogoId(null);
-                    setSelectedTextElement(false);
-                    setImageControlsOpen(true);
-                    setActiveSidebar("image");
-                    setTimeout(() => imageControlsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
-                  }}
-                  onMouseDown={(e) => {
-                    if (!canvasRef.current) return;
-                    if (lockedLayers.has("Image")) return;
-                    if (selectedTool !== "move") return;
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setSelectedImage(img.id);
-                    setSelectedLogoId(null);
-                    setSelectedTextElement(false);
-
-                    const rect = canvasRef.current.getBoundingClientRect();
-                    const scaleX = 900 / rect.width;
-                    const scaleY = 630 / rect.height;
-
-                    const mouseBaseX = (e.clientX - rect.left) * scaleX;
-                    const mouseBaseY = (e.clientY - rect.top) * scaleY;
-
-                    dragRef.current = {
-                      id: img.id,
-                      offsetX: mouseBaseX - img.x,
-                      offsetY: mouseBaseY - img.y,
-                    };
-                    setIsDragging(true);
-                  }}
-                >
-                  <img
-                    src={img.src}
-                    alt="canvas element"
-                    className="w-full h-full object-cover"
-                    style={{
-                      userSelect: "none",
-                      borderRadius: `${img.borderRadius || 0}px`,
-                      border:
-                        img.borderWidth && img.borderWidth > 0
-                          ? `${img.borderWidth}px solid ${img.borderColor || "#000000"}`
-                          : "none",
-                      boxShadow:
-                        ((img.shadowBlur || 0) > 0 || (img.shadowSpread || 0) > 0) &&
-                        (img.shadowOpacity || 0) > 0
-                          ? `0 0 ${img.shadowBlur || 0}px ${img.shadowSpread || 0}px ${hexToRgba(img.shadowColor || "#000000", img.shadowOpacity || 0)}`
-                          : "0 0 10px 2px rgba(124,58,237,0.3)",
-                    }}
-                  />
-                </div>
-              ))}
-
-              {/* Logos */}
-              {logos.map((logo) => (
-                <div
-                  key={logo.id}
-                  className={`absolute flex items-center justify-center ${isDragging ? "" : "transition-all duration-200"}`}
-                  style={{
-                    left: `${logo.x}px`,
-                    top: `${logo.y}px`,
-                    width: `${logo.width}px`,
-                    height: `${logo.height}px`,
-                    zIndex: getLayerZIndex("Logo"),
-                    cursor: selectedTool === "move" ? "move" : selectedTool === "select" ? "pointer" : "default",
-                    outline: selectedLogoId === logo.id ? "3px solid #3b82f6" : "none",
-                    outlineOffset: "2px",
-                  }}
-                  onClick={() => {
-                    if (frameGridVisible) return;
-                    setSelectedLogoId(logo.id);
-                    setSelectedImage(null);
-                    setLogoControlsOpen(true);
-                    setImageControlsOpen(true);
-                    setActiveSidebar("logo");
-                    setTimeout(() => logoControlsRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 50);
-                  }}
-                  onMouseDown={(e) => {
-                    if (selectedTool !== "move") return;
-                    if (!canvasRef.current) return;
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setSelectedLogoId(logo.id);
-                    setSelectedImage(null);
-                    const rect = canvasRef.current.getBoundingClientRect();
-                    const scaleX = 900 / rect.width;
-                    const scaleY = 630 / rect.height;
-                    const mouseBaseX = (e.clientX - rect.left) * scaleX;
-                    const mouseBaseY = (e.clientY - rect.top) * scaleY;
-                    logoDragRef.current = {
-                      id: logo.id,
-                      offsetX: mouseBaseX - logo.x,
-                      offsetY: mouseBaseY - logo.y,
-                    };
-                    setIsDragging(true);
-                  }}
-                >
-                  <img
-                    src={logo.src}
-                    alt="logo"
-                    className="w-full h-full object-contain"
-                    style={{
-                      userSelect: "none",
-                      pointerEvents: "none",
-                      borderRadius: `${logo.borderRadius || 0}px`,
-                    }}
-                  />
-                </div>
-              ))}
-
-              {/* Text Content */}
               <div
-                onClick={() => {
-                  if (frameGridVisible) return;
-                  setSelectedTextElement(true);
-                  setSelectedLogoId(null);
-                  setActiveSidebar("text");
-                  setTimeout(() => contentPositionRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 50);
-                }}
-                onMouseDown={(e) => {
-                  if (selectedTool !== "move") return;
-                  if (!canvasRef.current) return;
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setSelectedTextElement(true);
+                ref={canvasRef}
+                className={`flex-shrink-0 shadow-2xl relative overflow-hidden flex items-center justify-center`}
+                onClick={(e) => {
+                  if (e.target !== e.currentTarget) return;
                   setSelectedImage(null);
                   setSelectedLogoId(null);
-                  const rect = canvasRef.current.getBoundingClientRect();
-                  const scaleX = 900 / rect.width;
-                  const scaleY = 630 / rect.height;
-                  const mouseBaseX = (e.clientX - rect.left) * scaleX;
-                  const mouseBaseY = (e.clientY - rect.top) * scaleY;
-                  const currentX = contentPosition?.x ?? 200;
-                  const currentY = contentPosition?.y ?? 200;
-                  if (!contentPosition) {
-                    setContentPosition({ x: currentX, y: currentY, width: 400, textAlign: "left" });
-                  }
-                  contentDragRef.current = {
-                    offsetX: mouseBaseX - currentX,
-                    offsetY: mouseBaseY - currentY,
-                  };
-                  setIsDragging(true);
+                  setSelectedTextElement(false);
+                  setSelectedTagId(null);
+                  setImageControlsOpen(false);
+                  setSelectedShapeId(null);
+                  if (
+                    !selectedTool ||
+                    selectedTool === "move" ||
+                    selectedTool === "select"
+                  )
+                    return;
                 }}
                 style={{
-                  ...getTextPositioning(),
-                  cursor: selectedTool === "move" ? "move" : selectedTool === "select" ? "pointer" : "default",
-                  zIndex: Math.max(getLayerZIndex("Text"), getLayerZIndex("Subtitle")),
-                  padding: "2rem",
-                  overflow: "hidden",
-                  wordWrap: "break-word",
-                  whiteSpace: "normal",
-                  outline: selectedTextElement ? "2px solid #3b82f6" : "none",
-                  outlineOffset: "-2px",
-                  borderRadius: selectedTextElement ? "4px" : "0px",
+                  width: "900px",
+                  aspectRatio: "1200 / 630",
+                  transform: `scale(${zoom / 100})`,
+                  transformOrigin: "center",
+                  transition: "transform 0.2s ease-out",
+                  cursor: selectedTool === "move" ? "grab" : "default",
+                  fontFamily: fontOptions[selectedFont],
+                  ...(backgroundType === "gradient"
+                    ? (() => {
+                        const gradCSS = useCustomGradient
+                          ? `linear-gradient(to bottom right, ${customGradientFrom}, ${customGradientTo})`
+                          : gradientCSSMap[selectedGradient];
+                        return {
+                          backgroundColor: gradientUsesAlpha(gradCSS)
+                            ? APP_BG_DARK
+                            : "transparent",
+                          backgroundImage:
+                            noiseLevel > 0 && noiseImageUrl
+                              ? `${gradCSS}, url(${noiseImageUrl})`
+                              : gradCSS,
+                          backgroundSize:
+                            noiseLevel > 0 && noiseImageUrl
+                              ? "100% 100%, 200px 200px"
+                              : "100% 100%",
+                        };
+                      })()
+                    : backgroundType === "solid"
+                      ? {
+                          backgroundColor: selectedSolidColor
+                            ? colorHexMap[selectedSolidColor] || "#ffffff"
+                            : "#ffffff",
+                          backgroundImage: noiseImageUrl
+                            ? `url(${noiseImageUrl})`
+                            : "none",
+                          backgroundSize: noiseImageUrl ? "200px 200px" : "0 0",
+                        }
+                      : {
+                          backgroundColor:
+                            selectedPattern !== null &&
+                            patternMap[selectedPattern]
+                              ? patternMap[selectedPattern].backgroundColor ||
+                                "#ffffff"
+                              : "#ffffff",
+                          backgroundImage: "none",
+                          backgroundSize: "100% 100%",
+                        }),
+                  backgroundRepeat: "repeat",
+                  backgroundBlendMode: "normal",
+                  filter: blurred ? "blur(1.5px)" : "none",
                 }}
-                className="space-y-6"
               >
-                <h2
-                  className="font-bold leading-tight"
-                  style={{
-                    fontSize: `${fontSize * 0.6}px`,
-                    color: titleColor,
-                    wordWrap: "break-word",
-                    overflow: "hidden",
-                    whiteSpace: "normal",
-                    width: "100%",
-                  }}
-                >
-                  {title}
-                </h2>
-                {showSubtitle && (
-                  <p
-                    style={{
-                      color: subtitleColor,
-                      fontSize: `${fontSize * 0.3}px`,
-                      lineHeight: 1.4,
-                      wordWrap: "break-word",
-                      overflow: "hidden",
-                      whiteSpace: "normal",
-                      width: "100%",
-                    }}
-                  >
-                    {subtitle}
-                  </p>
-                )}
-                {showAuthor && (
-                  <div
-                    className="flex items-center gap-2"
-                    style={{
-                      justifyContent:
-                        getTextPositioning().textAlign === "center"
-                          ? "center"
-                          : getTextPositioning().textAlign === "left"
-                            ? "flex-start"
-                            : "flex-end",
-                      width: "100%",
-                      wordWrap: "break-word",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {showAvatar &&
-                      (avatar ? (
-                        <img
-                          src={avatar}
-                          alt="author avatar"
-                          style={{
-                            width: "24px",
-                            height: "24px",
-                            borderRadius: "50%",
-                            objectFit: "cover",
-                          }}
-                        />
-                      ) : (
-                        <CircleUserRound
-                          size={24}
-                          strokeWidth={1}
-                          style={{ color: authorColor, flexShrink: 0 }}
-                        />
-                      ))}
-                    <span className="text-sm" style={{ color: authorColor }}>
-                      {author}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Frame Grid Overlay */}
-              {frameGridVisible && (
-                <div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{ zIndex: 6 }}
-                >
-                  {/* Outer border */}
-                  <div
-                    className="absolute inset-0"
-                    style={{
-                      border: "2px solid rgba(255,255,255,0.5)",
-                      borderRadius: "0",
-                    }}
-                  />
-                  {/* Vertical lines */}
-                  <svg className="absolute inset-0 w-full h-full">
-                    {Array.from({ length: 12 }).map((_, i) => (
-                      <line
-                        key={`v-${i}`}
-                        x1={`${((i + 1) / 13) * 100}%`}
-                        y1="0"
-                        x2={`${((i + 1) / 13) * 100}%`}
-                        y2="100%"
-                        stroke="rgba(255,255,255,0.2)"
-                        strokeWidth="1"
-                      />
-                    ))}
-                    {Array.from({ length: 8 }).map((_, i) => (
-                      <line
-                        key={`h-${i}`}
-                        x1="0"
-                        y1={`${((i + 1) / 9) * 100}%`}
-                        x2="100%"
-                        y2={`${((i + 1) / 9) * 100}%`}
-                        stroke="rgba(255,255,255,0.2)"
-                        strokeWidth="1"
-                      />
-                    ))}
-                  </svg>
-                </div>
-              )}
-
-              {/* Shapes */}
-              <svg
-                className="absolute inset-0 w-full h-full pointer-events-none"
-                style={{ zIndex: 5 }}
-              >
-                {shapes.map((shape) => {
-                  const isSelected = selectedShapeId === shape.id;
-                  const halfW = shape.width / 2;
-                  const halfH = shape.height / 2;
-                  const cx = shape.x + halfW;
-                  const cy = shape.y + halfH;
-                  return (
-                    <g
-                      key={shape.id}
-                      className="pointer-events-auto"
-                      style={{ cursor: "pointer" }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedShapeId(shape.id);
-                        setSelectedImage(null);
-                        setSelectedLogoId(null);
-                        setSelectedTextElement(false);
+                {backgroundType === "pattern" &&
+                  selectedPattern !== null &&
+                  patternMap[selectedPattern] && (
+                    <div
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        backgroundImage:
+                          patternMap[selectedPattern].backgroundImage,
+                        backgroundSize:
+                          patternMap[selectedPattern].backgroundSize ||
+                          undefined,
+                        backgroundRepeat: "repeat",
+                        ...(patternMap[selectedPattern].WebkitMaskImage
+                          ? {
+                              WebkitMaskImage:
+                                patternMap[selectedPattern].WebkitMaskImage,
+                            }
+                          : {}),
+                        ...(patternMap[selectedPattern].maskImage
+                          ? { maskImage: patternMap[selectedPattern].maskImage }
+                          : {}),
+                        ...(patternMap[selectedPattern].WebkitMaskComposite
+                          ? {
+                              WebkitMaskComposite: patternMap[selectedPattern]
+                                .WebkitMaskComposite as React.CSSProperties["WebkitMaskComposite"],
+                            }
+                          : {}),
+                        ...(patternMap[selectedPattern].maskComposite
+                          ? {
+                              maskComposite: patternMap[selectedPattern]
+                                .maskComposite as React.CSSProperties["maskComposite"],
+                            }
+                          : {}),
                       }}
-                    >
-                      {shape.type === "rectangle" && (
-                        <rect
-                          x={shape.x}
-                          y={shape.y}
-                          width={shape.width}
-                          height={shape.height}
-                          fill={shape.color}
-                          fillOpacity={shape.opacity / 100}
-                          stroke={isSelected ? "#3b82f6" : shape.color}
-                          strokeWidth={isSelected ? 2 : shape.strokeWidth}
-                          strokeOpacity={shape.opacity / 100}
-                          rx={2}
-                        />
-                      )}
-                      {shape.type === "circle" && (
-                        <circle
-                          cx={cx}
-                          cy={cy}
-                          r={Math.min(shape.width, shape.height) / 2}
-                          fill={shape.color}
-                          fillOpacity={shape.opacity / 100}
-                          stroke={isSelected ? "#3b82f6" : shape.color}
-                          strokeWidth={isSelected ? 2 : shape.strokeWidth}
-                          strokeOpacity={shape.opacity / 100}
-                        />
-                      )}
-                      {shape.type === "line" && (
-                        <line
-                          x1={shape.x}
-                          y1={cy}
-                          x2={shape.x + shape.width}
-                          y2={cy}
-                          stroke={shape.color}
-                          strokeOpacity={shape.opacity / 100}
-                          strokeWidth={shape.strokeWidth}
-                          strokeLinecap="round"
-                        />
-                      )}
-                      {shape.type === "arrow" && (
-                        <>
-                          <line
-                            x1={shape.x}
-                            y1={cy}
-                            x2={shape.x + shape.width}
-                            y2={cy}
-                            stroke={shape.color}
-                            strokeOpacity={shape.opacity / 100}
-                            strokeWidth={shape.strokeWidth}
-                            strokeLinecap="round"
-                          />
-                          <polygon
-                            points={`${shape.x + shape.width},${cy} ${shape.x + shape.width - 14},${cy - 7} ${shape.x + shape.width - 14},${cy + 7}`}
-                            fill={shape.color}
-                            fillOpacity={shape.opacity / 100}
-                          />
-                        </>
-                      )}
-                      {shape.type === "triangle" && (
-                        <polygon
-                          points={`${cx},${shape.y} ${shape.x + shape.width},${shape.y + shape.height} ${shape.x},${shape.y + shape.height}`}
-                          fill={shape.color}
-                          fillOpacity={shape.opacity / 100}
-                          stroke={isSelected ? "#3b82f6" : shape.color}
-                          strokeWidth={isSelected ? 2 : shape.strokeWidth}
-                          strokeOpacity={shape.opacity / 100}
-                        />
-                      )}
-                    </g>
-                  );
-                })}
-              </svg>
-
-              {/* Tags */}
-              {tags.map((tag) => {
-                const isSelected = selectedTagId === tag.id;
-                return (
+                    />
+                  )}
+                {/* Render Images */}
+                {images.map((img) => (
                   <div
-                    key={tag.id}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedTagId(tag.id);
-                      setSelectedImage(null);
+                    key={img.id}
+                    className={`absolute ${isDragging ? "" : "transition-all duration-200"}`}
+                    style={{
+                      left: `${(img.x / 900) * 100}%`,
+                      top: `${(img.y / 630) * 100}%`,
+                      width: `${(img.width / 900) * 100}%`,
+                      height: `${(img.height / 630) * 100}%`,
+                      cursor:
+                        selectedTool === "move"
+                          ? "move"
+                          : selectedTool === "select"
+                            ? "pointer"
+                            : "default",
+                      transform: `rotate(${img.rotation || 0}deg)`,
+                      touchAction: "none",
+                      zIndex: getLayerZIndex("Image"),
+                      outline:
+                        selectedImage === img.id ? "3px solid #3b82f6" : "none",
+                      outlineOffset: "2px",
+                    }}
+                    onClick={() => {
+                      if (lockedLayers.has("Image")) return;
+                      if (frameGridVisible) return;
+                      setSelectedImage(img.id);
                       setSelectedLogoId(null);
                       setSelectedTextElement(false);
-                      setSelectedShapeId(null);
+                      setImageControlsOpen(true);
+                      setActiveSidebar("image");
+                      setTimeout(
+                        () =>
+                          imageControlsRef.current?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start",
+                          }),
+                        50,
+                      );
+                    }}
+                    onMouseDown={(e) => {
+                      if (!canvasRef.current) return;
+                      if (lockedLayers.has("Image")) return;
+                      if (selectedTool !== "move") return;
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedImage(img.id);
+                      setSelectedLogoId(null);
+                      setSelectedTextElement(false);
+
+                      const rect = canvasRef.current.getBoundingClientRect();
+                      const scaleX = 900 / rect.width;
+                      const scaleY = 630 / rect.height;
+
+                      const mouseBaseX = (e.clientX - rect.left) * scaleX;
+                      const mouseBaseY = (e.clientY - rect.top) * scaleY;
+
+                      dragRef.current = {
+                        id: img.id,
+                        offsetX: mouseBaseX - img.x,
+                        offsetY: mouseBaseY - img.y,
+                      };
+                      setIsDragging(true);
+                    }}
+                  >
+                    <img
+                      src={img.src}
+                      alt="canvas element"
+                      className="w-full h-full object-cover"
+                      style={{
+                        userSelect: "none",
+                        borderRadius: `${img.borderRadius || 0}px`,
+                        border:
+                          img.borderWidth && img.borderWidth > 0
+                            ? `${img.borderWidth}px solid ${img.borderColor || "#000000"}`
+                            : "none",
+                        boxShadow:
+                          ((img.shadowBlur || 0) > 0 ||
+                            (img.shadowSpread || 0) > 0) &&
+                          (img.shadowOpacity || 0) > 0
+                            ? `0 0 ${img.shadowBlur || 0}px ${img.shadowSpread || 0}px ${hexToRgba(img.shadowColor || "#000000", img.shadowOpacity || 0)}`
+                            : "0 0 10px 2px rgba(124,58,237,0.3)",
+                      }}
+                    />
+                  </div>
+                ))}
+
+                {/* Logos */}
+                {logos.map((logo) => (
+                  <div
+                    key={logo.id}
+                    className={`absolute flex items-center justify-center overflow-hidden ${isDragging ? "" : "transition-all duration-200"}`}
+                    style={{
+                      left: `${(logo.x / 900) * 100}%`,
+                      top: `${(logo.y / 630) * 100}%`,
+                      width: `${(logo.width / 900) * 100}%`,
+                      // height: `${(logo.height / 630) * 100}%`,
+                       aspectRatio: "1 / 1",
+    height: "auto",
+                      zIndex: getLayerZIndex("Logo"),
+                      cursor:
+                        selectedTool === "move"
+                          ? "move"
+                          : selectedTool === "select"
+                            ? "pointer"
+                            : "default",
+                      outline:
+                        selectedLogoId === logo.id
+                          ? "3px solid #3b82f6"
+                          : "none",
+                      outlineOffset: "2px",
+                      borderRadius: `${logo.borderRadius || 0}%`,
+                    }}
+                    onClick={() => {
+                      if (frameGridVisible) return;
+                      setSelectedLogoId(logo.id);
+                      setSelectedImage(null);
+                      setLogoControlsOpen(true);
+                      setImageControlsOpen(true);
+                      setActiveSidebar("logo");
+                      setTimeout(
+                        () =>
+                          logoControlsRef.current?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "nearest",
+                          }),
+                        50,
+                      );
                     }}
                     onMouseDown={(e) => {
                       if (selectedTool !== "move") return;
                       if (!canvasRef.current) return;
                       e.preventDefault();
                       e.stopPropagation();
-                      setSelectedTagId(tag.id);
+                      setSelectedLogoId(logo.id);
                       setSelectedImage(null);
-                      setSelectedLogoId(null);
-                      setSelectedTextElement(false);
-                      setSelectedShapeId(null);
                       const rect = canvasRef.current.getBoundingClientRect();
                       const scaleX = 900 / rect.width;
                       const scaleY = 630 / rect.height;
                       const mouseBaseX = (e.clientX - rect.left) * scaleX;
                       const mouseBaseY = (e.clientY - rect.top) * scaleY;
-                      tagDragRef.current = {
-                        id: tag.id,
-                        offsetX: mouseBaseX - tag.x,
-                        offsetY: mouseBaseY - tag.y,
+                      logoDragRef.current = {
+                        id: logo.id,
+                        offsetX: mouseBaseX - logo.x,
+                        offsetY: mouseBaseY - logo.y,
                       };
                       setIsDragging(true);
                     }}
+                  >
+                    <img
+                      src={logo.src}
+                      alt="logo"
+                      className="w-full h-full object-cover"
+                      style={{
+                        userSelect: "none",
+                        pointerEvents: "none",
+                      }}
+                    />
+                  </div>
+                ))}
+
+                {/* Text Content */}
+                <div
+                  onClick={() => {
+                    if (frameGridVisible) return;
+                    setSelectedTextElement(true);
+                    setSelectedLogoId(null);
+                    setActiveSidebar("text");
+                    setTimeout(
+                      () =>
+                        contentPositionRef.current?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "nearest",
+                        }),
+                      50,
+                    );
+                  }}
+                  onMouseDown={(e) => {
+                    if (selectedTool !== "move") return;
+                    if (!canvasRef.current) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setSelectedTextElement(true);
+                    setSelectedImage(null);
+                    setSelectedLogoId(null);
+                    const rect = canvasRef.current.getBoundingClientRect();
+                    const scaleX = 900 / rect.width;
+                    const scaleY = 630 / rect.height;
+                    const mouseBaseX = (e.clientX - rect.left) * scaleX;
+                    const mouseBaseY = (e.clientY - rect.top) * scaleY;
+                    const currentX = contentPosition?.x ?? 200;
+                    const currentY = contentPosition?.y ?? 200;
+                    if (!contentPosition) {
+                      setContentPosition({
+                        x: currentX,
+                        y: currentY,
+                        width: 400,
+                        textAlign: "left",
+                      });
+                    }
+                    contentDragRef.current = {
+                      offsetX: mouseBaseX - currentX,
+                      offsetY: mouseBaseY - currentY,
+                    };
+                    setIsDragging(true);
+                  }}
+                  style={{
+                    ...getTextPositioning(),
+                    cursor:
+                      selectedTool === "move"
+                        ? "move"
+                        : selectedTool === "select"
+                          ? "pointer"
+                          : "default",
+                    zIndex: Math.max(
+                      getLayerZIndex("Text"),
+                      getLayerZIndex("Subtitle"),
+                    ),
+                    padding: "2rem",
+                    overflow: "hidden",
+                    wordWrap: "break-word",
+                    whiteSpace: "normal",
+                    outline: selectedTextElement ? "2px solid #3b82f6" : "none",
+                    outlineOffset: "-2px",
+                    borderRadius: selectedTextElement ? "4px" : "0px",
+                  }}
+                  className="space-y-6"
+                >
+                  <h2
+                    className="font-bold leading-tight"
                     style={{
-                      position: "absolute",
-                      left: tag.x,
-                      top: tag.y,
-                      border: `${tag.borderWidth}px solid ${tag.borderColor}`,
-                      borderRadius: tag.borderRadius,
-                      padding: "4px 10px",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                      color: tag.borderColor,
-                      cursor: selectedTool === "move" ? "move" : "pointer",
-                      zIndex: getLayerZIndex("Tag"),
-                      userSelect: "none",
-                      whiteSpace: "nowrap",
+                      fontSize: `${fontSize * 0.6}px`,
+                      color: titleColor,
+                      wordWrap: "break-word",
+                      overflow: "hidden",
+                      whiteSpace: "normal",
+                      width: "100%",
                     }}
                   >
-                    {tag.text}
+                    {title}
+                  </h2>
+                  {showSubtitle && subtitle && (
+                    <p
+                      style={{
+                        color: subtitleColor,
+                        fontSize: `${fontSize * 0.3}px`,
+                        lineHeight: 1.4,
+                        wordWrap: "break-word",
+                        overflow: "hidden",
+                        whiteSpace: "normal",
+                        width: "100%",
+                      }}
+                    >
+                      {subtitle}
+                    </p>
+                  )}
+                  {showAuthor && (
+                    <div
+                      className="flex items-center gap-2"
+                      style={{
+                        justifyContent:
+                          getTextPositioning().textAlign === "center"
+                            ? "center"
+                            : getTextPositioning().textAlign === "left"
+                              ? "flex-start"
+                              : "flex-end",
+                        width: "100%",
+                        wordWrap: "break-word",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {showAvatar &&
+                        (avatar ? (
+                          <img
+                            src={avatar}
+                            alt="author avatar"
+                            style={{
+                              width: "24px",
+                              height: "24px",
+                              borderRadius: "50%",
+                              objectFit: "cover",
+                            }}
+                          />
+                        ) : (
+                          <CircleUserRound
+                            size={24}
+                            strokeWidth={1}
+                            style={{ color: authorColor, flexShrink: 0 }}
+                          />
+                        ))}
+                      <span className="text-sm" style={{ color: authorColor }}>
+                        {author}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Frame Grid Overlay */}
+                {frameGridVisible && (
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{ zIndex: 6 }}
+                  >
+                    {/* Outer border */}
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        border: "2px solid rgba(255,255,255,0.5)",
+                        borderRadius: "0",
+                      }}
+                    />
+                    {/* Vertical lines */}
+                    <svg className="absolute inset-0 w-full h-full">
+                      {Array.from({ length: 12 }).map((_, i) => (
+                        <line
+                          key={`v-${i}`}
+                          x1={`${((i + 1) / 13) * 100}%`}
+                          y1="0"
+                          x2={`${((i + 1) / 13) * 100}%`}
+                          y2="100%"
+                          stroke="rgba(255,255,255,0.2)"
+                          strokeWidth="1"
+                        />
+                      ))}
+                      {Array.from({ length: 8 }).map((_, i) => (
+                        <line
+                          key={`h-${i}`}
+                          x1="0"
+                          y1={`${((i + 1) / 9) * 100}%`}
+                          x2="100%"
+                          y2={`${((i + 1) / 9) * 100}%`}
+                          stroke="rgba(255,255,255,0.2)"
+                          strokeWidth="1"
+                        />
+                      ))}
+                    </svg>
                   </div>
-                );
-              })}
-            </div>
+                )}
+
+                {/* Tags */}
+                {tags.map((tag) => {
+                  const isSelected = selectedTagId === tag.id;
+                  return (
+                    <div
+                      key={tag.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedTagId(tag.id);
+                        setSelectedImage(null);
+                        setSelectedLogoId(null);
+                        setSelectedTextElement(false);
+                        setSelectedShapeId(null);
+                      }}
+                      onMouseDown={(e) => {
+                        if (selectedTool !== "move") return;
+                        if (!canvasRef.current) return;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setSelectedTagId(tag.id);
+                        setSelectedImage(null);
+                        setSelectedLogoId(null);
+                        setSelectedTextElement(false);
+                        setSelectedShapeId(null);
+                        const rect = canvasRef.current.getBoundingClientRect();
+                        const scaleX = 900 / rect.width;
+                        const scaleY = 630 / rect.height;
+                        const mouseBaseX = (e.clientX - rect.left) * scaleX;
+                        const mouseBaseY = (e.clientY - rect.top) * scaleY;
+                        tagDragRef.current = {
+                          id: tag.id,
+                          offsetX: mouseBaseX - tag.x,
+                          offsetY: mouseBaseY - tag.y,
+                        };
+                        setIsDragging(true);
+                      }}
+                      style={{
+                        position: "absolute",
+                        left: `${(tag.x / 900) * 100}%`,
+                        top: `${(tag.y / 630) * 100}%`,
+                        border: `${tag.borderWidth}px solid ${tag.borderColor}`,
+                        borderRadius: tag.borderRadius,
+                        padding: "4px 10px",
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        color: tag.borderColor,
+                        cursor: selectedTool === "move" ? "move" : "pointer",
+                        zIndex: getLayerZIndex("Tag"),
+                        userSelect: "none",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {tag.text}
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
 
@@ -2271,7 +2593,7 @@ const Editor = () => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  onClick={() => setFrameGridVisible(prev => !prev)}
+                  onClick={() => setFrameGridVisible((prev) => !prev)}
                   className={`p-2 rounded-sm transition-colors ${
                     frameGridVisible
                       ? "bg-accent text-accent-foreground"
@@ -2287,11 +2609,13 @@ const Editor = () => {
         </div>
 
         {/* Right Panel */}
-        <div className={`${
-          rightOpen
-            ? 'fixed inset-y-0 right-0 z-50 w-80 shadow-2xl'
-            : 'hidden'
-        } lg:relative lg:z-auto lg:block lg:w-80 border-l border-border bg-card shrink-0 h-full flex flex-col overflow-y-auto overflow-x-hidden`}>
+        <div
+          className={`${
+            rightOpen
+              ? "fixed inset-y-0 right-0 z-50 w-80 shadow-2xl"
+              : "hidden"
+          } lg:relative lg:z-auto lg:block lg:w-80 border-l border-border bg-card shrink-0 h-full flex flex-col overflow-y-auto overflow-x-hidden`}
+        >
           {/* Tabs */}
           {/* <div className="flex border-b border-border bg-background/30">
             <button
@@ -2327,7 +2651,10 @@ const Editor = () => {
           </div> */}
 
           {/* Tab Content */}
-          <div ref={rightPanelRef} className="flex-1 p-4 space-y-6 w-80 overflow-y-auto">
+          <div
+            ref={rightPanelRef}
+            className="flex-1 p-4 space-y-6 w-80 overflow-y-auto"
+          >
             {/* DESIGN Tab */}
             {rightTab === "design" && (
               <div>
@@ -2379,7 +2706,10 @@ const Editor = () => {
                       <div className="grid grid-cols-7 gap-1">
                         {initialLoading
                           ? Array.from({ length: 14 }).map((_, i) => (
-                              <Skeleton key={i} className="aspect-square rounded-sm" />
+                              <Skeleton
+                                key={i}
+                                className="aspect-square rounded-sm"
+                              />
                             ))
                           : gradients.slice(0, 12).map((g, i) => (
                               <button
@@ -2397,11 +2727,17 @@ const Editor = () => {
                                 title={`Gradient ${i + 1}`}
                               />
                             ))}
-                        {showAllGradients && !initialLoading && (
-                          gradientsLoading
-                            ? Array.from({ length: gradients.length - 12 }).map((_, i) => (
-                                <Skeleton key={`grad-sk-${i}`} className="aspect-square rounded-sm" />
-                              ))
+                        {showAllGradients &&
+                          !initialLoading &&
+                          (gradientsLoading
+                            ? Array.from({ length: gradients.length - 12 }).map(
+                                (_, i) => (
+                                  <Skeleton
+                                    key={`grad-sk-${i}`}
+                                    className="aspect-square rounded-sm"
+                                  />
+                                ),
+                              )
                             : gradients.slice(12).map((g, i) => (
                                 <button
                                   key={`gradient-${i + 12}`}
@@ -2410,15 +2746,15 @@ const Editor = () => {
                                     setUseCustomGradient(false);
                                   }}
                                   className={`aspect-square rounded-sm border transition-all duration-150 ${
-                                    selectedGradient === i + 12 && !useCustomGradient
+                                    selectedGradient === i + 12 &&
+                                    !useCustomGradient
                                       ? "border-primary ring-2 ring-primary"
                                       : "border-border hover:border-muted-foreground"
                                   }`}
                                   style={{ background: gradientCSSMap[i + 12] }}
                                   title={`Gradient ${i + 13}`}
                                 />
-                              ))
-                        )}
+                              )))}
                         {!initialLoading && (
                           <button
                             onClick={() => {
@@ -2432,7 +2768,9 @@ const Editor = () => {
                             }`}
                             title="Customize gradient"
                           >
-                            <Settings2 className={`h-4 w-4 ${useCustomGradient ? "text-foreground" : "text-muted-foreground"}`} />
+                            <Settings2
+                              className={`h-4 w-4 ${useCustomGradient ? "text-foreground" : "text-muted-foreground"}`}
+                            />
                           </button>
                         )}
                         {!initialLoading && gradients.length > 13 && (
@@ -2441,15 +2779,24 @@ const Editor = () => {
                               if (!showAllGradients) {
                                 setShowAllGradients(true);
                                 setGradientsLoading(true);
-                                setTimeout(() => setGradientsLoading(false), 500);
+                                setTimeout(
+                                  () => setGradientsLoading(false),
+                                  500,
+                                );
                               } else {
                                 setShowAllGradients(false);
                               }
                             }}
                             className="aspect-square rounded-sm border border-border hover:border-muted-foreground transition-all duration-150 flex items-center justify-center bg-background"
-                            title={showAllGradients ? "Show less" : "Show all gradients"}
+                            title={
+                              showAllGradients
+                                ? "Show less"
+                                : "Show all gradients"
+                            }
                           >
-                            <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${showAllGradients ? "rotate-180" : ""}`} />
+                            <ChevronDown
+                              className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${showAllGradients ? "rotate-180" : ""}`}
+                            />
                           </button>
                         )}
                       </div>
@@ -2495,28 +2842,16 @@ const Editor = () => {
                       <div className="grid grid-cols-7 gap-1.5">
                         {initialLoading
                           ? Array.from({ length: 14 }).map((_, i) => (
-                              <Skeleton key={i} className="aspect-square rounded-sm" />
+                              <Skeleton
+                                key={i}
+                                className="aspect-square rounded-sm"
+                              />
                             ))
-                          : solidColors.slice(0, 13).map((color, i) => (
-                          <button
-                            key={i}
-                            onClick={() => setSelectedSolidColor(color)}
-                            className={`aspect-square rounded-sm ${color} border-2 transition-all duration-150 ${
-                              selectedSolidColor === color
-                                ? "border-white ring-2 ring-white"
-                                : "border-border hover:border-gray-400"
-                            }`}
-                            title={color}
-                          />
-                        ))}
-                        {showAllSolidColors && !initialLoading && (
-                          solidColorsLoading
-                            ? Array.from({ length: solidColors.length - 13 }).map((_, i) => (
-                                <Skeleton key={`solid-sk-${i}`} className="aspect-square rounded-sm" />
-                              ))
-                            : solidColors.slice(13).map((color, i) => (
+                          : solidColors
+                              .slice(0, 13)
+                              .map((color, i) => (
                                 <button
-                                  key={`solid-${i + 13}`}
+                                  key={i}
                                   onClick={() => setSelectedSolidColor(color)}
                                   className={`aspect-square rounded-sm ${color} border-2 transition-all duration-150 ${
                                     selectedSolidColor === color
@@ -2525,23 +2860,56 @@ const Editor = () => {
                                   }`}
                                   title={color}
                                 />
+                              ))}
+                        {showAllSolidColors &&
+                          !initialLoading &&
+                          (solidColorsLoading
+                            ? Array.from({
+                                length: solidColors.length - 13,
+                              }).map((_, i) => (
+                                <Skeleton
+                                  key={`solid-sk-${i}`}
+                                  className="aspect-square rounded-sm"
+                                />
                               ))
-                        )}
+                            : solidColors
+                                .slice(13)
+                                .map((color, i) => (
+                                  <button
+                                    key={`solid-${i + 13}`}
+                                    onClick={() => setSelectedSolidColor(color)}
+                                    className={`aspect-square rounded-sm ${color} border-2 transition-all duration-150 ${
+                                      selectedSolidColor === color
+                                        ? "border-white ring-2 ring-white"
+                                        : "border-border hover:border-gray-400"
+                                    }`}
+                                    title={color}
+                                  />
+                                )))}
                         {!initialLoading && solidColors.length > 13 && (
                           <button
                             onClick={() => {
                               if (!showAllSolidColors) {
                                 setShowAllSolidColors(true);
                                 setSolidColorsLoading(true);
-                                setTimeout(() => setSolidColorsLoading(false), 500);
+                                setTimeout(
+                                  () => setSolidColorsLoading(false),
+                                  500,
+                                );
                               } else {
                                 setShowAllSolidColors(false);
                               }
                             }}
                             className="aspect-square rounded-sm border-2 border-border hover:border-gray-400 transition-all duration-150 flex items-center justify-center bg-transparent"
-                            title={showAllSolidColors ? "Show less" : "Show all colors"}
+                            title={
+                              showAllSolidColors
+                                ? "Show less"
+                                : "Show all colors"
+                            }
                           >
-                            <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${showAllSolidColors ? "rotate-180" : ""}`} />
+                            <ChevronDown
+                              className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${showAllSolidColors ? "rotate-180" : ""}`}
+                            />
                           </button>
                         )}
                       </div>
@@ -2570,19 +2938,26 @@ const Editor = () => {
                             <div
                               className="absolute inset-0"
                               style={{
-                                backgroundColor: pattern.backgroundColor || "#ffffff",
+                                backgroundColor:
+                                  pattern.backgroundColor || "#ffffff",
                               }}
                             >
                               <div
                                 className="absolute inset-0"
                                 style={{
                                   backgroundImage: pattern.backgroundImage,
-                                  backgroundSize: pattern.backgroundSize || undefined,
+                                  backgroundSize:
+                                    pattern.backgroundSize || undefined,
                                   backgroundRepeat: "repeat",
-                                  WebkitMaskImage: pattern.WebkitMaskImage || undefined,
+                                  WebkitMaskImage:
+                                    pattern.WebkitMaskImage || undefined,
                                   maskImage: pattern.maskImage || undefined,
-                                  WebkitMaskComposite: (pattern.WebkitMaskComposite as React.CSSProperties['WebkitMaskComposite']) || undefined,
-                                  maskComposite: (pattern.maskComposite as React.CSSProperties['maskComposite']) || undefined,
+                                  WebkitMaskComposite:
+                                    (pattern.WebkitMaskComposite as React.CSSProperties["WebkitMaskComposite"]) ||
+                                    undefined,
+                                  maskComposite:
+                                    (pattern.maskComposite as React.CSSProperties["maskComposite"]) ||
+                                    undefined,
                                 }}
                               />
                             </div>
@@ -2629,8 +3004,6 @@ const Editor = () => {
                   )}
                   <Separator className="bg-border" />
 
-
-
                   {/* Text Colors */}
                   <div>
                     <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-3">
@@ -2663,222 +3036,230 @@ const Editor = () => {
                   images.find((img) => img.id === selectedImage) && (
                     <>
                       <div ref={imageControlsRef}>
-                      <div>
-                        <div className="flex items-center justify-between mb-3">
-                          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                            <ImageIcon className="h-4 w-4" /> Image
-                          </h3>
-                          <button
-                            onClick={() =>
-                              setImageControlsOpen(!imageControlsOpen)
-                            }
-                            className="p-1 hover:bg-accent rounded transition-all"
-                          >
-                            <ChevronDown
-                              className="h-4 w-4 text-muted-foreground transition-transform"
-                              style={{
-                                transform: imageControlsOpen
-                                  ? "rotate(0deg)"
-                                  : "rotate(-90deg)",
-                              }}
-                            />
-                          </button>
-                        </div>
-
-                        {/* Position & Size Controls */}
-                        {imageControlsOpen && (
-                          <div className="bg-background rounded-lg p-3 border border-border space-y-3">
-                            <div className="grid grid-cols-2 gap-3">
-                              <div>
-                                <Label className="text-xs text-muted-foreground">
-                                  X Position (-∞ to 700)
-                                </Label>
-                                <Input
-                                  type="number"
-                                  max="700"
-                                  step="1"
-                                  value={Math.round(
-                                    images.find(
-                                      (img) => img.id === selectedImage,
-                                    )?.x || 0,
-                                  )}
-                                  onChange={(e) => {
-                                    const val = Number(e.target.value);
-                                    const clamped = Math.min(
-                                      700,
-                                      isNaN(val) ? 0 : val,
-                                    );
-                                    updateImage(selectedImage, { x: clamped });
-                                  }}
-                                  className="mt-1 bg-card border-border text-xs"
-                                />
-                              </div>
-                              <div>
-                                <Label className="text-xs text-muted-foreground">
-                                  Y Position (-∞ to 300)
-                                </Label>
-                                <Input
-                                  type="number"
-                                  max="300"
-                                  step="1"
-                                  value={Math.round(
-                                    images.find(
-                                      (img) => img.id === selectedImage,
-                                    )?.y || 0,
-                                  )}
-                                  onChange={(e) => {
-                                    const val = Number(e.target.value);
-                                    const clamped = Math.min(
-                                      300,
-                                      isNaN(val) ? 0 : val,
-                                    );
-                                    updateImage(selectedImage, { y: clamped });
-                                  }}
-                                  className="mt-1 bg-card border-border text-xs"
-                                />
-                              </div>
-                              <div>
-                                <Label className="text-xs text-muted-foreground">
-                                  Width
-                                </Label>
-                                <Input
-                                  type="number"
-                                  value={Math.round(
-                                    images.find(
-                                      (img) => img.id === selectedImage,
-                                    )?.width || 0,
-                                  )}
-                                  onChange={(e) =>
-                                    updateImage(selectedImage, {
-                                      width: Number(e.target.value) || 50,
-                                    })
-                                  }
-                                  className="mt-1 bg-card border-border text-xs"
-                                />
-                              </div>
-                              <div>
-                                <Label className="text-xs text-muted-foreground">
-                                  Height
-                                </Label>
-                                <Input
-                                  type="number"
-                                  value={Math.round(
-                                    images.find(
-                                      (img) => img.id === selectedImage,
-                                    )?.height || 0,
-                                  )}
-                                  onChange={(e) =>
-                                    updateImage(selectedImage, {
-                                      height: Number(e.target.value) || 50,
-                                    })
-                                  }
-                                  className="mt-1 bg-card border-border text-xs"
-                                />
-                              </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-3">
-                              <div>
-                                <Label className="text-xs text-muted-foreground">
-                                  Border Radius
-                                </Label>
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  max="50"
-                                  value={
-                                    images.find(
-                                      (img) => img.id === selectedImage,
-                                    )?.borderRadius || 0
-                                  }
-                                  onChange={(e) =>
-                                    updateImage(selectedImage, {
-                                      borderRadius: Math.max(
-                                        0,
-                                        Math.min(
-                                          50,
-                                          Number(e.target.value) || 0,
-                                        ),
-                                      ),
-                                    })
-                                  }
-                                  className="mt-1 bg-card border-border text-xs"
-                                />
-                              </div>
-                              <div>
-                                <Label className="text-xs text-muted-foreground">
-                                  Border Width
-                                </Label>
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  max="10"
-                                  value={
-                                    images.find(
-                                      (img) => img.id === selectedImage,
-                                    )?.borderWidth || 0
-                                  }
-                                  onChange={(e) =>
-                                    updateImage(selectedImage, {
-                                      borderWidth: Math.max(
-                                        0,
-                                        Math.min(
-                                          10,
-                                          Number(e.target.value) || 0,
-                                        ),
-                                      ),
-                                    })
-                                  }
-                                  className="mt-1 bg-card border-border text-xs"
-                                />
-                              </div>
-                            </div>
-                            <div>
-                              <Label className="text-xs text-muted-foreground mb-2 block">
-                                Border Color
-                              </Label>
-                              <Input
-                                type="color"
-                                value={
-                                  images.find((img) => img.id === selectedImage)
-                                    ?.borderColor || "#000000"
-                                }
-                                onChange={(e) =>
-                                  updateImage(selectedImage, {
-                                    borderColor: e.target.value,
-                                  })
-                                }
-                                className="mt-1 bg-card border-border text-xs"
+                        <div>
+                          <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                              <ImageIcon className="h-4 w-4" /> Image
+                            </h3>
+                            <button
+                              onClick={() =>
+                                setImageControlsOpen(!imageControlsOpen)
+                              }
+                              className="p-1 hover:bg-accent rounded transition-all"
+                            >
+                              <ChevronDown
+                                className="h-4 w-4 text-muted-foreground transition-transform"
+                                style={{
+                                  transform: imageControlsOpen
+                                    ? "rotate(0deg)"
+                                    : "rotate(-90deg)",
+                                }}
                               />
-                            </div>
-
-                            <div>
-                              <Label className="text-xs text-muted-foreground">
-                                Rotation
-                              </Label>
-                              <Input
-                                type="number"
-                                value={
-                                  images.find((img) => img.id === selectedImage)
-                                    ?.rotation || 0
-                                }
-                                onChange={(e) =>
-                                  updateImage(selectedImage, {
-                                    rotation: Number(e.target.value) || 0,
-                                  })
-                                }
-                                className="mt-1 bg-card border-border text-xs"
-                                placeholder="0"
-                              />
-                            </div>
+                            </button>
                           </div>
-                        )}
+
+                          {/* Position & Size Controls */}
+                          {imageControlsOpen && (
+                            <div className="bg-background rounded-lg p-3 border border-border space-y-3">
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <Label className="text-xs text-muted-foreground">
+                                    X Position (-500 to 700)
+                                  </Label>
+                                  <Input
+                                    type="number"
+                                    min="-500"
+                                    max="700"
+                                    step="1"
+                                    value={Math.round(
+                                      images.find(
+                                        (img) => img.id === selectedImage,
+                                      )?.x || 0,
+                                    )}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const clamped = Math.min(
+                                        700,
+                                        Math.max(-500, isNaN(val) ? 0 : val),
+                                      );
+                                      updateImage(selectedImage, {
+                                        x: clamped,
+                                      });
+                                    }}
+                                    className="mt-1 bg-card border-border text-xs"
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs text-muted-foreground">
+                                    Y Position (-500 to 300)
+                                  </Label>
+                                  <Input
+                                    type="number"
+                                    min="-500"
+                                    max="300"
+                                    step="1"
+                                    value={Math.round(
+                                      images.find(
+                                        (img) => img.id === selectedImage,
+                                      )?.y || 0,
+                                    )}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const clamped = Math.min(
+                                        300,
+                                        Math.max(-500, isNaN(val) ? 0 : val),
+                                      );
+                                      updateImage(selectedImage, {
+                                        y: clamped,
+                                      });
+                                    }}
+                                    className="mt-1 bg-card border-border text-xs"
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs text-muted-foreground">
+                                    Width
+                                  </Label>
+                                  <Input
+                                    type="number"
+                                    value={Math.round(
+                                      images.find(
+                                        (img) => img.id === selectedImage,
+                                      )?.width || 0,
+                                    )}
+                                    onChange={(e) =>
+                                      updateImage(selectedImage, {
+                                        width: Number(e.target.value) || 50,
+                                      })
+                                    }
+                                    className="mt-1 bg-card border-border text-xs"
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs text-muted-foreground">
+                                    Height
+                                  </Label>
+                                  <Input
+                                    type="number"
+                                    value={Math.round(
+                                      images.find(
+                                        (img) => img.id === selectedImage,
+                                      )?.height || 0,
+                                    )}
+                                    onChange={(e) =>
+                                      updateImage(selectedImage, {
+                                        height: Number(e.target.value) || 50,
+                                      })
+                                    }
+                                    className="mt-1 bg-card border-border text-xs"
+                                  />
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <Label className="text-xs text-muted-foreground">
+                                    Border Radius
+                                  </Label>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    max="50"
+                                    value={
+                                      images.find(
+                                        (img) => img.id === selectedImage,
+                                      )?.borderRadius || 0
+                                    }
+                                    onChange={(e) =>
+                                      updateImage(selectedImage, {
+                                        borderRadius: Math.max(
+                                          0,
+                                          Math.min(
+                                            50,
+                                            Number(e.target.value) || 0,
+                                          ),
+                                        ),
+                                      })
+                                    }
+                                    className="mt-1 bg-card border-border text-xs"
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs text-muted-foreground">
+                                    Border Width
+                                  </Label>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    max="10"
+                                    value={
+                                      images.find(
+                                        (img) => img.id === selectedImage,
+                                      )?.borderWidth || 0
+                                    }
+                                    onChange={(e) =>
+                                      updateImage(selectedImage, {
+                                        borderWidth: Math.max(
+                                          0,
+                                          Math.min(
+                                            10,
+                                            Number(e.target.value) || 0,
+                                          ),
+                                        ),
+                                      })
+                                    }
+                                    className="mt-1 bg-card border-border text-xs"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-muted-foreground mb-2 block">
+                                  Border Color
+                                </Label>
+                                <Input
+                                  type="color"
+                                  value={
+                                    images.find(
+                                      (img) => img.id === selectedImage,
+                                    )?.borderColor || "#000000"
+                                  }
+                                  onChange={(e) =>
+                                    updateImage(selectedImage, {
+                                      borderColor: e.target.value,
+                                    })
+                                  }
+                                  className="mt-1 bg-card border-border text-xs"
+                                />
+                              </div>
+
+                              <div>
+                                <Label className="text-xs text-muted-foreground">
+                                  Rotation
+                                </Label>
+                                <Input
+                                  type="number"
+                                  value={
+                                    images.find(
+                                      (img) => img.id === selectedImage,
+                                    )?.rotation || 0
+                                  }
+                                  onChange={(e) =>
+                                    updateImage(selectedImage, {
+                                      rotation: Number(e.target.value) || 0,
+                                    })
+                                  }
+                                  className="mt-1 bg-card border-border text-xs"
+                                  placeholder="0"
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
-                    </div>
-
-                    <Separator className="bg-border" />
+                      <Separator className="bg-border" />
                     </>
                   )}
+
                 {activeLogo && (
                   <div ref={logoControlsRef}>
                     <div>
@@ -2994,9 +3375,7 @@ const Editor = () => {
                 )}
 
                 {/* Content Position Controls */}
-                <div
-                  ref={contentPositionRef}
-                >
+                <div ref={contentPositionRef}>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                       <Type className="h-4 w-4" /> Content Position
@@ -3225,13 +3604,11 @@ const Editor = () => {
                               />
                             </div>
                           </div>
-                          
                         </div>
                       </>
                     );
                   })()}
-                                      <Separator className="bg-border" />
-
+                <Separator className="bg-border" />
 
                 {/* Tag Settings */}
                 {selectedTagId &&
@@ -3248,6 +3625,9 @@ const Editor = () => {
                             onClick={() => {
                               setTags([]);
                               setSelectedTagId(null);
+                              setTemplateTag("");
+                              setTemplateIsTag(false);
+                              setTemplateTagPosition(null);
                             }}
                             className="p-1 hover:bg-destructive/20 rounded transition-colors"
                           >
@@ -3256,36 +3636,55 @@ const Editor = () => {
                         </div>
                         <div className="bg-background rounded-lg p-3 border border-border space-y-3">
                           <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Border Radius</Label>
-                            <Input
-                              type="number"
-                              min={0}
-                              max={50}
-                              value={tag.borderRadius}
-                              onChange={(e) => updateTag(tag.id, { borderRadius: Math.max(0, Number(e.target.value) || 0) })}
-                              className="mt-1 bg-card border-border text-xs"
-                            />
+                            <div>
+                              <Label className="text-xs text-muted-foreground">
+                                Border Radius
+                              </Label>
+                              <Input
+                                type="number"
+                                min={0}
+                                max={50}
+                                value={tag.borderRadius}
+                                onChange={(e) =>
+                                  updateTag(tag.id, {
+                                    borderRadius: Math.max(
+                                      0,
+                                      Number(e.target.value) || 0,
+                                    ),
+                                  })
+                                }
+                                className="mt-1 bg-card border-border text-xs"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs text-muted-foreground">
+                                Border Size
+                              </Label>
+                              <Input
+                                type="number"
+                                min={0}
+                                max={10}
+                                value={tag.borderWidth}
+                                onChange={(e) =>
+                                  updateTag(tag.id, {
+                                    borderWidth: Math.max(
+                                      0,
+                                      Number(e.target.value) || 0,
+                                    ),
+                                  })
+                                }
+                                className="mt-1 bg-card border-border text-xs"
+                              />
+                            </div>
                           </div>
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Border Size</Label>
-                            <Input
-                              type="number"
-                              min={0}
-                              max={10}
-                              value={tag.borderWidth}
-                              onChange={(e) => updateTag(tag.id, { borderWidth: Math.max(0, Number(e.target.value) || 0) })}
-                              className="mt-1 bg-card border-border text-xs"
-                            />
-                          </div>
-                          </div>
-                          
+
                           <ColorRow
                             label="Border Color"
                             value={tag.borderColor}
-                            onChange={(color) => updateTag(tag.id, { borderColor: color })}
+                            onChange={(color) =>
+                              updateTag(tag.id, { borderColor: color })
+                            }
                           />
-                          
                         </div>
                       </div>
                     );
@@ -3350,117 +3749,128 @@ const Editor = () => {
               <div className="space-y-3">
                 {initialLoading
                   ? Array.from({ length: 4 }).map((_, i) => (
-                      <Skeleton key={i} className="w-full aspect-[1200/630] rounded-lg" />
+                      <Skeleton
+                        key={i}
+                        className="w-full aspect-[1200/630] rounded-lg"
+                      />
                     ))
                   : templates.map((template) => {
-                  return (
-                    <button
-                      key={template.id}
-                      onClick={() => {
-                        handleTemplateSelect(template);
-                        setRightTab("design");
-                      }}
-                      className={`group w-full aspect-[1200/630] rounded-lg overflow-hidden border border-border hover:border-primary transition-all duration-200 text-left relative ${template.preview.bg?.startsWith("from-") ? `bg-card bg-gradient-to-br ${template.preview.bg}` : "bg-card"}`}
-                      style={(() => {
-                        if ("pattern" in template && template.pattern !== undefined) {
-                          const p = patternMap[template.pattern as number];
-                          if (p) return {
-                            backgroundColor: p.backgroundColor,
-                            backgroundImage: p.backgroundImage,
-                            backgroundSize: p.backgroundSize || undefined,
-                          };
-                        }
-                        if (!template.gradient.startsWith("from-")) {
-                          const g = gradientMap.find(g => g.tailwind === template.gradient);
-                          if (g) return { background: g.css };
-                        }
-                        return undefined;
-                      })()}
-                    >
-                      <div className="absolute inset-0 transition-all duration-200 ">
-                      {template.hasImage && template.imagePosition && (
-                        <div
-                          className="absolute bg-white/10 rounded border border-white/10"
-                          style={{
-                            left: `${(template.imagePosition.x / 900) * 100}%`,
-                            top: `${(template.imagePosition.y / 630) * 100}%`,
-                            width: `${(template.imagePosition.width / 900) * 100}%`,
-                            height: `${(template.imagePosition.height / 630) * 100}%`,
-                            transform: template.imagePosition.rotation
-                              ? `rotate(${template.imagePosition.rotation}deg)`
-                              : undefined,
+                      return (
+                        <button
+                          key={template.id}
+                          onClick={() => {
+                            handleTemplateSelect(template);
+                            setRightTab("design");
                           }}
-                        />
-                      )}
-                      {template.contentPosition && template.hasImage ? (
-                        <>
-                          <div
-                            className="absolute leading-tight font-bold"
-                            style={{
-                              left: `${(template.contentPosition.x / 900) * 100}%`,
-                              top: `${(template.contentPosition.y / 630) * 100}%`,
-                              width: `${(template.contentPosition.width / 900) * 100}%`,
-                              textAlign:
-                                template.contentPosition.textAlign ?? "left",
-                              color: template.titleColor,
-                              fontSize: `${Math.min(template.titleSize / 5.6, 10)}px`,
-                              lineHeight: "1.1",
-                            }}
-                          >
-                            {template.title.length > 25
-                              ? template.title.slice(0, 25) + "…"
-                              : template.title}
+                          className={`group w-full aspect-[1200/630] rounded-lg overflow-hidden border border-border hover:border-primary transition-all duration-200 text-left relative ${template.preview.bg?.startsWith("from-") ? `bg-card bg-gradient-to-br ${template.preview.bg}` : "bg-card"}`}
+                          style={(() => {
+                            if (
+                              "pattern" in template &&
+                              template.pattern !== undefined
+                            ) {
+                              const p = patternMap[template.pattern as number];
+                              if (p)
+                                return {
+                                  backgroundColor: p.backgroundColor,
+                                  backgroundImage: p.backgroundImage,
+                                  backgroundSize: p.backgroundSize || undefined,
+                                };
+                            }
+                            if (!template.gradient.startsWith("from-")) {
+                              const g = gradientMap.find(
+                                (g) => g.tailwind === template.gradient,
+                              );
+                              if (g) return { background: g.css };
+                            }
+                            return undefined;
+                          })()}
+                        >
+                          <div className="absolute inset-0 transition-all duration-200 ">
+                            {template.hasImage && template.imagePosition && (
+                              <div
+                                className="absolute bg-white/10 rounded border border-white/10"
+                                style={{
+                                  left: `${(template.imagePosition.x / 900) * 100}%`,
+                                  top: `${(template.imagePosition.y / 630) * 100}%`,
+                                  width: `${(template.imagePosition.width / 900) * 100}%`,
+                                  height: `${(template.imagePosition.height / 630) * 100}%`,
+                                  transform: template.imagePosition.rotation
+                                    ? `rotate(${template.imagePosition.rotation}deg)`
+                                    : undefined,
+                                }}
+                              />
+                            )}
+                            {template.contentPosition && template.hasImage ? (
+                              <>
+                                <div
+                                  className="absolute leading-tight font-bold"
+                                  style={{
+                                    left: `${(template.contentPosition.x / 900) * 100}%`,
+                                    top: `${(template.contentPosition.y / 630) * 100}%`,
+                                    width: `${(template.contentPosition.width / 900) * 100}%`,
+                                    textAlign:
+                                      template.contentPosition.textAlign ??
+                                      "left",
+                                    color: template.titleColor,
+                                    fontSize: `${Math.min(template.titleSize / 5.6, 10)}px`,
+                                    lineHeight: "1.1",
+                                  }}
+                                >
+                                  {template.title.length > 25
+                                    ? template.title.slice(0, 25) + "…"
+                                    : template.title}
+                                </div>
+                                <div
+                                  className="absolute leading-tight opacity-80"
+                                  style={{
+                                    left: `${(template.contentPosition.x / 900) * 100}%`,
+                                    top: `${((template.contentPosition.y + 40) / 630) * 100}%`,
+                                    width: `${(template.contentPosition.width / 900) * 100}%`,
+                                    textAlign:
+                                      template.contentPosition.textAlign ??
+                                      "left",
+                                    color: template.subtitleColor,
+                                    fontSize: `${Math.min(template.titleSize / 7.5, 6)}px`,
+                                    lineHeight: "1.1",
+                                  }}
+                                >
+                                  {template.subtitle.length > 30
+                                    ? template.subtitle.slice(0, 30) + "…"
+                                    : template.subtitle}
+                                </div>
+                              </>
+                            ) : (
+                              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 px-3 text-center">
+                                <div
+                                  className="leading-tight font-bold w-full"
+                                  style={{
+                                    color: template.titleColor,
+                                    fontSize: `${Math.min(template.titleSize / 5.6, 10)}px`,
+                                    lineHeight: "1.1",
+                                  }}
+                                >
+                                  {template.title.length > 25
+                                    ? template.title.slice(0, 25) + "…"
+                                    : template.title}
+                                </div>
+                                <div
+                                  className="leading-tight opacity-80 w-full"
+                                  style={{
+                                    color: template.subtitleColor,
+                                    fontSize: `${Math.min(template.titleSize / 7.5, 6)}px`,
+                                    lineHeight: "1.1",
+                                  }}
+                                >
+                                  {template.subtitle.length > 30
+                                    ? template.subtitle.slice(0, 30) + "…"
+                                    : template.subtitle}
+                                </div>
+                              </div>
+                            )}
                           </div>
-                          <div
-                            className="absolute leading-tight opacity-80"
-                            style={{
-                              left: `${(template.contentPosition.x / 900) * 100}%`,
-                              top: `${((template.contentPosition.y + 40) / 630) * 100}%`,
-                              width: `${(template.contentPosition.width / 900) * 100}%`,
-                              textAlign:
-                                template.contentPosition.textAlign ?? "left",
-                              color: template.subtitleColor,
-                              fontSize: `${Math.min(template.titleSize / 7.5, 6)}px`,
-                              lineHeight: "1.1",
-                            }}
-                          >
-                            {template.subtitle.length > 30
-                              ? template.subtitle.slice(0, 30) + "…"
-                              : template.subtitle}
-                          </div>
-                        </>
-                      ) : (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 px-3 text-center">
-                          <div
-                            className="leading-tight font-bold w-full"
-                            style={{
-                              color: template.titleColor,
-                              fontSize: `${Math.min(template.titleSize / 5.6, 10)}px`,
-                              lineHeight: "1.1",
-                            }}
-                          >
-                            {template.title.length > 25
-                              ? template.title.slice(0, 25) + "…"
-                              : template.title}
-                          </div>
-                          <div
-                            className="leading-tight opacity-80 w-full"
-                            style={{
-                              color: template.subtitleColor,
-                              fontSize: `${Math.min(template.titleSize / 7.5, 6)}px`,
-                              lineHeight: "1.1",
-                            }}
-                          >
-                            {template.subtitle.length > 30
-                              ? template.subtitle.slice(0, 30) + "…"
-                              : template.subtitle}
-                          </div>
-                        </div>
-                      )}
-                      </div>
-                    </button>
-                  );
-                })}
+                        </button>
+                      );
+                    })}
               </div>
             )}
 
@@ -3475,21 +3885,30 @@ const Editor = () => {
       </div>
 
       {/* Delete Layer Confirmation Dialog */}
-      <Dialog open={!!layerDeleteConfirm} onOpenChange={() => setLayerDeleteConfirm(null)}>
+      <Dialog
+        open={!!layerDeleteConfirm}
+        onOpenChange={() => setLayerDeleteConfirm(null)}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Delete Layer</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the "{layerDeleteConfirm}" layer? This action cannot be undone.
+              Are you sure you want to delete the "{layerDeleteConfirm}" layer?
+              This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setLayerDeleteConfirm(null)}>
+            <Button
+              variant="outline"
+              onClick={() => setLayerDeleteConfirm(null)}
+            >
               Cancel
             </Button>
             <Button
               variant="destructive"
-              onClick={() => layerDeleteConfirm && handleLayerDelete(layerDeleteConfirm)}
+              onClick={() =>
+                layerDeleteConfirm && handleLayerDelete(layerDeleteConfirm)
+              }
             >
               Delete
             </Button>
@@ -3502,9 +3921,7 @@ const Editor = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Export Image</DialogTitle>
-            <DialogDescription>
-              Choose your preferred format.
-            </DialogDescription>
+            <DialogDescription>Choose your preferred format.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
