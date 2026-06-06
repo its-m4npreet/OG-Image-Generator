@@ -49,7 +49,7 @@ const index = () => {
         </div>
 
         <Testimonials />
-        <Pricing />
+        {/* <Pricing /> */}
 
         {/* CTA Banner */}
         <section className="py-[120px] px-6 relative">
@@ -74,7 +74,7 @@ const index = () => {
               className="text-[clamp(40px,6.5vw,68px)] font-extrabold leading-[1.06] tracking-tight text-[#f4f4fc] mb-6"
               style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
             >
-             Make every shared link  <br />look &nbsp;
+              Make every shared link  <br />look &nbsp;
               <em
                 className="text-primary not-italic"
                 style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
@@ -84,7 +84,7 @@ const index = () => {
             </h2>
 
             <p className="text-[15px] text-muted-foreground/40 mb-11 tracking-wide">
-            Generate custom OG images for blogs, products, portfolios, and launches in seconds.
+              Generate custom OG images for blogs, products, portfolios, and launches in seconds.
             </p>
 
             <div className="flex gap-3.5 justify-center items-center">
