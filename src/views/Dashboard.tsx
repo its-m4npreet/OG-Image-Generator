@@ -114,45 +114,56 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
           )}
 
         {"istag" in template && template.istag && template.tag && "tagPosition" in template && template.tagPosition && (() => {
+          const tagX = template.tagPosition.x * (550 / 900) - 10;
           const tagY = template.tagPosition.y * (350 / 630);
-          const contentY = template.contentPosition?.y ? template.contentPosition.y * (350 / 630) : 0;
+          const scaleY = 350 / 630;
+          const cp = template.contentPosition;
+          const titleSize = template.hasImage ? 32 : 24;
+          const subtitleSize = template.hasImage ? 15 : 14;
+          const contentTop = !template.hasImage && cp?.textAlign === "center"
+            ? (350 - titleSize * 1.5 - (template.subtitle ? subtitleSize * 1.5 : 0)) / 2
+            : cp ? cp.y * scaleY : 0;
           const tagHeight = 20;
-          const adjustedY = contentY && (tagY + tagHeight > contentY) ? contentY - tagHeight - 4 : tagY;
+          const adjustedY = contentTop && (tagY + tagHeight > contentTop) ? contentTop - tagHeight - 2 : tagY;
           return (
-          <div
-            style={{
-              position: "absolute",
-              left: template.tagPosition.x * (550 / 900),
-              top: adjustedY,
-              border: `${template.tagPosition.borderWidth || 1}px solid ${template.tagPosition.borderColor || "#3b82f6"}`,
-              borderRadius: template.tagPosition.borderRadius || 10,
-              padding: "4px 10px",
-              fontSize: "11px",
-              fontWeight: 600,
-              color: template.tagPosition.borderColor || "#3b82f6",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {template.tag}
-          </div>
+            <div
+              style={{
+                position: "absolute",
+                left: tagX,
+                top: adjustedY,
+                border: `${template.tagPosition.borderWidth || 1}px solid ${template.tagPosition.borderColor || "#3b82f6"}`,
+                borderRadius: template.tagPosition.borderRadius || 10,
+                padding: "4px 10px",
+                fontSize: "11px",
+                fontWeight: 600,
+                color: template.tagPosition.borderColor || "#3b82f6",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {template.tag}
+            </div>
           );
         })()}
 
-        {"hasLogo" in template && template.hasLogo && "logoPositions" in template && template.logoPositions && template.logoPositions.map((logoPos, i) => (
-          <div
-            key={i}
-            style={{
-              position: "absolute",
-              left: logoPos.x * (550 / 900),
-              top: logoPos.y * (350 / 630),
-              width: logoPos.width * (550 / 900),
-              height: logoPos.height * (350 / 630),
-              borderRadius: logoPos.borderRadius ? `${logoPos.borderRadius}%` : 0,
-              background: "rgba(255,255,255,0.15)",
-              border: "1px solid rgba(255,255,255,0.2)",
-            }}
-          />
-        ))}
+        {"hasLogo" in template && template.hasLogo && "logoPositions" in template && template.logoPositions && (() => {
+          const contentCentered = !template.hasImage && template.contentPosition?.textAlign === "center";
+          const logoYOffset = contentCentered ? 40 : 0;
+          return template.logoPositions.map((logoPos, i) => (
+            <div
+              key={i}
+              style={{
+                position: "absolute",
+                left: logoPos.x * (550 / 900),
+                top: logoPos.y * (350 / 630) + logoYOffset,
+                width: logoPos.width * (550 / 900),
+                height: logoPos.height * (350 / 630),
+                borderRadius: logoPos.borderRadius ? `${logoPos.borderRadius}%` : 0,
+                background: "rgba(255,255,255,0.15)",
+                border: "1px solid rgba(255,255,255,0.2)",
+              }}
+            />
+          ));
+        })()}
 
         {template.contentPosition &&
           (() => {
@@ -165,7 +176,9 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
             const titleSize = template.hasImage ? 32 : 24;
             const subtitleSize = template.hasImage ? 15 : 14;
 
-            const top = cp.y * scaleY;
+            const top = !template.hasImage && cp.textAlign === "center"
+              ? (350 - titleSize * 1.5 - (template.subtitle ? subtitleSize * 1.5 : 0)) / 2
+              : cp.y * scaleY;
 
             return (
               <div
@@ -302,7 +315,7 @@ const Dashboard = () => {
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary/5 rounded-full blur-3xl" />
       </div>
-      
+
       {/* Top bar */}
       <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container flex items-center justify-between h-16 px-4">
@@ -457,25 +470,25 @@ const Dashboard = () => {
 
           {/* Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-          {filtered.map((template, i) => (
-            <motion.div
-              key={template.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="h-full"
-            >
-              <Link
-                to={`/editor?template=${template.id}&title=${encodeURIComponent(template.title)}&subtitle=${encodeURIComponent(template.subtitle)}&gradient=${encodeURIComponent(template.gradient)}&titleColor=${encodeURIComponent(template.titleColor)}&subtitleColor=${encodeURIComponent(template.subtitleColor)}&authorColor=${encodeURIComponent("authorColor" in template && template.authorColor ? template.authorColor : template.subtitleColor)}&titleSize=${template.titleSize}&logo=${template.hasLogo && template.logoUrl ? template.logoUrl : ""}&image=${template.hasImage && template.imageUrl ? template.imageUrl : ""}${template.imagePosition ? `&imagePosition=${encodeURIComponent(JSON.stringify(template.imagePosition))}` : ""}${template.logoPosition ? `&logoPosition=${encodeURIComponent(JSON.stringify(template.logoPosition))}` : ""}${"logoPositions" in template && template.logoPositions ? `&logoPositions=${encodeURIComponent(JSON.stringify(template.logoPositions))}` : ""}${template.contentPosition ? `&contentPosition=${encodeURIComponent(JSON.stringify(template.contentPosition))}` : ""}&hasAuthor=${template.hasAuthor}${"pattern" in template && template.pattern !== undefined ? `&backgroundType=pattern&pattern=${template.pattern}` : ""}${"logoUrls" in template && template.logoUrls ? `&logoUrls=${encodeURIComponent(JSON.stringify(template.logoUrls))}` : ""}${"istag" in template && template.istag && template.tag ? `&istag=true&tag=${encodeURIComponent(template.tag)}` : ""}${"tagPosition" in template && template.tagPosition ? `&tagPosition=${encodeURIComponent(JSON.stringify(template.tagPosition))}` : ""}`}
-                className="block group h-full rounded-sm border border-border bg-card overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-200"
+            {filtered.map((template, i) => (
+              <motion.div
+                key={template.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className="h-full"
               >
-                <TemplatePreview template={template} />
-              </Link>
-            </motion.div>
-          ))}
+                <Link
+                  to={`/editor?template=${template.id}&title=${encodeURIComponent(template.title)}&subtitle=${encodeURIComponent(template.subtitle)}&gradient=${encodeURIComponent(template.gradient)}&titleColor=${encodeURIComponent(template.titleColor)}&subtitleColor=${encodeURIComponent(template.subtitleColor)}&authorColor=${encodeURIComponent("authorColor" in template && template.authorColor ? template.authorColor : template.subtitleColor)}&titleSize=${template.titleSize}&logo=${template.hasLogo && template.logoUrl ? template.logoUrl : ""}&image=${template.hasImage && template.imageUrl ? template.imageUrl : ""}${template.imagePosition ? `&imagePosition=${encodeURIComponent(JSON.stringify(template.imagePosition))}` : ""}${"logoPosition" in template && template.logoPosition ? `&logoPosition=${encodeURIComponent(JSON.stringify(template.logoPosition))}` : ""}${"logoPositions" in template && template.logoPositions ? `&logoPositions=${encodeURIComponent(JSON.stringify(template.logoPositions))}` : ""}${template.contentPosition ? `&contentPosition=${encodeURIComponent(JSON.stringify(template.contentPosition))}` : ""}&hasAuthor=${template.hasAuthor}${"pattern" in template && template.pattern !== undefined ? `&backgroundType=pattern&pattern=${template.pattern}` : ""}${"logoUrls" in template && template.logoUrls ? `&logoUrls=${encodeURIComponent(JSON.stringify(template.logoUrls))}` : ""}${"istag" in template && template.istag && template.tag ? `&istag=true&tag=${encodeURIComponent(template.tag)}` : ""}${"tagPosition" in template && template.tagPosition ? `&tagPosition=${encodeURIComponent(JSON.stringify(template.tagPosition))}` : ""}`}
+                  className="block group h-full rounded-sm border border-border bg-card overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-200"
+                >
+                  <TemplatePreview template={template} />
+                </Link>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };

@@ -52,6 +52,153 @@ export const templates = [
     },
   },
   {
+    id: 11,
+    name: "Editorial Left Hero",
+    category: "Blog",
+    tag: "",
+    istag: false,
+    gradient: "radial-teal-glow",
+    title: "Design Systems That Scale",
+    subtitle: "Building modern interfaces with consistency",
+    titleColor: "#1C1C1C",
+    subtitleColor: "#171717",
+    authorColor: "#121416",
+    titleSize: 50,
+    hasImage: true,
+    hasLogo: true,
+    hasAuthor: true,
+    ismultiple: false,
+    imageUrl: "/ogImage.png",
+    logoUrl: "",
+    // LEFT FOCUS
+    imagePosition: {
+      x: -120,
+      y: 90,
+      width: 600,
+      height: 430,
+      rotation: 8,
+
+      shadowBlur: 80,
+      shadowSpread: 20,
+      shadowColor: "#000000",
+      shadowOpacity: 0.35,
+    },
+
+    logoPosition: {
+      x: 520,
+      y: 100,
+      width: 60,
+      height: 60,
+    },
+
+    contentPosition: {
+      x: 520,
+      y: 220,
+      width: 350,
+      textAlign: "left",
+    },
+
+    preview: {
+      bg: "radial-teal-glow",
+      text: "white",
+    },
+  },
+  {
+    id: 13,
+    name: "Cinematic Launch",
+    category: "Product Launch",
+    tag: "",
+    istag: false,
+    gradient: "from-[#030712] via-[#111827] to-[#374151]",
+    pattern: 4,
+    title: "The Future Starts Today",
+    subtitle: "Reimagining the way teams build products",
+    titleColor: "#1F2937",
+    subtitleColor: "#4B5563",
+    titleSize: 54,
+    hasImage: true,
+    hasLogo: true,
+    hasAuthor: false,
+    ismultiple: false,
+    imageUrl: "/ogImage.png",
+    logoUrl: "",
+
+    // MASSIVE LEFT BLEED
+    imagePosition: {
+      x: -180,
+      y: 40,
+      width: 720,
+      height: 520,
+      rotation: 10,
+
+      shadowBlur: 130,
+      shadowSpread: 30,
+      shadowColor: "#000000",
+      shadowOpacity: 0.45,
+    },
+
+    logoPosition: {
+      x: 560,
+      y: 80,
+      width: 65,
+      height: 65,
+    },
+
+    contentPosition: {
+      x: 560,
+      y: 230,
+      width: 310,
+      textAlign: "left",
+    },
+
+    preview: {
+      bg: "cross-top-fade",
+      text: "dark",
+    },
+  },
+  // MIXED SOCIAL MEDIA TEMPLATES
+  // includes both image + non-image layouts
+
+  {
+    id: 14,
+    name: "Minimal Quote Post",
+    category: "Social Media",
+    tag: "",
+    istag: false,
+
+    gradient: "from-[#020617] via-[#111827] to-[#334155]",
+    pattern: 11,
+
+    title: "Consistency beats motivation.",
+    subtitle: "Small improvements compound faster than hype.",
+    titleColor: "#FFFFFF",
+    subtitleColor: "#CBD5E1",
+    authorColor: "#94A3B8",
+    titleSize: 52,
+
+    hasImage: false,
+    hasLogo: false,
+    hasAuthor: true,
+    ismultiple: false,
+
+    imageUrl: "",
+    logoUrl: "",
+
+    imagePosition: undefined,
+    logoPosition: undefined,
+    contentPosition: {
+      x: 200,
+      y: 200,
+      width: 1060,
+      textAlign: "center",
+    },
+
+    preview: {
+      bg: "variable-spacing",
+      text: "white",
+    },
+  },
+  {
     id: 1,
     name: "Dark Tech Article",
     category: "Blog",
@@ -383,155 +530,6 @@ export const templates = [
     },
   },
   // NEW PREMIUM TEMPLATES
-
-  {
-    id: 11,
-    name: "Editorial Left Hero",
-    category: "Blog",
-    tag: "",
-    istag: false,
-    gradient: "radial-teal-glow",
-    title: "Design Systems That Scale",
-    subtitle: "Building modern interfaces with consistency",
-    titleColor: "#1C1C1C",
-    subtitleColor: "#171717",
-    authorColor: "#121416",
-    titleSize: 50,
-    hasImage: true,
-    hasLogo: true,
-    hasAuthor: true,
-    ismultiple: false,
-    imageUrl: "/ogImage.png",
-    logoUrl: "",
-    // LEFT FOCUS
-    imagePosition: {
-      x: -120,
-      y: 90,
-      width: 600,
-      height: 430,
-      rotation: 8,
-
-      shadowBlur: 80,
-      shadowSpread: 20,
-      shadowColor: "#000000",
-      shadowOpacity: 0.35,
-    },
-
-    logoPosition: {
-      x: 520,
-      y: 100,
-      width: 60,
-      height: 60,
-    },
-
-    contentPosition: {
-      x: 520,
-      y: 220,
-      width: 350,
-      textAlign: "left",
-    },
-
-    preview: {
-      bg: "radial-teal-glow",
-      text: "white",
-    },
-  },
-  {
-    id: 13,
-    name: "Cinematic Launch",
-    category: "Product Launch",
-    tag: "",
-    istag: false,
-    gradient: "from-[#030712] via-[#111827] to-[#374151]",
-    pattern: 4,
-    title: "The Future Starts Today",
-    subtitle: "Reimagining the way teams build products",
-    titleColor: "#1F2937",
-    subtitleColor: "#4B5563",
-    titleSize: 54,
-    hasImage: true,
-    hasLogo: true,
-    hasAuthor: false,
-    ismultiple: false,
-    imageUrl: "/ogImage.png",
-    logoUrl: "",
-
-    // MASSIVE LEFT BLEED
-    imagePosition: {
-      x: -180,
-      y: 40,
-      width: 720,
-      height: 520,
-      rotation: 10,
-
-      shadowBlur: 130,
-      shadowSpread: 30,
-      shadowColor: "#000000",
-      shadowOpacity: 0.45,
-    },
-
-    logoPosition: {
-      x: 560,
-      y: 80,
-      width: 65,
-      height: 65,
-    },
-
-    contentPosition: {
-      x: 560,
-      y: 230,
-      width: 310,
-      textAlign: "left",
-    },
-
-    preview: {
-      bg: "cross-top-fade",
-      text: "dark",
-    },
-  },
-  // MIXED SOCIAL MEDIA TEMPLATES
-  // includes both image + non-image layouts
-
-  {
-    id: 14,
-    name: "Minimal Quote Post",
-    category: "Social Media",
-    tag: "",
-    istag: false,
-
-    gradient: "from-[#020617] via-[#111827] to-[#334155]",
-    pattern: 11,
-
-    title: "Consistency beats motivation.",
-    subtitle: "Small improvements compound faster than hype.",
-    titleColor: "#FFFFFF",
-    subtitleColor: "#CBD5E1",
-    authorColor: "#94A3B8",
-    titleSize: 52,
-
-    hasImage: false,
-    hasLogo: false,
-    hasAuthor: true,
-    ismultiple: false,
-
-    imageUrl: "",
-    logoUrl: "",
-
-    imagePosition: undefined,
-    logoPosition: undefined,
-    contentPosition: {
-      x: 200,
-      y: 200,
-      width: 1060,
-      textAlign: "center",
-    },
-
-    preview: {
-      bg: "variable-spacing",
-      text: "white",
-    },
-  },
-
   {
     id: 15,
     name: "Blurred Gradient",
@@ -542,7 +540,7 @@ export const templates = [
     gradient: "radial-azure-depths",
 
     title: "Create Beautiful OG Images Here",
-    subtitle:"",
+    subtitle: "",
     titleColor: "#FFFFFF",
     subtitleColor: "#FFFFFF",
     authorColor: "#FFFFFF",
@@ -554,7 +552,7 @@ export const templates = [
     ismultiple: true,
 
     logoUrl: "",
-    logoUrls: ["/ogImage.png", "/ogImage.png","/ogImage.png"],
+    logoUrls: ["/ogImage.png", "/ogImage.png", "/ogImage.png"],
 
     imagePosition: undefined,
 
