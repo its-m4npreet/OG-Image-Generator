@@ -37,9 +37,11 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
+    { href: "/dashboard", label: "Home" },
     { href: "#features", label: "Features" },
     { href: "#testimonials", label: "Testimonials" },
-    { href: "#pricing", label: "Pricing" },
+    // { href: "#pricing", label: "Pricing" },
+    { href: "/blog", label: "Blog" },
   ];
 
   return (
@@ -47,11 +49,10 @@ const Navbar = () => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`fixed top-0 left-0 right-0 z-50 h-16 transition-all duration-300 ${
-        scrolled
+      className={`fixed top-0 left-0 right-0 z-50 h-16 transition-all duration-300 ${scrolled
           ? "bg-background/85 backdrop-blur-xl border-b border-border/50"
           : "bg-transparent border-b border-transparent"
-      }`}
+        }`}
     >
       <div className="container flex items-center justify-between h-full px-4 mx-auto">
         <Link
@@ -93,14 +94,14 @@ const Navbar = () => {
           transition={{ delay: 0.2, duration: 0.4 }}
         >
           {status === "authenticated" ? (
-              <motion.div variants={buttonVariants}>
-                <Button variant="hero" size="sm" className="btn-shimmer" asChild>
-                  <Link to="/dashboard">
-                    <LayoutDashboard className="h-4 w-4 mr-2" />
-                    Dashboard
-                  </Link>
-                </Button>
-              </motion.div>
+            <motion.div variants={buttonVariants}>
+              <Button variant="hero" size="sm" className="btn-shimmer" asChild>
+                <Link to="/dashboard">
+                  <LayoutDashboard className="h-4 w-4 mr-2" />
+                  Dashboard
+                </Link>
+              </Button>
+            </motion.div>
           ) : (
             <>
               <motion.div variants={buttonVariants}>

@@ -171,14 +171,18 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
             const scaleX = 550 / 900;
             const scaleY = 350 / 630;
             const isCenter =
-              !template.hasImage || cp.textAlign === "center";
+              template.id === 5 || !template.hasImage || cp.textAlign === "center";
             const left = isCenter ? (550 - cp.width * scaleX) / 2 : cp.x * scaleX;
             const titleSize = template.hasImage ? 32 : 24;
             const subtitleSize = template.hasImage ? 15 : 14;
 
-            const top = !template.hasImage && cp.textAlign === "center"
-              ? (350 - titleSize * 1.5 - (template.subtitle ? subtitleSize * 1.5 : 0)) / 2
-              : cp.y * scaleY;
+            const top = template.id === 5
+              ? cp.y * scaleY + 20
+              : template.id === 6
+                ? cp.y * scaleY + 15
+                : !template.hasImage && cp.textAlign === "center"
+                ? (350 - titleSize * 1.5 - (template.subtitle ? subtitleSize * 1.5 : 0)) / 2
+                : cp.y * scaleY;
 
             return (
               <div
@@ -187,7 +191,7 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
                   left,
                   top,
                   width: cp.width * scaleX,
-                  textAlign: cp.textAlign as any,
+                  textAlign: template.id === 5 ? "center" : cp.textAlign as any,
                 }}
               >
                 <div

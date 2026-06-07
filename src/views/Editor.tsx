@@ -182,12 +182,12 @@ const Editor = () => {
     const param = searchParams.get("logoUrls");
     return param
       ? (() => {
-          try {
-            return JSON.parse(param);
-          } catch {
-            return [];
-          }
-        })()
+        try {
+          return JSON.parse(param);
+        } catch {
+          return [];
+        }
+      })()
       : [];
   }, [searchParams]);
   const templateContentPosition = searchParams.get("contentPosition");
@@ -891,12 +891,12 @@ const Editor = () => {
     }
 
     // AFTER
-if (searchParams.get("istag") === "true") {
-  const tagText = searchParams.get("tag");
-  if (tagText) {
-    const tp = searchParams.get("tagPosition");
-     let pos: { x: number; y: number; borderWidth: number; borderColor: string; borderRadius: number } = { x: 45, y: 26, borderWidth: 1, borderColor: "#3b82f6", borderRadius: 10 };
-    if (tp) { try { pos = JSON.parse(tp); } catch { /* ignore */ } }
+    if (searchParams.get("istag") === "true") {
+      const tagText = searchParams.get("tag");
+      if (tagText) {
+        const tp = searchParams.get("tagPosition");
+        let pos: { x: number; y: number; borderWidth: number; borderColor: string; borderRadius: number } = { x: 45, y: 26, borderWidth: 1, borderColor: "#3b82f6", borderRadius: 10 };
+        if (tp) { try { pos = JSON.parse(tp); } catch { /* ignore */ } }
         setTags([
           {
             id: `tag-${Date.now()}-${Math.random()}`,
@@ -1133,23 +1133,29 @@ if (searchParams.get("istag") === "true") {
     reader.onload = (event) => {
       const src = event.target?.result as string;
 
+      const existing = !isMultipleLogo ? images[0] : null;
+      if (existing) {
+        setImages((prev) =>
+          prev.map((img) => (img.id === existing.id ? { ...img, src } : img)),
+        );
+        setSelectedImage(existing.id);
+        setImageControlsOpen(true);
+        return;
+      }
+
       // Smart default positioning for uploaded images
       // Place at centered position with default size
       const newImage: CanvasImage = {
         id: `img-${Date.now()}-${Math.random()}`,
         src,
-        x: 175, // Centered horizontally on canvas (900px width)
-        y: 140, // Centered vertically on canvas (630px height)
-        width: 550, // Default width
-        height: 350, // Default height
+        x: 175,
+        y: 140,
+        width: 550,
+        height: 350,
         borderRadius: 0,
         borderWidth: 0,
         borderColor: "#000000",
         rotation: 0,
-        shadowBlur: 10,
-        shadowSpread: 2,
-        shadowColor: "#7c3aed",
-        shadowOpacity: 30,
       };
       if (isMultipleLogo) {
         setImages((prev) => [...prev, newImage]);
@@ -1651,9 +1657,8 @@ if (searchParams.get("istag") === "true") {
       <div className="flex flex-1 overflow-hidden h-full">
         {/* Left Panel */}
         <div
-          className={`${
-            leftOpen ? "fixed inset-y-0 left-0 z-50 w-72 shadow-2xl" : "hidden"
-          } lg:relative lg:z-auto lg:block lg:w-72 border-r border-border bg-card shrink-0 h-full overflow-hidden`}
+          className={`${leftOpen ? "fixed inset-y-0 left-0 z-50 w-72 shadow-2xl" : "hidden"
+            } lg:relative lg:z-auto lg:block lg:w-72 border-r border-border bg-card shrink-0 h-full overflow-hidden`}
         >
           <div
             className="p-3 space-y-4 w-72 overflow-y-auto no-scrollbar h-full"
@@ -1689,11 +1694,10 @@ if (searchParams.get("istag") === "true") {
                   </Label>
                   <button
                     onClick={() => setShowSubtitle(!showSubtitle)}
-                    className={`p-1 rounded transition-all ${
-                      showSubtitle
+                    className={`p-1 rounded transition-all ${showSubtitle
                         ? "bg-primary/20 text-primary hover:bg-primary/30"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"
-                    }`}
+                      }`}
                     title={showSubtitle ? "Hide subtitle" : "Show subtitle"}
                   >
                     {showSubtitle ? <Eye size={16} /> : <EyeOff size={16} />}
@@ -1712,11 +1716,10 @@ if (searchParams.get("istag") === "true") {
                   </Label>
                   <button
                     onClick={() => setShowAuthor(!showAuthor)}
-                    className={`p-1 rounded transition-all ${
-                      showAuthor
+                    className={`p-1 rounded transition-all ${showAuthor
                         ? "bg-primary/20 text-primary hover:bg-primary/30"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"
-                    }`}
+                      }`}
                     title={showAuthor ? "Hide author" : "Show author"}
                   >
                     {showAuthor ? <Eye size={16} /> : <EyeOff size={16} />}
@@ -1736,11 +1739,10 @@ if (searchParams.get("istag") === "true") {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => setShowAvatar(!showAvatar)}
-                      className={`p-1 rounded transition-all ${
-                        showAvatar
+                      className={`p-1 rounded transition-all ${showAvatar
                           ? "bg-primary/20 text-primary hover:bg-primary/30"
                           : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      }`}
+                        }`}
                       title={showAvatar ? "Hide avatar" : "Show avatar"}
                     >
                       {showAvatar ? <Eye size={16} /> : <EyeOff size={16} />}
@@ -2079,43 +2081,43 @@ if (searchParams.get("istag") === "true") {
                   fontFamily: fontOptions[selectedFont],
                   ...(backgroundType === "gradient"
                     ? (() => {
-                        const gradCSS = useCustomGradient
-                          ? `linear-gradient(to bottom right, ${customGradientFrom}, ${customGradientTo})`
-                          : gradientCSSMap[selectedGradient];
-                        return {
-                          backgroundColor: gradientUsesAlpha(gradCSS)
-                            ? APP_BG_DARK
-                            : "transparent",
-                          backgroundImage:
-                            noiseLevel > 0 && noiseImageUrl
-                              ? `${gradCSS}, url(${noiseImageUrl})`
-                              : gradCSS,
-                          backgroundSize:
-                            noiseLevel > 0 && noiseImageUrl
-                              ? "100% 100%, 200px 200px"
-                              : "100% 100%",
-                        };
-                      })()
+                      const gradCSS = useCustomGradient
+                        ? `linear-gradient(to bottom right, ${customGradientFrom}, ${customGradientTo})`
+                        : gradientCSSMap[selectedGradient];
+                      return {
+                        backgroundColor: gradientUsesAlpha(gradCSS)
+                          ? APP_BG_DARK
+                          : "transparent",
+                        backgroundImage:
+                          noiseLevel > 0 && noiseImageUrl
+                            ? `${gradCSS}, url(${noiseImageUrl})`
+                            : gradCSS,
+                        backgroundSize:
+                          noiseLevel > 0 && noiseImageUrl
+                            ? "100% 100%, 200px 200px"
+                            : "100% 100%",
+                      };
+                    })()
                     : backgroundType === "solid"
                       ? {
-                          backgroundColor: selectedSolidColor
-                            ? colorHexMap[selectedSolidColor] || "#ffffff"
-                            : "#ffffff",
-                          backgroundImage: noiseImageUrl
-                            ? `url(${noiseImageUrl})`
-                            : "none",
-                          backgroundSize: noiseImageUrl ? "200px 200px" : "0 0",
-                        }
+                        backgroundColor: selectedSolidColor
+                          ? colorHexMap[selectedSolidColor] || "#ffffff"
+                          : "#ffffff",
+                        backgroundImage: noiseImageUrl
+                          ? `url(${noiseImageUrl})`
+                          : "none",
+                        backgroundSize: noiseImageUrl ? "200px 200px" : "0 0",
+                      }
                       : {
-                          backgroundColor:
-                            selectedPattern !== null &&
+                        backgroundColor:
+                          selectedPattern !== null &&
                             patternMap[selectedPattern]
-                              ? patternMap[selectedPattern].backgroundColor ||
-                                "#ffffff"
-                              : "#ffffff",
-                          backgroundImage: "none",
-                          backgroundSize: "100% 100%",
-                        }),
+                            ? patternMap[selectedPattern].backgroundColor ||
+                            "#ffffff"
+                            : "#ffffff",
+                        backgroundImage: "none",
+                        backgroundSize: "100% 100%",
+                      }),
                   backgroundRepeat: "repeat",
                   backgroundBlendMode: "normal",
                   filter: blurred ? "blur(1.5px)" : "none",
@@ -2135,24 +2137,24 @@ if (searchParams.get("istag") === "true") {
                         backgroundRepeat: "repeat",
                         ...(patternMap[selectedPattern].WebkitMaskImage
                           ? {
-                              WebkitMaskImage:
-                                patternMap[selectedPattern].WebkitMaskImage,
-                            }
+                            WebkitMaskImage:
+                              patternMap[selectedPattern].WebkitMaskImage,
+                          }
                           : {}),
                         ...(patternMap[selectedPattern].maskImage
                           ? { maskImage: patternMap[selectedPattern].maskImage }
                           : {}),
                         ...(patternMap[selectedPattern].WebkitMaskComposite
                           ? {
-                              WebkitMaskComposite: patternMap[selectedPattern]
-                                .WebkitMaskComposite as React.CSSProperties["WebkitMaskComposite"],
-                            }
+                            WebkitMaskComposite: patternMap[selectedPattern]
+                              .WebkitMaskComposite as React.CSSProperties["WebkitMaskComposite"],
+                          }
                           : {}),
                         ...(patternMap[selectedPattern].maskComposite
                           ? {
-                              maskComposite: patternMap[selectedPattern]
-                                .maskComposite as React.CSSProperties["maskComposite"],
-                            }
+                            maskComposite: patternMap[selectedPattern]
+                              .maskComposite as React.CSSProperties["maskComposite"],
+                          }
                           : {}),
                       }}
                     />
@@ -2236,9 +2238,9 @@ if (searchParams.get("istag") === "true") {
                         boxShadow:
                           ((img.shadowBlur || 0) > 0 ||
                             (img.shadowSpread || 0) > 0) &&
-                          (img.shadowOpacity || 0) > 0
+                            (img.shadowOpacity || 0) > 0
                             ? `0 0 ${img.shadowBlur || 0}px ${img.shadowSpread || 0}px ${hexToRgba(img.shadowColor || "#000000", img.shadowOpacity || 0)}`
-                            : "0 0 10px 2px rgba(124,58,237,0.3)",
+                            : "none",
                       }}
                     />
                   </div>
@@ -2254,8 +2256,8 @@ if (searchParams.get("istag") === "true") {
                       top: `${(logo.y / 630) * 100}%`,
                       width: `${(logo.width / 900) * 100}%`,
                       // height: `${(logo.height / 630) * 100}%`,
-                       aspectRatio: "1 / 1",
-    height: "auto",
+                      aspectRatio: "1 / 1",
+                      height: "auto",
                       zIndex: getLayerZIndex("Logo"),
                       cursor:
                         selectedTool === "move"
@@ -2562,11 +2564,10 @@ if (searchParams.get("istag") === "true") {
               <TooltipTrigger asChild>
                 <button
                   onClick={() => setSelectedTool("select")}
-                  className={`p-2 rounded-sm transition-colors ${
-                    selectedTool === "select"
+                  className={`p-2 rounded-sm transition-colors ${selectedTool === "select"
                       ? "bg-accent text-accent-foreground"
                       : "hover:bg-accent"
-                  }`}
+                    }`}
                 >
                   <MousePointer2 className="h-4 w-4" />
                 </button>
@@ -2577,11 +2578,10 @@ if (searchParams.get("istag") === "true") {
               <TooltipTrigger asChild>
                 <button
                   onClick={() => setSelectedTool("move")}
-                  className={`p-2 rounded-sm transition-colors ${
-                    selectedTool === "move"
+                  className={`p-2 rounded-sm transition-colors ${selectedTool === "move"
                       ? "bg-accent text-accent-foreground"
                       : "hover:bg-accent"
-                  }`}
+                    }`}
                 >
                   <Move className="h-4 w-4" />
                 </button>
@@ -2592,11 +2592,10 @@ if (searchParams.get("istag") === "true") {
               <TooltipTrigger asChild>
                 <button
                   onClick={() => setFrameGridVisible((prev) => !prev)}
-                  className={`p-2 rounded-sm transition-colors ${
-                    frameGridVisible
+                  className={`p-2 rounded-sm transition-colors ${frameGridVisible
                       ? "bg-accent text-accent-foreground"
                       : "hover:bg-accent"
-                  }`}
+                    }`}
                 >
                   <Frame className="h-4 w-4" />
                 </button>
@@ -2608,11 +2607,10 @@ if (searchParams.get("istag") === "true") {
 
         {/* Right Panel */}
         <div
-          className={`${
-            rightOpen
+          className={`${rightOpen
               ? "fixed inset-y-0 right-0 z-50 w-80 shadow-2xl"
               : "hidden"
-          } lg:relative lg:z-auto lg:block lg:w-80 border-l border-border bg-card shrink-0 h-full flex flex-col overflow-y-auto overflow-x-hidden`}
+            } lg:relative lg:z-auto lg:block lg:w-80 border-l border-border bg-card shrink-0 h-full flex flex-col overflow-y-auto overflow-x-hidden`}
         >
           {/* Tabs */}
           {/* <div className="flex border-b border-border bg-background/30">
@@ -2665,31 +2663,28 @@ if (searchParams.get("istag") === "true") {
                   <div className="flex gap-2 mb-3">
                     <button
                       onClick={() => setBackgroundType("gradient")}
-                      className={`flex-1 py-1.5 px-2 text-xs rounded-sm border transition-all duration-150 ${
-                        backgroundType === "gradient"
+                      className={`flex-1 py-1.5 px-2 text-xs rounded-sm border transition-all duration-150 ${backgroundType === "gradient"
                           ? "border-primary bg-primary/10 text-foreground font-medium"
                           : "border-border text-muted-foreground hover:border-muted-foreground"
-                      }`}
+                        }`}
                     >
                       Gradient
                     </button>
                     <button
                       onClick={() => setBackgroundType("solid")}
-                      className={`flex-1 py-1.5 px-2 text-xs rounded-sm border transition-all duration-150 ${
-                        backgroundType === "solid"
+                      className={`flex-1 py-1.5 px-2 text-xs rounded-sm border transition-all duration-150 ${backgroundType === "solid"
                           ? "border-primary bg-primary/10 text-foreground font-medium"
                           : "border-border text-muted-foreground hover:border-muted-foreground"
-                      }`}
+                        }`}
                     >
                       Solid
                     </button>
                     <button
                       onClick={() => setBackgroundType("pattern")}
-                      className={`flex-1 py-1.5 px-2 text-xs rounded-sm border transition-all duration-150 ${
-                        backgroundType === "pattern"
+                      className={`flex-1 py-1.5 px-2 text-xs rounded-sm border transition-all duration-150 ${backgroundType === "pattern"
                           ? "border-primary bg-primary/10 text-foreground font-medium"
                           : "border-border text-muted-foreground hover:border-muted-foreground"
-                      }`}
+                        }`}
                     >
                       Pattern
                     </button>
@@ -2704,66 +2699,63 @@ if (searchParams.get("istag") === "true") {
                       <div className="grid grid-cols-7 gap-1">
                         {initialLoading
                           ? Array.from({ length: 14 }).map((_, i) => (
-                              <Skeleton
-                                key={i}
-                                className="aspect-square rounded-sm"
-                              />
-                            ))
+                            <Skeleton
+                              key={i}
+                              className="aspect-square rounded-sm"
+                            />
+                          ))
                           : gradients.slice(0, 12).map((g, i) => (
-                              <button
-                                key={i}
-                                onClick={() => {
-                                  setSelectedGradient(i);
-                                  setUseCustomGradient(false);
-                                }}
-                                className={`aspect-square rounded-sm border transition-all duration-150 ${
-                                  selectedGradient === i && !useCustomGradient
-                                    ? "border-primary ring-2 ring-primary"
-                                    : "border-border hover:border-muted-foreground"
+                            <button
+                              key={i}
+                              onClick={() => {
+                                setSelectedGradient(i);
+                                setUseCustomGradient(false);
+                              }}
+                              className={`aspect-square rounded-sm border transition-all duration-150 ${selectedGradient === i && !useCustomGradient
+                                  ? "border-primary ring-2 ring-primary"
+                                  : "border-border hover:border-muted-foreground"
                                 }`}
-                                style={{ background: gradientCSSMap[i] }}
-                                title={`Gradient ${i + 1}`}
-                              />
-                            ))}
+                              style={{ background: gradientCSSMap[i] }}
+                              title={`Gradient ${i + 1}`}
+                            />
+                          ))}
                         {showAllGradients &&
                           !initialLoading &&
                           (gradientsLoading
                             ? Array.from({ length: gradients.length - 12 }).map(
-                                (_, i) => (
-                                  <Skeleton
-                                    key={`grad-sk-${i}`}
-                                    className="aspect-square rounded-sm"
-                                  />
-                                ),
-                              )
-                            : gradients.slice(12).map((g, i) => (
-                                <button
-                                  key={`gradient-${i + 12}`}
-                                  onClick={() => {
-                                    setSelectedGradient(i + 12);
-                                    setUseCustomGradient(false);
-                                  }}
-                                  className={`aspect-square rounded-sm border transition-all duration-150 ${
-                                    selectedGradient === i + 12 &&
-                                    !useCustomGradient
-                                      ? "border-primary ring-2 ring-primary"
-                                      : "border-border hover:border-muted-foreground"
-                                  }`}
-                                  style={{ background: gradientCSSMap[i + 12] }}
-                                  title={`Gradient ${i + 13}`}
+                              (_, i) => (
+                                <Skeleton
+                                  key={`grad-sk-${i}`}
+                                  className="aspect-square rounded-sm"
                                 />
-                              )))}
+                              ),
+                            )
+                            : gradients.slice(12).map((g, i) => (
+                              <button
+                                key={`gradient-${i + 12}`}
+                                onClick={() => {
+                                  setSelectedGradient(i + 12);
+                                  setUseCustomGradient(false);
+                                }}
+                                className={`aspect-square rounded-sm border transition-all duration-150 ${selectedGradient === i + 12 &&
+                                    !useCustomGradient
+                                    ? "border-primary ring-2 ring-primary"
+                                    : "border-border hover:border-muted-foreground"
+                                  }`}
+                                style={{ background: gradientCSSMap[i + 12] }}
+                                title={`Gradient ${i + 13}`}
+                              />
+                            )))}
                         {!initialLoading && (
                           <button
                             onClick={() => {
                               setCustomizeOpen(!customizeOpen);
                               if (!customizeOpen) setUseCustomGradient(true);
                             }}
-                            className={`aspect-square rounded-sm border transition-all duration-150 flex items-center justify-center text-[8px] font-medium leading-tight ${
-                              useCustomGradient
+                            className={`aspect-square rounded-sm border transition-all duration-150 flex items-center justify-center text-[8px] font-medium leading-tight ${useCustomGradient
                                 ? "border-primary ring-2 ring-primary bg-primary/10 text-foreground"
                                 : "border-border hover:border-muted-foreground text-muted-foreground bg-background"
-                            }`}
+                              }`}
                             title="Customize gradient"
                           >
                             <Settings2
@@ -2840,50 +2832,48 @@ if (searchParams.get("istag") === "true") {
                       <div className="grid grid-cols-7 gap-1.5">
                         {initialLoading
                           ? Array.from({ length: 14 }).map((_, i) => (
-                              <Skeleton
-                                key={i}
-                                className="aspect-square rounded-sm"
-                              />
-                            ))
+                            <Skeleton
+                              key={i}
+                              className="aspect-square rounded-sm"
+                            />
+                          ))
                           : solidColors
-                              .slice(0, 13)
-                              .map((color, i) => (
-                                <button
-                                  key={i}
-                                  onClick={() => setSelectedSolidColor(color)}
-                                  className={`aspect-square rounded-sm ${color} border-2 transition-all duration-150 ${
-                                    selectedSolidColor === color
-                                      ? "border-white ring-2 ring-white"
-                                      : "border-border hover:border-gray-400"
+                            .slice(0, 13)
+                            .map((color, i) => (
+                              <button
+                                key={i}
+                                onClick={() => setSelectedSolidColor(color)}
+                                className={`aspect-square rounded-sm ${color} border-2 transition-all duration-150 ${selectedSolidColor === color
+                                    ? "border-white ring-2 ring-white"
+                                    : "border-border hover:border-gray-400"
                                   }`}
-                                  title={color}
-                                />
-                              ))}
+                                title={color}
+                              />
+                            ))}
                         {showAllSolidColors &&
                           !initialLoading &&
                           (solidColorsLoading
                             ? Array.from({
-                                length: solidColors.length - 13,
-                              }).map((_, i) => (
-                                <Skeleton
-                                  key={`solid-sk-${i}`}
-                                  className="aspect-square rounded-sm"
-                                />
-                              ))
+                              length: solidColors.length - 13,
+                            }).map((_, i) => (
+                              <Skeleton
+                                key={`solid-sk-${i}`}
+                                className="aspect-square rounded-sm"
+                              />
+                            ))
                             : solidColors
-                                .slice(13)
-                                .map((color, i) => (
-                                  <button
-                                    key={`solid-${i + 13}`}
-                                    onClick={() => setSelectedSolidColor(color)}
-                                    className={`aspect-square rounded-sm ${color} border-2 transition-all duration-150 ${
-                                      selectedSolidColor === color
-                                        ? "border-white ring-2 ring-white"
-                                        : "border-border hover:border-gray-400"
+                              .slice(13)
+                              .map((color, i) => (
+                                <button
+                                  key={`solid-${i + 13}`}
+                                  onClick={() => setSelectedSolidColor(color)}
+                                  className={`aspect-square rounded-sm ${color} border-2 transition-all duration-150 ${selectedSolidColor === color
+                                      ? "border-white ring-2 ring-white"
+                                      : "border-border hover:border-gray-400"
                                     }`}
-                                    title={color}
-                                  />
-                                )))}
+                                  title={color}
+                                />
+                              )))}
                         {!initialLoading && solidColors.length > 13 && (
                           <button
                             onClick={() => {
@@ -2925,11 +2915,10 @@ if (searchParams.get("istag") === "true") {
                           <button
                             key={i}
                             onClick={() => setSelectedPattern(i)}
-                            className={`relative rounded-sm border-2 overflow-hidden transition-all duration-150 ${
-                              selectedPattern === i
+                            className={`relative rounded-sm border-2 overflow-hidden transition-all duration-150 ${selectedPattern === i
                                 ? "border-primary ring-2 ring-primary"
                                 : "border-border hover:border-muted-foreground"
-                            }`}
+                              }`}
                             title={pattern.name}
                             style={{ aspectRatio: "16 / 10" }}
                           >
@@ -3394,11 +3383,11 @@ if (searchParams.get("istag") === "true") {
                               prev
                                 ? { ...prev, x: isNaN(val) ? 0 : val }
                                 : {
-                                    x: isNaN(val) ? 0 : val,
-                                    y: 200,
-                                    width: 400,
-                                    textAlign: "center",
-                                  },
+                                  x: isNaN(val) ? 0 : val,
+                                  y: 200,
+                                  width: 400,
+                                  textAlign: "center",
+                                },
                             );
                           }}
                           className="mt-1 bg-card border-border text-xs"
@@ -3417,11 +3406,11 @@ if (searchParams.get("istag") === "true") {
                               prev
                                 ? { ...prev, y: isNaN(val) ? 0 : val }
                                 : {
-                                    x: 50,
-                                    y: isNaN(val) ? 0 : val,
-                                    width: 400,
-                                    textAlign: "center",
-                                  },
+                                  x: 50,
+                                  y: isNaN(val) ? 0 : val,
+                                  width: 400,
+                                  textAlign: "center",
+                                },
                             );
                           }}
                           className="mt-1 bg-card border-border text-xs"
@@ -3440,11 +3429,11 @@ if (searchParams.get("istag") === "true") {
                               prev
                                 ? { ...prev, width: isNaN(val) ? 400 : val }
                                 : {
-                                    x: 50,
-                                    y: 200,
-                                    width: isNaN(val) ? 400 : val,
-                                    textAlign: "center",
-                                  },
+                                  x: 50,
+                                  y: 200,
+                                  width: isNaN(val) ? 400 : val,
+                                  textAlign: "center",
+                                },
                             );
                           }}
                           className="mt-1 bg-card border-border text-xs"
@@ -3747,128 +3736,128 @@ if (searchParams.get("istag") === "true") {
               <div className="space-y-3">
                 {initialLoading
                   ? Array.from({ length: 4 }).map((_, i) => (
-                      <Skeleton
-                        key={i}
-                        className="w-full aspect-[1200/630] rounded-lg"
-                      />
-                    ))
+                    <Skeleton
+                      key={i}
+                      className="w-full aspect-[1200/630] rounded-lg"
+                    />
+                  ))
                   : templates.map((template) => {
-                      return (
-                        <button
-                          key={template.id}
-                          onClick={() => {
-                            handleTemplateSelect(template);
-                            setRightTab("design");
-                          }}
-                          className={`group w-full aspect-[1200/630] rounded-lg overflow-hidden border border-border hover:border-primary transition-all duration-200 text-left relative ${template.preview.bg?.startsWith("from-") ? `bg-card bg-gradient-to-br ${template.preview.bg}` : "bg-card"}`}
-                          style={(() => {
-                            if (
-                              "pattern" in template &&
-                              template.pattern !== undefined
-                            ) {
-                              const p = patternMap[template.pattern as number];
-                              if (p)
-                                return {
-                                  backgroundColor: p.backgroundColor,
-                                  backgroundImage: p.backgroundImage,
-                                  backgroundSize: p.backgroundSize || undefined,
-                                };
-                            }
-                            if (!template.gradient.startsWith("from-")) {
-                              const g = gradientMap.find(
-                                (g) => g.tailwind === template.gradient,
-                              );
-                              if (g) return { background: g.css };
-                            }
-                            return undefined;
-                          })()}
-                        >
-                          <div className="absolute inset-0 transition-all duration-200 ">
-                            {template.hasImage && template.imagePosition && (
+                    return (
+                      <button
+                        key={template.id}
+                        onClick={() => {
+                          handleTemplateSelect(template);
+                          setRightTab("design");
+                        }}
+                        className={`group w-full aspect-[1200/630] rounded-lg overflow-hidden border border-border hover:border-primary transition-all duration-200 text-left relative ${template.preview.bg?.startsWith("from-") ? `bg-card bg-gradient-to-br ${template.preview.bg}` : "bg-card"}`}
+                        style={(() => {
+                          if (
+                            "pattern" in template &&
+                            template.pattern !== undefined
+                          ) {
+                            const p = patternMap[template.pattern as number];
+                            if (p)
+                              return {
+                                backgroundColor: p.backgroundColor,
+                                backgroundImage: p.backgroundImage,
+                                backgroundSize: p.backgroundSize || undefined,
+                              };
+                          }
+                          if (!template.gradient.startsWith("from-")) {
+                            const g = gradientMap.find(
+                              (g) => g.tailwind === template.gradient,
+                            );
+                            if (g) return { background: g.css };
+                          }
+                          return undefined;
+                        })()}
+                      >
+                        <div className="absolute inset-0 transition-all duration-200 ">
+                          {template.hasImage && template.imagePosition && (
+                            <div
+                              className="absolute bg-white/10 rounded border border-white/10"
+                              style={{
+                                left: `${(template.imagePosition.x / 900) * 100}%`,
+                                top: `${(template.imagePosition.y / 630) * 100}%`,
+                                width: `${(template.imagePosition.width / 900) * 100}%`,
+                                height: `${(template.imagePosition.height / 630) * 100}%`,
+                                transform: template.imagePosition.rotation
+                                  ? `rotate(${template.imagePosition.rotation}deg)`
+                                  : undefined,
+                              }}
+                            />
+                          )}
+                          {template.contentPosition && template.hasImage ? (
+                            <>
                               <div
-                                className="absolute bg-white/10 rounded border border-white/10"
+                                className="absolute leading-tight font-bold"
                                 style={{
-                                  left: `${(template.imagePosition.x / 900) * 100}%`,
-                                  top: `${(template.imagePosition.y / 630) * 100}%`,
-                                  width: `${(template.imagePosition.width / 900) * 100}%`,
-                                  height: `${(template.imagePosition.height / 630) * 100}%`,
-                                  transform: template.imagePosition.rotation
-                                    ? `rotate(${template.imagePosition.rotation}deg)`
-                                    : undefined,
+                                  left: `${(template.contentPosition.x / 900) * 100}%`,
+                                  top: `${(template.contentPosition.y / 630) * 100}%`,
+                                  width: `${(template.contentPosition.width / 900) * 100}%`,
+                                  textAlign:
+                                    template.contentPosition.textAlign ??
+                                    "left",
+                                  color: template.titleColor,
+                                  fontSize: `${Math.min(template.titleSize / 5.6, 10)}px`,
+                                  lineHeight: "1.1",
                                 }}
-                              />
-                            )}
-                            {template.contentPosition && template.hasImage ? (
-                              <>
-                                <div
-                                  className="absolute leading-tight font-bold"
-                                  style={{
-                                    left: `${(template.contentPosition.x / 900) * 100}%`,
-                                    top: `${(template.contentPosition.y / 630) * 100}%`,
-                                    width: `${(template.contentPosition.width / 900) * 100}%`,
-                                    textAlign:
-                                      template.contentPosition.textAlign ??
-                                      "left",
-                                    color: template.titleColor,
-                                    fontSize: `${Math.min(template.titleSize / 5.6, 10)}px`,
-                                    lineHeight: "1.1",
-                                  }}
-                                >
-                                  {template.title.length > 25
-                                    ? template.title.slice(0, 25) + "…"
-                                    : template.title}
-                                </div>
-                                <div
-                                  className="absolute leading-tight opacity-80"
-                                  style={{
-                                    left: `${(template.contentPosition.x / 900) * 100}%`,
-                                    top: `${((template.contentPosition.y + 40) / 630) * 100}%`,
-                                    width: `${(template.contentPosition.width / 900) * 100}%`,
-                                    textAlign:
-                                      template.contentPosition.textAlign ??
-                                      "left",
-                                    color: template.subtitleColor,
-                                    fontSize: `${Math.min(template.titleSize / 7.5, 6)}px`,
-                                    lineHeight: "1.1",
-                                  }}
-                                >
-                                  {template.subtitle.length > 30
-                                    ? template.subtitle.slice(0, 30) + "…"
-                                    : template.subtitle}
-                                </div>
-                              </>
-                            ) : (
-                              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 px-3 text-center">
-                                <div
-                                  className="leading-tight font-bold w-full"
-                                  style={{
-                                    color: template.titleColor,
-                                    fontSize: `${Math.min(template.titleSize / 5.6, 10)}px`,
-                                    lineHeight: "1.1",
-                                  }}
-                                >
-                                  {template.title.length > 25
-                                    ? template.title.slice(0, 25) + "…"
-                                    : template.title}
-                                </div>
-                                <div
-                                  className="leading-tight opacity-80 w-full"
-                                  style={{
-                                    color: template.subtitleColor,
-                                    fontSize: `${Math.min(template.titleSize / 7.5, 6)}px`,
-                                    lineHeight: "1.1",
-                                  }}
-                                >
-                                  {template.subtitle.length > 30
-                                    ? template.subtitle.slice(0, 30) + "…"
-                                    : template.subtitle}
-                                </div>
+                              >
+                                {template.title.length > 25
+                                  ? template.title.slice(0, 25) + "…"
+                                  : template.title}
                               </div>
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
+                              <div
+                                className="absolute leading-tight opacity-80"
+                                style={{
+                                  left: `${(template.contentPosition.x / 900) * 100}%`,
+                                  top: `${((template.contentPosition.y + 40) / 630) * 100}%`,
+                                  width: `${(template.contentPosition.width / 900) * 100}%`,
+                                  textAlign:
+                                    template.contentPosition.textAlign ??
+                                    "left",
+                                  color: template.subtitleColor,
+                                  fontSize: `${Math.min(template.titleSize / 7.5, 6)}px`,
+                                  lineHeight: "1.1",
+                                }}
+                              >
+                                {template.subtitle.length > 30
+                                  ? template.subtitle.slice(0, 30) + "…"
+                                  : template.subtitle}
+                              </div>
+                            </>
+                          ) : (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 px-3 text-center">
+                              <div
+                                className="leading-tight font-bold w-full"
+                                style={{
+                                  color: template.titleColor,
+                                  fontSize: `${Math.min(template.titleSize / 5.6, 10)}px`,
+                                  lineHeight: "1.1",
+                                }}
+                              >
+                                {template.title.length > 25
+                                  ? template.title.slice(0, 25) + "…"
+                                  : template.title}
+                              </div>
+                              <div
+                                className="leading-tight opacity-80 w-full"
+                                style={{
+                                  color: template.subtitleColor,
+                                  fontSize: `${Math.min(template.titleSize / 7.5, 6)}px`,
+                                  lineHeight: "1.1",
+                                }}
+                              >
+                                {template.subtitle.length > 30
+                                  ? template.subtitle.slice(0, 30) + "…"
+                                  : template.subtitle}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
               </div>
             )}
 

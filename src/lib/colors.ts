@@ -18,7 +18,6 @@ export const gradientMap = [
   { tailwind: "from-green-400 to-cyan-400", css: "linear-gradient(to bottom right, #4ade80, #06b6d4)" },
 
   // New Premium Gradients (Blog)
-  { tailwind: "from-[#0F172A] via-[#111827] to-[#1E293B]", css: "linear-gradient(to bottom right, #0F172A, #111827, #1E293B)" },
   { tailwind: "from-[#172554] via-[#1E3A8A] to-[#2563EB]", css: "linear-gradient(to bottom right, #172554, #1E3A8A, #2563EB)" },
   { tailwind: "from-[#020617] via-[#111827] to-[#334155]", css: "linear-gradient(to bottom right, #020617, #111827, #334155)" },
   
