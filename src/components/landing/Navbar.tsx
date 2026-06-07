@@ -5,6 +5,8 @@ import { Hexagon, LayoutDashboard } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 
+const MotionLink = motion(Link);
+
 const navItemVariants = {
   hidden: { opacity: 0, y: -10 },
   visible: (i: number) => ({
@@ -71,20 +73,35 @@ const Navbar = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.4 }}
         >
-          {navLinks.map((link, i) => (
-            <motion.a
-              key={link.label}
-              href={link.href}
-              custom={i}
-              variants={navItemVariants}
-              initial="hidden"
-              animate="visible"
-              whileHover={{ color: "var(--foreground)" }}
-              className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors font-medium"
-            >
-              {link.label}
-            </motion.a>
-          ))}
+          {navLinks.map((link, i) =>
+            link.href.startsWith("#") ? (
+              <motion.a
+                key={link.label}
+                href={link.href}
+                custom={i}
+                variants={navItemVariants}
+                initial="hidden"
+                animate="visible"
+                whileHover={{ color: "var(--foreground)" }}
+                className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors font-medium"
+              >
+                {link.label}
+              </motion.a>
+            ) : (
+              <MotionLink
+                key={link.label}
+                to={link.href}
+                custom={i}
+                variants={navItemVariants}
+                initial="hidden"
+                animate="visible"
+                whileHover={{ color: "var(--foreground)" }}
+                className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors font-medium"
+              >
+                {link.label}
+              </MotionLink>
+            )
+          )}
         </motion.div>
 
         <motion.div

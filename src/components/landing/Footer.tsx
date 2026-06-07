@@ -1,4 +1,5 @@
 import { Hexagon } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const socialLinks = [
   {
@@ -51,19 +52,31 @@ const socialLinks = [
 const footerColumns = [
   {
     title: "Product",
-    links: ["Features", "Templates", "Editor", "API Docs", "Changelog"],
+    links: [
+      { label: "Features", href: "#features" },
+      { label: "Templates", href: "/dashboard" },
+      { label: "Editor", href: "/editor" },
+      { label: "API Docs", href: "/page/api-docs" },
+      { label: "Changelog", href: "/page/changelog" },
+    ],
   },
   {
     title: "Company",
-    links: ["About", "Blog", "Careers", "Press Kit", "Contact"],
+    links: [
+      { label: "About", href: "/page/about" },
+      { label: "Blog", href: "/blog" },
+      { label: "Careers", href: "/page/careers" },
+      { label: "Press Kit", href: "/page/press-kit" },
+      { label: "Contact", href: "/page/contact" },
+    ],
   },
   {
     title: "Legal",
     links: [
-      "Privacy Policy",
-      "Terms of Service",
-      "Cookie Policy",
-      "Security",
+      { label: "Privacy Policy", href: "/page/privacy-policy" },
+      { label: "Terms of Service", href: "/page/terms-of-service" },
+      { label: "Cookie Policy", href: "/page/cookie-policy" },
+      { label: "Security", href: "/page/security" },
     ],
   },
 ];
@@ -129,13 +142,14 @@ const Footer = () => {
                 {col.title}
               </div>
               {col.links.map((link) => (
-                <a
-                  key={link}
-                  href="#"
-                  className="block text-sm text-muted-foreground/50 hover:text-foreground transition-colors mb-3" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className="block text-sm text-muted-foreground/50 hover:text-foreground transition-colors mb-3"
+                  style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
                 >
-                  {link}
-                </a>
+                  {link.label}
+                </Link>
               ))}
             </div>
           ))}

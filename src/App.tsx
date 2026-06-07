@@ -9,6 +9,9 @@ import Index from "./views/Index.tsx";
 import Dashboard from "./views/Dashboard.tsx";
 import Editor from "./views/Editor.tsx";
 import Auth from "./views/Auth.tsx";
+import Blog from "./views/Blog.tsx";
+import BlogPost from "./views/BlogPost.tsx";
+import ContentPage from "./views/ContentPage.tsx";
 import NotFound from "./views/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -27,6 +30,9 @@ const App = () => (
               <Route path="/signup" element={<Auth />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/editor" element={<Editor />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/page/:slug" element={<ContentPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
