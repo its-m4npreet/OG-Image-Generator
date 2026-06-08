@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Hexagon, LayoutDashboard } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 
-const MotionLink = motion(Link);
+const MotionLink = motion.create(Link);
 
 const navItemVariants = {
   hidden: { opacity: 0, y: -10 },
@@ -58,7 +58,7 @@ const Navbar = () => {
     >
       <div className="container flex items-center justify-between h-full px-4 mx-auto">
         <Link
-          to="/"
+          href="/"
           className="flex items-center justify-center gap-2 text-foreground hover:opacity-80 transition-opacity"
         >
           <Hexagon className="h-5 w-5 text-primary" />
@@ -90,7 +90,7 @@ const Navbar = () => {
             ) : (
               <MotionLink
                 key={link.label}
-                to={link.href}
+                href={link.href}
                 custom={i}
                 variants={navItemVariants}
                 initial="hidden"
@@ -113,7 +113,7 @@ const Navbar = () => {
           {status === "authenticated" ? (
             <motion.div variants={buttonVariants}>
               <Button variant="hero" size="sm" className="btn-shimmer" asChild>
-                <Link to="/dashboard">
+                <Link href="/dashboard">
                   <LayoutDashboard className="h-4 w-4 mr-2" />
                   Dashboard
                 </Link>
@@ -123,13 +123,13 @@ const Navbar = () => {
             <>
               <motion.div variants={buttonVariants}>
                 <Button variant="ghost" size="sm" asChild>
-                  <Link to="/login">Log in</Link>
+                  <Link href="/login">Log in</Link>
                 </Button>
               </motion.div>
 
               <motion.div variants={buttonVariants}>
                 <Button variant="hero" size="sm" className="btn-shimmer" asChild>
-                  <Link to="/signup">Get Started &rarr;</Link>
+                  <Link href="/signup">Get Started &rarr;</Link>
                 </Button>
               </motion.div>
             </>

@@ -1,5 +1,8 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { Hexagon, ArrowLeft } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -229,7 +232,7 @@ const ContentPage = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground mb-2">Page not found</h1>
-          <Link to="/" className="text-primary hover:underline text-sm">
+          <Link href="/" className="text-primary hover:underline text-sm">
             Go back home
           </Link>
         </div>
@@ -260,7 +263,7 @@ const ContentPage = () => {
       <div className="max-w-3xl mx-auto px-6 py-20">
         <div className="flex items-center gap-3 mb-12">
           <Link
-            to="/"
+            href="/"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground/60 hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />

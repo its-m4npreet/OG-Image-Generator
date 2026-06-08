@@ -1,5 +1,5 @@
 import { Hexagon } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 const socialLinks = [
   {
@@ -144,7 +144,7 @@ const Footer = () => {
               {col.links.map((link) => (
                 <Link
                   key={link.label}
-                  to={link.href}
+                  href={link.href}
                   className="block text-sm text-muted-foreground/50 hover:text-foreground transition-colors mb-3"
                   style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
                 >

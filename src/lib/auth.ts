@@ -130,27 +130,20 @@ export const authOptions: NextAuthOptions = {
       try {
         console.log("✅ redirect callback:", { url, baseUrl });
         
-        // Allow relative URLs
         if (url.startsWith("/")) {
           return `${baseUrl}${url}`;
         }
 
-        // Allow absolute URLs if they belong to the same origin as baseUrl
-        // or the FRONTENDOrigin (8080)
         const urlObj = new URL(url);
         const baseUrlObj = new URL(baseUrl);
-        
-        const frontendOrigin = process.env.FRONTEND_URL || "http://localhost:8080";
-        const frontendObj = new URL(frontendOrigin);
 
-        if (urlObj.origin === baseUrlObj.origin || urlObj.origin === frontendObj.origin) {
+        if (urlObj.origin === baseUrlObj.origin) {
           return url;
         }
       } catch (e) {
         console.warn("⚠️ redirect callback warning:", e);
       }
 
-      // Default to baseUrl (home)
       return baseUrl;
     },
   },

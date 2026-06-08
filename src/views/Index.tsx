@@ -1,3 +1,5 @@
+"use client";
+
 import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
 import Features from "@/components/landing/Features";
@@ -5,7 +7,7 @@ import Testimonials from "@/components/landing/Testimonials";
 import Pricing from "@/components/landing/Pricing";
 import Footer from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 const index = () => {
   return (
@@ -89,12 +91,12 @@ const index = () => {
 
             <div className="flex gap-3.5 justify-center items-center">
               <Button variant="hero" className="btn-shimmer" asChild>
-                <Link to="/signup">
+                <Link href="/signup">
                   Start for Free &rarr;
                 </Link>
               </Button>
               <Link
-                to="/editor"
+                href="/editor"
                 className="text-sm text-muted-foreground/40 hover:text-muted-foreground/80 transition-colors"
               >
                 Try the editor

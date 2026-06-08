@@ -1,7 +1,10 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { Hexagon, ArrowLeft } from "lucide-react";
-import { posts } from "@/data/blog.tsx";
+import { posts } from "@/data/blog";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const BlogPost = () => {
@@ -19,7 +22,7 @@ const BlogPost = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground mb-2">Post not found</h1>
-          <Link to="/blog" className="text-primary hover:underline text-sm">
+          <Link href="/blog" className="text-primary hover:underline text-sm">
             Back to blog
           </Link>
         </div>
@@ -52,7 +55,7 @@ const BlogPost = () => {
       <div className="max-w-3xl mx-auto px-6 py-20">
         <div className="flex items-center gap-3 mb-12">
           <Link
-            to="/blog"
+            href="/blog"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground/60 hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -64,7 +67,7 @@ const BlogPost = () => {
             <span className="font-mono text-sm font-bold tracking-wide">OG Studio</span>
           </div>
           <span className="text-muted-foreground/20">/</span>
-          <Link to="/blog" className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors">
+          <Link href="/blog" className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors">
             Blog
           </Link>
           <span className="text-muted-foreground/20">/</span>

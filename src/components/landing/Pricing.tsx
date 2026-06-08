@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 const PLANS = [
   {
@@ -148,7 +148,7 @@ const Pricing = () => {
                 className="w-full"
                 asChild
               >
-                <Link to={plan.highlight ? "/login" : "/signup"}>
+                <Link href={plan.highlight ? "/login" : "/signup"}>
                   {plan.cta}
                 </Link>
               </Button>

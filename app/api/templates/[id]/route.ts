@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth";
+import { authOptions } from "@/lib/auth";
 import { Pool } from "pg";
 
 const pool = new Pool({
@@ -9,12 +9,13 @@ const pool = new Pool({
 // GET specific template
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const result = await pool.query(
-      "SELECT * FROM templates WHERE id = $1 AND is_active = true",
-      [params.id]
+      "SELECT * FROM ogimage_templates WHERE id = $1",
+      [id]
     );
 
     if (result.rows.length === 0) {
@@ -31,8 +32,9 @@ export async function GET(
 // PUT update template (admin only)
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const session = await getServerSession(authOptions);
 
@@ -73,7 +75,7 @@ export async function PUT(
         react_component || null,
         metadata || null,
         is_active !== undefined ? is_active : null,
-        params.id,
+        id,
         userResult.rows[0].id,
       ]
     );
@@ -96,8 +98,9 @@ export async function PUT(
 // DELETE template (admin only)
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const session = await getServerSession(authOptions);
 
@@ -117,7 +120,7 @@ export async function DELETE(
 
     const result = await pool.query(
       "DELETE FROM templates WHERE id = $1 AND created_by = $2 RETURNING id",
-      [params.id, userResult.rows[0].id]
+      [id, userResult.rows[0].id]
     );
 
     if (result.rows.length === 0) {
@@ -127,7 +130,7 @@ export async function DELETE(
       );
     }
 
-    return Response.json({ success: true, id: params.id });
+    return Response.json({ success: true, id });
   } catch (error) {
     console.error("Error deleting template:", error);
     return Response.json({ error: "Failed to delete template" }, { status: 500 });

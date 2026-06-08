@@ -1,7 +1,9 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Hexagon, ArrowLeft } from "lucide-react";
-import { posts } from "@/data/blog.tsx";
+import { posts } from "@/data/blog";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Blog = () => {
@@ -17,7 +19,7 @@ const Blog = () => {
       <div className="max-w-3xl mx-auto px-6 py-20">
         <div className="flex items-center gap-3 mb-12">
           <Link
-            to="/"
+            href="/"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground/60 hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -52,7 +54,7 @@ const Blog = () => {
                 </time>
                 <h2 className="text-xl font-semibold text-foreground mt-2 mb-2">
                   <Link
-                    to={`/blog/${post.slug}`}
+                    href={`/blog/${post.slug}`}
                     className="hover:text-primary transition-colors"
                   >
                     {post.title}

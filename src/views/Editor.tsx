@@ -1,4 +1,7 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+"use client";
+
+import { useState, useRef, useEffect, useMemo, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,7 +36,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import {
   Hexagon,
   Download,
@@ -75,7 +78,7 @@ import {
   isLightColor,
   getNoiseDataUrl,
 } from "@/lib/colors";
-import { templates } from "@/templates";
+import { templates, getTemplateById } from "@/templates";
 
 interface CanvasImage {
   id: string;
@@ -154,22 +157,33 @@ const hexToRgba = (hex: string, opacity: number): string => {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
-const Editor = () => {
-  // Get URL parameters for template loading
+function EditorInner() {
+  const nextSearchParams = useSearchParams();
   const searchParams = useMemo(
-    () => new URLSearchParams(window.location.search),
-    [],
+    () => nextSearchParams,
+    [nextSearchParams],
   );
 
-  // Extract parameters at component level
-  const templateTitle = searchParams.get("title") || "Your Amazing Blog Title";
-  const templateSubtitle = searchParams.get("subtitle") ?? "A compelling description that captures attention";
-  const templateGradient = searchParams.get("gradient");
-  const templateLogo = searchParams.get("logo");
-  const templateImage = searchParams.get("image");
-  const templateImagePosition = searchParams.get("imagePosition");
-  const templateLogoPosition = searchParams.get("logoPosition");
+  // Extract template data from ID or URL params
+  const templateData = useMemo(() => {
+    const id = searchParams.get("template");
+    if (id) {
+      const found = getTemplateById(Number(id));
+      if (found) return found;
+    }
+    return null;
+  }, [searchParams]);
+
+  const t = templateData as Record<string, unknown> | null;
+  const templateTitle = (t?.title as string) || searchParams.get("title") || "Your Amazing Blog Title";
+  const templateSubtitle = (t?.subtitle as string) ?? searchParams.get("subtitle") ?? "A compelling description that captures attention";
+  const templateGradient = (t?.gradient as string) || searchParams.get("gradient");
+  const templateLogo = (t?.logoUrl as string) || searchParams.get("logo");
+  const templateImage = (t?.imageUrl as string) || searchParams.get("image");
+  const templateImagePosition = t?.imagePosition ? JSON.stringify(t.imagePosition) : searchParams.get("imagePosition");
+  const templateLogoPosition = t?.logoPosition ? JSON.stringify(t.logoPosition) : searchParams.get("logoPosition");
   const templateLogoPositions = useMemo(() => {
+    if (t?.logoPositions) return t.logoPositions as { x: number; y: number; width: number; height: number; borderRadius?: number }[];
     const param = searchParams.get("logoPositions");
     if (!param) return null;
     try {
@@ -177,8 +191,9 @@ const Editor = () => {
     } catch {
       return null;
     }
-  }, [searchParams]);
+  }, [searchParams, templateData]);
   const templateLogoUrls = useMemo<string[]>(() => {
+    if (t?.logoUrls) return t.logoUrls as string[];
     const param = searchParams.get("logoUrls");
     return param
       ? (() => {
@@ -189,23 +204,15 @@ const Editor = () => {
         }
       })()
       : [];
-  }, [searchParams]);
-  const templateContentPosition = searchParams.get("contentPosition");
-  const templateTitleColor = searchParams.get("titleColor");
-  const templateSubtitleColor = searchParams.get("subtitleColor");
-  const templateAuthorColor = searchParams.get("authorColor");
-  const templateTitleSize = searchParams.get("titleSize")
-    ? Number(searchParams.get("titleSize"))
-    : 40;
-  const templateHasAuthor = searchParams.get("hasAuthor") !== "false"; // Default to true
-  const templateBackgroundType = searchParams.get("backgroundType") as
-    | "gradient"
-    | "solid"
-    | "pattern"
-    | null;
-  const templatePattern = searchParams.get("pattern")
-    ? Number(searchParams.get("pattern"))
-    : null;
+  }, [searchParams, templateData]);
+  const templateContentPosition = t?.contentPosition ? JSON.stringify(t.contentPosition) : searchParams.get("contentPosition");
+  const templateTitleColor = (t?.titleColor as string) || searchParams.get("titleColor");
+  const templateSubtitleColor = (t?.subtitleColor as string) || searchParams.get("subtitleColor");
+  const templateAuthorColor = (t?.authorColor as string) || searchParams.get("authorColor");
+  const templateTitleSize = (t?.titleSize as number) || (searchParams.get("titleSize") ? Number(searchParams.get("titleSize")) : 40);
+  const templateHasAuthor = t ? (t.hasAuthor as boolean) : searchParams.get("hasAuthor") !== "false";
+  const templateBackgroundType = (t?.pattern !== undefined ? "pattern" : null) || (searchParams.get("backgroundType") as "gradient" | "solid" | "pattern" | null);
+  const templatePattern = (t?.pattern as number) ?? (searchParams.get("pattern") ? Number(searchParams.get("pattern")) : null);
 
   // Helper function to get initial gradient index
   const getInitialGradient = () => {
@@ -258,16 +265,15 @@ const Editor = () => {
   const [activeSidebar, setActiveSidebar] = useState<string | null>(null);
   const [shapeColor, setShapeColor] = useState("#000000");
   const [selectedTextElement, setSelectedTextElement] = useState(false);
-  const [tags, setTags] = useState<CanvasTag[]>([]);
-  const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
-  const [templateTag, setTemplateTag] = useState(searchParams.get("tag") || "");
+  const [templateTag, setTemplateTag] = useState((t?.tag as string) || searchParams.get("tag") || "");
   const [templateIsTag, setTemplateIsTag] = useState(
-    searchParams.get("istag") === "true",
+    (t?.istag as boolean) ?? searchParams.get("istag") === "true",
   );
   const [templateTagPosition, setTemplateTagPosition] = useState<Pick<
     CanvasTag,
     "x" | "y" | "borderWidth" | "borderColor" | "borderRadius"
   > | null>(() => {
+    if (t?.tagPosition) return t.tagPosition as Pick<CanvasTag, "x" | "y" | "borderWidth" | "borderColor" | "borderRadius">;
     const tp = searchParams.get("tagPosition");
     if (tp) {
       try {
@@ -278,6 +284,23 @@ const Editor = () => {
     }
     return null;
   });
+
+  const [tags, setTags] = useState<CanvasTag[]>(() => {
+    if (templateIsTag) {
+      const pos = templateTagPosition || { x: 20, y: 20, borderWidth: 1, borderColor: "#3b82f6", borderRadius: 10 };
+      return [{
+        id: `tag-${Date.now()}-${Math.random()}`,
+        text: templateTag || "Tag",
+        x: pos.x,
+        y: pos.y,
+        borderWidth: pos.borderWidth,
+        borderColor: pos.borderColor,
+        borderRadius: pos.borderRadius,
+      }];
+    }
+    return [];
+  });
+  const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
 
   const [logos, setLogos] = useState<CanvasLogo[]>([]);
   const [selectedLogoId, setSelectedLogoId] = useState<string | null>(null);
@@ -1565,7 +1588,7 @@ const Editor = () => {
       <header className="h-14 border-b border-border bg-card/80 backdrop-blur-xl flex items-center justify-between px-3 md:px-6 shrink-0">
         <div className="flex items-center gap-1 md:gap-3">
           <Button variant="ghost" size="icon" asChild>
-            <Link to="/dashboard">
+            <Link href="/dashboard">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
@@ -3953,4 +3976,10 @@ const Editor = () => {
   );
 };
 
-export default Editor;
+export default function Editor() {
+  return (
+    <Suspense fallback={<div className="h-screen flex items-center justify-center">Loading editor...</div>}>
+      <EditorInner />
+    </Suspense>
+  );
+}

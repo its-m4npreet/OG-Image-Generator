@@ -1,10 +1,13 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Link, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -228,15 +231,15 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
 
 const Dashboard = () => {
   const { data: session, status } = useSession();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      navigate("/login");
+      router.push("/login");
     }
-  }, [status, navigate]);
+  }, [status, router]);
 
   if (status === "loading") {
     return (
@@ -325,7 +328,7 @@ const Dashboard = () => {
         <div className="container flex items-center justify-between h-16 px-4">
           <div>
             <Link
-              to="/"
+              href="/"
               className="flex items-center gap-2 font-bold text-lg text-foreground hover:opacity-80 transition-opacity"
             >
               <Hexagon className="h-6 w-6 text-primary" />
@@ -341,7 +344,7 @@ const Dashboard = () => {
                 asChild
                 className="hidden sm:flex"
               >
-                <Link to="/editor">
+                <Link href="/editor">
                   <SlidersHorizontal className="h-4 w-4 mr-1" /> Customize Image
                 </Link>
               </Button>
@@ -483,7 +486,7 @@ const Dashboard = () => {
                 className="h-full"
               >
                 <Link
-                  to={`/editor?template=${template.id}&title=${encodeURIComponent(template.title)}&subtitle=${encodeURIComponent(template.subtitle)}&gradient=${encodeURIComponent(template.gradient)}&titleColor=${encodeURIComponent(template.titleColor)}&subtitleColor=${encodeURIComponent(template.subtitleColor)}&authorColor=${encodeURIComponent("authorColor" in template && template.authorColor ? template.authorColor : template.subtitleColor)}&titleSize=${template.titleSize}&logo=${template.hasLogo && template.logoUrl ? template.logoUrl : ""}&image=${template.hasImage && template.imageUrl ? template.imageUrl : ""}${template.imagePosition ? `&imagePosition=${encodeURIComponent(JSON.stringify(template.imagePosition))}` : ""}${"logoPosition" in template && template.logoPosition ? `&logoPosition=${encodeURIComponent(JSON.stringify(template.logoPosition))}` : ""}${"logoPositions" in template && template.logoPositions ? `&logoPositions=${encodeURIComponent(JSON.stringify(template.logoPositions))}` : ""}${template.contentPosition ? `&contentPosition=${encodeURIComponent(JSON.stringify(template.contentPosition))}` : ""}&hasAuthor=${template.hasAuthor}${"pattern" in template && template.pattern !== undefined ? `&backgroundType=pattern&pattern=${template.pattern}` : ""}${"logoUrls" in template && template.logoUrls ? `&logoUrls=${encodeURIComponent(JSON.stringify(template.logoUrls))}` : ""}${"istag" in template && template.istag && template.tag ? `&istag=true&tag=${encodeURIComponent(template.tag)}` : ""}${"tagPosition" in template && template.tagPosition ? `&tagPosition=${encodeURIComponent(JSON.stringify(template.tagPosition))}` : ""}`}
+                  href={`/editor?template=${template.id}`}
                   className="block group h-full rounded-sm border border-border bg-card overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-200"
                 >
                   <TemplatePreview template={template} />

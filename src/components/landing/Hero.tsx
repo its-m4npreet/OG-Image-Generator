@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
   const [val, setVal] = useState(0);
@@ -113,12 +113,12 @@ const Hero = () => {
           className="flex gap-3 justify-center flex-wrap"
         >
           <Button variant="hero" size="lg" className="btn-shimmer" asChild>
-            <Link to="/signup">
+            <Link href="/signup">
               Start Creating <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </Button>
           <Button variant="hero-outline" size="lg" asChild>
-            <Link to="/editor">Try the Editor</Link>
+            <Link href="/editor">Try the Editor</Link>
           </Button>
         </motion.div>
 

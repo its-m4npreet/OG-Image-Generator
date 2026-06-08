@@ -1,5 +1,8 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import { Hexagon, Github, Mail,ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -39,24 +42,24 @@ const buttonVariants = {
 };
 
 const Auth = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const pathname = usePathname();
+  const router = useRouter();
   const { status } = useSession();
   const [authIsLoading, setAuthIsLoading] = useState(false);
   const [mode, setMode] = useState<"signin" | "signup">(
-    location.pathname === "/login" ? "signin" : "signup"
+    pathname === "/login" ? "signin" : "signup"
   );
 
   useEffect(() => {
-    if (location.pathname === "/login") setMode("signin");
-    if (location.pathname === "/signup") setMode("signup");
-  }, [location.pathname]);
+    if (pathname === "/login") setMode("signin");
+    if (pathname === "/signup") setMode("signup");
+  }, [pathname]);
 
   useEffect(() => {
     if (status === "authenticated") {
-      navigate("/dashboard");
+      router.push("/dashboard");
     }
-  }, [status, navigate]);
+  }, [status, router]);
 
   const handleOAuthAuth = async (provider: "google" | "github") => {
     setAuthIsLoading(true);
@@ -101,7 +104,7 @@ const Auth = () => {
         className="w-full max-w-md"
       >
         <motion.div variants={itemVariants}>
-          <Link to="/" className="mb-6 inline-flex items-center gap-2 font-semibold text-foreground hover:opacity-80 transition-opacity">
+          <Link href="/" className="mb-6 inline-flex items-center gap-2 font-semibold text-foreground hover:opacity-80 transition-opacity">
             <ArrowLeft className="h-4 w-4" />
             Back to Home
           </Link>
@@ -163,7 +166,7 @@ const Auth = () => {
                     <>
                       Already have an account?{" "}
                       <motion.button
-                        onClick={() => navigate("/login")}
+                        onClick={() => router.push("/login")}
                         className="font-semibold text-primary hover:underline cursor-pointer"
                       >
                         Sign in
@@ -173,7 +176,7 @@ const Auth = () => {
                     <>
                       Don't have an account?{" "}
                       <motion.button
-                        onClick={() => navigate("/signup")}
+                        onClick={() => router.push("/signup")}
                         className="font-semibold text-primary hover:underline cursor-pointer"
                       >
                         Sign up

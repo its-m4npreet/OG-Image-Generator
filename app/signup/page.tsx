@@ -2,6 +2,6 @@
 
 import Auth from "@/views/Auth";
 
-export default function LoginPage() {
+export default function SignupPage() {
   return <Auth />;
 }
