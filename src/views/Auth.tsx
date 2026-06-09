@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
-import { Hexagon, Github, Mail,ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Hexagon, Github, Mail, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/use-toast";
 import { signIn, useSession } from "next-auth/react";
@@ -42,18 +42,9 @@ const buttonVariants = {
 };
 
 const Auth = () => {
-  const pathname = usePathname();
   const router = useRouter();
   const { status } = useSession();
   const [authIsLoading, setAuthIsLoading] = useState(false);
-  const [mode, setMode] = useState<"signin" | "signup">(
-    pathname === "/login" ? "signin" : "signup"
-  );
-
-  useEffect(() => {
-    if (pathname === "/login") setMode("signin");
-    if (pathname === "/signup") setMode("signup");
-  }, [pathname]);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -65,22 +56,23 @@ const Auth = () => {
     setAuthIsLoading(true);
     try {
       console.log(`Signin started for provider: ${provider}`);
-      // Use redirect: false to manually handle redirection and see errors
-      const result = await signIn(provider, { 
+      const result = await signIn(provider, {
         callbackUrl: window.location.origin + "/dashboard",
-        redirect: false 
+        redirect: false,
       });
-      
+
       console.log("NextAuth result:", result);
 
       if (result?.error) {
         toast({
           title: "Authentication Error",
-          description: result.error === "OAuthSignin" ? "Failed to start OAuth flow. Check if backend is reachable." : result.error,
+          description:
+            result.error === "OAuthSignin"
+              ? "Failed to start OAuth flow. Check if backend is reachable."
+              : result.error,
           variant: "destructive",
         });
       } else if (result?.url) {
-        // Manually redirect the browser
         window.location.href = result.url;
       }
     } catch (error) {
@@ -104,7 +96,10 @@ const Auth = () => {
         className="w-full max-w-md"
       >
         <motion.div variants={itemVariants}>
-          <Link href="/" className="mb-6 inline-flex items-center gap-2 font-semibold text-foreground hover:opacity-80 transition-opacity">
+          <Link
+            href="/"
+            className="mb-6 inline-flex items-center gap-2 font-semibold text-foreground hover:opacity-80 transition-opacity"
+          >
             <ArrowLeft className="h-4 w-4" />
             Back to Home
           </Link>
@@ -120,15 +115,16 @@ const Auth = () => {
                 <Hexagon className="h-6 w-6 text-primary" />
                 <span className="font-bold text-lg">OG Studio</span>
               </motion.div>
-              
+
               <motion.h2 variants={itemVariants} className="text-2xl font-bold">
-                {mode === "signup" ? "Create Your Account" : "Welcome Back"}
+                Welcome Back
               </motion.h2>
 
-              <motion.p variants={itemVariants} className="text-sm text-muted-foreground mt-2">
-                {mode === "signup"
-                  ? "Sign up with GitHub or Google to get started"
-                  : "Sign in with GitHub or Google to continue"}
+              <motion.p
+                variants={itemVariants}
+                className="text-sm text-muted-foreground mt-2"
+              >
+                Sign in with GitHub or Google to continue
               </motion.p>
             </CardHeader>
 
@@ -161,29 +157,6 @@ const Auth = () => {
               <Separator className="bg-border" />
 
               <motion.div variants={itemVariants} className="space-y-3">
-                <p className="text-center text-xs text-muted-foreground">
-                  {mode === "signup" ? (
-                    <>
-                      Already have an account?{" "}
-                      <motion.button
-                        onClick={() => router.push("/login")}
-                        className="font-semibold text-primary hover:underline cursor-pointer"
-                      >
-                        Sign in
-                      </motion.button>
-                    </>
-                  ) : (
-                    <>
-                      Don't have an account?{" "}
-                      <motion.button
-                        onClick={() => router.push("/signup")}
-                        className="font-semibold text-primary hover:underline cursor-pointer"
-                      >
-                        Sign up
-                      </motion.button>
-                    </>
-                  )}
-                </p>
                 <p className="text-center text-xs text-muted-foreground">
                   OAuth-only authentication. No password required.
                 </p>

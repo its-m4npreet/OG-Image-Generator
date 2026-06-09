@@ -129,7 +129,7 @@ const Navbar = () => {
 
               <motion.div variants={buttonVariants}>
                 <Button variant="hero" size="sm" className="btn-shimmer" asChild>
-                  <Link href="/signup">Get Started &rarr;</Link>
+                  <Link href="/login">Get Started &rarr;</Link>
                 </Button>
               </motion.div>
             </>

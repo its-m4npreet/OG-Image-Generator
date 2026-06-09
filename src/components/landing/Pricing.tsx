@@ -148,7 +148,7 @@ const Pricing = () => {
                 className="w-full"
                 asChild
               >
-                <Link href={plan.highlight ? "/login" : "/signup"}>
+                <Link href="/login">
                   {plan.cta}
                 </Link>
               </Button>

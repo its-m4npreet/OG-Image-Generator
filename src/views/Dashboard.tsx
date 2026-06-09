@@ -184,8 +184,8 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
               : template.id === 6
                 ? cp.y * scaleY + 15
                 : !template.hasImage && cp.textAlign === "center"
-                ? (350 - titleSize * 1.5 - (template.subtitle ? subtitleSize * 1.5 : 0)) / 2
-                : cp.y * scaleY;
+                  ? (350 - titleSize * 1.5 - (template.subtitle ? subtitleSize * 1.5 : 0)) / 2
+                  : cp.y * scaleY;
 
             return (
               <div
@@ -352,10 +352,7 @@ const Dashboard = () => {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-9 w-9 rounded-full"
-                >
+                <div className="relative h-9 w-9 rounded-full cursor-pointer">
                   <Avatar className="h-9 w-9 border border-border btn-shimmer">
                     <AvatarImage
                       src={user?.image || ""}
@@ -370,7 +367,7 @@ const Dashboard = () => {
                       </div>
                     )}
                   </Avatar>
-                </Button>
+                </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
@@ -403,7 +400,7 @@ const Dashboard = () => {
       <div className="w-full px-4 py-8 max-sm:pt-0">
         <div className="max-w-7xl mx-auto">
           {/* Heading */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -413,7 +410,7 @@ const Dashboard = () => {
             <p className="text-muted-foreground max-sm:hidden">
               Pick a template and customize it in the editor.
             </p>
-          </motion.div>
+          </motion.div> */}
 
           {/* Filters */}
           <motion.div
@@ -487,7 +484,7 @@ const Dashboard = () => {
               >
                 <Link
                   href={`/editor?template=${template.id}`}
-                  className="block group h-full rounded-sm border border-border bg-card overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-200"
+                  className="block group h-full rounded-md border border-border bg-card overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-200"
                 >
                   <TemplatePreview template={template} />
                 </Link>

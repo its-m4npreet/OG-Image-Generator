@@ -91,7 +91,7 @@ const index = () => {
 
             <div className="flex gap-3.5 justify-center items-center">
               <Button variant="hero" className="btn-shimmer" asChild>
-                <Link href="/signup">
+                <Link href="/login">
                   Start for Free &rarr;
                 </Link>
               </Button>

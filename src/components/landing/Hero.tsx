@@ -113,7 +113,7 @@ const Hero = () => {
           className="flex gap-3 justify-center flex-wrap"
         >
           <Button variant="hero" size="lg" className="btn-shimmer" asChild>
-            <Link href="/signup">
+            <Link href="/login">
               Start Creating <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </Button>
