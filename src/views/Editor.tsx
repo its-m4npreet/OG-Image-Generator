@@ -122,6 +122,19 @@ interface CanvasTag {
   borderRadius: number;
 }
 
+interface CanvasButton {
+  label: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  borderRadius: number;
+  backgroundColor: string;
+  textColor: string;
+  borderColor?: string;
+  borderWidth?: number;
+}
+
 interface CanvasLogo {
   id: string;
   src: string;
@@ -302,9 +315,16 @@ function EditorInner() {
   });
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
 
+  const templateButtons = useMemo(() => {
+    if (t?.buttons) return t.buttons as unknown as CanvasButton[];
+    return [];
+  }, [templateData]);
+
   const [logos, setLogos] = useState<CanvasLogo[]>([]);
   const [selectedLogoId, setSelectedLogoId] = useState<string | null>(null);
   const [isMultipleLogo, setIsMultipleLogo] = useState(false);
+  const [buttons, setButtons] = useState<CanvasButton[]>(templateButtons);
+  const [selectedButtonIndex, setSelectedButtonIndex] = useState<number | null>(null);
 
   const [exportFormat, setExportFormat] = useState<"png" | "jpg" | "webp">(
     "png",
@@ -640,6 +660,11 @@ function EditorInner() {
     offsetX: number;
     offsetY: number;
   } | null>(null);
+  const buttonDragRef = useRef<{
+    index: number;
+    offsetX: number;
+    offsetY: number;
+  } | null>(null);
   const rightPanelRef = useRef<HTMLDivElement>(null);
   const imageControlsRef = useRef<HTMLDivElement>(null);
   const contentPositionRef = useRef<HTMLDivElement>(null);
@@ -749,6 +774,13 @@ function EditorInner() {
       setTags([]);
       setSelectedTagId(null);
     }
+
+    if ("buttons" in template && template.buttons) {
+      setButtons(template.buttons as unknown as CanvasButton[]);
+    } else {
+      setButtons([]);
+    }
+    setSelectedButtonIndex(null);
 
     if (
       "logoUrls" in template &&
@@ -1092,6 +1124,17 @@ function EditorInner() {
           ),
         );
       }
+
+      if (buttonDragRef.current) {
+        const newX = Math.max(0, mouseBaseX - buttonDragRef.current.offsetX);
+        const newY = Math.max(0, mouseBaseY - buttonDragRef.current.offsetY);
+        const idx = buttonDragRef.current.index;
+        setButtons((prev) =>
+          prev.map((b, i) =>
+            i === idx ? { ...b, x: newX, y: newY } : b,
+          ),
+        );
+      }
     };
 
     const handleMouseUp = () => {
@@ -1099,6 +1142,7 @@ function EditorInner() {
       logoDragRef.current = null;
       contentDragRef.current = null;
       tagDragRef.current = null;
+      buttonDragRef.current = null;
       setIsDragging(false);
     };
 
@@ -1199,6 +1243,12 @@ function EditorInner() {
   const updateTag = (id: string, updates: Partial<CanvasTag>) => {
     setTags((prev) =>
       prev.map((tag) => (tag.id === id ? { ...tag, ...updates } : tag)),
+    );
+  };
+
+  const updateButton = (index: number, updates: Partial<CanvasButton>) => {
+    setButtons((prev) =>
+      prev.map((btn, i) => (i === index ? { ...btn, ...updates } : btn)),
     );
   };
 
@@ -1684,7 +1734,7 @@ function EditorInner() {
             } lg:relative lg:z-auto lg:block lg:w-72 border-r border-border bg-card shrink-0 h-full overflow-hidden`}
         >
           <div
-            className="p-3 space-y-4 w-72 overflow-y-auto no-scrollbar h-full"
+            className="p-3 space-y-4 w-72 overflow-y-auto no-scrollbar h-full pb-8"
             style={
               {
                 scrollbarWidth: "none",
@@ -1693,14 +1743,6 @@ function EditorInner() {
             }
           >
             <style>{`.no-scrollbar::-webkit-scrollbar { display: none; }`}</style>
-            {/* <div className="pb-4 border-b border-border/30">
-              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                <span className="inline-flex items-center justify-center w-5 h-5 bg-primary text-primary-foreground rounded text-[10px] font-bold">
-                  T
-                </span>
-                Content
-              </h3>
-            </div> */}
             <div className="space-y-4">
               <div>
                 <Label className="text-xs text-muted-foreground">Title</Label>
@@ -1718,8 +1760,8 @@ function EditorInner() {
                   <button
                     onClick={() => setShowSubtitle(!showSubtitle)}
                     className={`p-1 rounded transition-all ${showSubtitle
-                        ? "bg-primary/20 text-primary hover:bg-primary/30"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      ? "bg-primary/20 text-primary hover:bg-primary/30"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
                       }`}
                     title={showSubtitle ? "Hide subtitle" : "Show subtitle"}
                   >
@@ -1740,8 +1782,8 @@ function EditorInner() {
                   <button
                     onClick={() => setShowAuthor(!showAuthor)}
                     className={`p-1 rounded transition-all ${showAuthor
-                        ? "bg-primary/20 text-primary hover:bg-primary/30"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      ? "bg-primary/20 text-primary hover:bg-primary/30"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
                       }`}
                     title={showAuthor ? "Hide author" : "Show author"}
                   >
@@ -1763,8 +1805,8 @@ function EditorInner() {
                     <button
                       onClick={() => setShowAvatar(!showAvatar)}
                       className={`p-1 rounded transition-all ${showAvatar
-                          ? "bg-primary/20 text-primary hover:bg-primary/30"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        ? "bg-primary/20 text-primary hover:bg-primary/30"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
                         }`}
                       title={showAvatar ? "Hide avatar" : "Show avatar"}
                     >
@@ -2066,6 +2108,31 @@ function EditorInner() {
                 </>
               )}
             </div>
+
+            {buttons.length > 0 && (
+              <>
+                <Separator className="bg-border" />
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-3">
+                    Buttons
+                  </h3>
+                  <div className="space-y-2">
+                    {buttons.map((btn, i) => (
+                      <div key={i}>
+                        <Label className="text-xs text-muted-foreground">
+                          Button {i + 1} Label
+                        </Label>
+                        <Input
+                          value={btn.label}
+                          onChange={(e) => updateButton(i, { label: e.target.value })}
+                          className="mt-1 bg-background border-border"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -2085,6 +2152,7 @@ function EditorInner() {
                   setSelectedLogoId(null);
                   setSelectedTextElement(false);
                   setSelectedTagId(null);
+                  setSelectedButtonIndex(null);
                   setImageControlsOpen(false);
                   setSelectedShapeId(null);
                   if (
@@ -2571,12 +2639,72 @@ function EditorInner() {
                         zIndex: getLayerZIndex("Tag"),
                         userSelect: "none",
                         whiteSpace: "nowrap",
+                        outline: isSelected ? "2px solid #3b82f6" : "none",
+                        outlineOffset: "2px",
                       }}
                     >
                       {tag.text}
                     </div>
                   );
                 })}
+
+                {/* Buttons */}
+                {buttons.length > 0 && buttons.map((btn, i) => (
+                  <div
+                    key={`btn-${i}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedButtonIndex(i);
+                      setSelectedImage(null);
+                      setSelectedLogoId(null);
+                      setSelectedTextElement(false);
+                      setSelectedTagId(null);
+                      setSelectedShapeId(null);
+                    }}
+                    onMouseDown={(e) => {
+                      if (selectedTool !== "move") return;
+                      if (!canvasRef.current) return;
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedButtonIndex(i);
+                      const rect = canvasRef.current.getBoundingClientRect();
+                      const scaleX = 900 / rect.width;
+                      const scaleY = 630 / rect.height;
+                      const mouseBaseX = (e.clientX - rect.left) * scaleX;
+                      const mouseBaseY = (e.clientY - rect.top) * scaleY;
+                      buttonDragRef.current = {
+                        index: i,
+                        offsetX: mouseBaseX - btn.x,
+                        offsetY: mouseBaseY - btn.y,
+                      };
+                      setIsDragging(true);
+                    }}
+                    style={{
+                      position: "absolute",
+                      left: `${(btn.x / 900) * 100}%`,
+                      top: `${(btn.y / 630) * 100}%`,
+                      width: `${(btn.width / 900) * 100}%`,
+                      height: `${(btn.height / 630) * 100}%`,
+                      borderRadius: btn.borderRadius,
+                      backgroundColor: btn.backgroundColor,
+                      color: btn.textColor,
+                      border: (btn.borderWidth ?? 0) > 0 ? `${btn.borderWidth}px solid ${btn.borderColor ?? "#000000"}` : "none",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "16px",
+                      fontWeight: 600,
+                      cursor: selectedTool === "move" ? "move" : "pointer",
+                      zIndex: 999,
+                      userSelect: "none",
+                      outline: selectedButtonIndex === i ? "2px solid #3b82f6" : "none",
+                      outlineOffset: "2px",
+                      boxSizing: "border-box",
+                    }}
+                  >
+                    {btn.label}
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -2588,8 +2716,8 @@ function EditorInner() {
                 <button
                   onClick={() => setSelectedTool("select")}
                   className={`p-2 rounded-sm transition-colors ${selectedTool === "select"
-                      ? "bg-accent text-accent-foreground"
-                      : "hover:bg-accent"
+                    ? "bg-accent text-accent-foreground"
+                    : "hover:bg-accent"
                     }`}
                 >
                   <MousePointer2 className="h-4 w-4" />
@@ -2602,8 +2730,8 @@ function EditorInner() {
                 <button
                   onClick={() => setSelectedTool("move")}
                   className={`p-2 rounded-sm transition-colors ${selectedTool === "move"
-                      ? "bg-accent text-accent-foreground"
-                      : "hover:bg-accent"
+                    ? "bg-accent text-accent-foreground"
+                    : "hover:bg-accent"
                     }`}
                 >
                   <Move className="h-4 w-4" />
@@ -2616,8 +2744,8 @@ function EditorInner() {
                 <button
                   onClick={() => setFrameGridVisible((prev) => !prev)}
                   className={`p-2 rounded-sm transition-colors ${frameGridVisible
-                      ? "bg-accent text-accent-foreground"
-                      : "hover:bg-accent"
+                    ? "bg-accent text-accent-foreground"
+                    : "hover:bg-accent"
                     }`}
                 >
                   <Frame className="h-4 w-4" />
@@ -2631,8 +2759,8 @@ function EditorInner() {
         {/* Right Panel */}
         <div
           className={`${rightOpen
-              ? "fixed inset-y-0 right-0 z-50 w-80 shadow-2xl"
-              : "hidden"
+            ? "fixed inset-y-0 right-0 z-50 w-80 shadow-2xl"
+            : "hidden"
             } lg:relative lg:z-auto lg:block lg:w-80 border-l border-border bg-card shrink-0 h-full flex flex-col overflow-y-auto overflow-x-hidden`}
         >
           {/* Tabs */}
@@ -2687,8 +2815,8 @@ function EditorInner() {
                     <button
                       onClick={() => setBackgroundType("gradient")}
                       className={`flex-1 py-1.5 px-2 text-xs rounded-sm border transition-all duration-150 ${backgroundType === "gradient"
-                          ? "border-primary bg-primary/10 text-foreground font-medium"
-                          : "border-border text-muted-foreground hover:border-muted-foreground"
+                        ? "border-primary bg-primary/10 text-foreground font-medium"
+                        : "border-border text-muted-foreground hover:border-muted-foreground"
                         }`}
                     >
                       Gradient
@@ -2696,8 +2824,8 @@ function EditorInner() {
                     <button
                       onClick={() => setBackgroundType("solid")}
                       className={`flex-1 py-1.5 px-2 text-xs rounded-sm border transition-all duration-150 ${backgroundType === "solid"
-                          ? "border-primary bg-primary/10 text-foreground font-medium"
-                          : "border-border text-muted-foreground hover:border-muted-foreground"
+                        ? "border-primary bg-primary/10 text-foreground font-medium"
+                        : "border-border text-muted-foreground hover:border-muted-foreground"
                         }`}
                     >
                       Solid
@@ -2705,8 +2833,8 @@ function EditorInner() {
                     <button
                       onClick={() => setBackgroundType("pattern")}
                       className={`flex-1 py-1.5 px-2 text-xs rounded-sm border transition-all duration-150 ${backgroundType === "pattern"
-                          ? "border-primary bg-primary/10 text-foreground font-medium"
-                          : "border-border text-muted-foreground hover:border-muted-foreground"
+                        ? "border-primary bg-primary/10 text-foreground font-medium"
+                        : "border-border text-muted-foreground hover:border-muted-foreground"
                         }`}
                     >
                       Pattern
@@ -2735,8 +2863,8 @@ function EditorInner() {
                                 setUseCustomGradient(false);
                               }}
                               className={`aspect-square rounded-sm border transition-all duration-150 ${selectedGradient === i && !useCustomGradient
-                                  ? "border-primary ring-2 ring-primary"
-                                  : "border-border hover:border-muted-foreground"
+                                ? "border-primary ring-2 ring-primary"
+                                : "border-border hover:border-muted-foreground"
                                 }`}
                               style={{ background: gradientCSSMap[i] }}
                               title={`Gradient ${i + 1}`}
@@ -2761,9 +2889,9 @@ function EditorInner() {
                                   setUseCustomGradient(false);
                                 }}
                                 className={`aspect-square rounded-sm border transition-all duration-150 ${selectedGradient === i + 12 &&
-                                    !useCustomGradient
-                                    ? "border-primary ring-2 ring-primary"
-                                    : "border-border hover:border-muted-foreground"
+                                  !useCustomGradient
+                                  ? "border-primary ring-2 ring-primary"
+                                  : "border-border hover:border-muted-foreground"
                                   }`}
                                 style={{ background: gradientCSSMap[i + 12] }}
                                 title={`Gradient ${i + 13}`}
@@ -2776,8 +2904,8 @@ function EditorInner() {
                               if (!customizeOpen) setUseCustomGradient(true);
                             }}
                             className={`aspect-square rounded-sm border transition-all duration-150 flex items-center justify-center text-[8px] font-medium leading-tight ${useCustomGradient
-                                ? "border-primary ring-2 ring-primary bg-primary/10 text-foreground"
-                                : "border-border hover:border-muted-foreground text-muted-foreground bg-background"
+                              ? "border-primary ring-2 ring-primary bg-primary/10 text-foreground"
+                              : "border-border hover:border-muted-foreground text-muted-foreground bg-background"
                               }`}
                             title="Customize gradient"
                           >
@@ -2867,8 +2995,8 @@ function EditorInner() {
                                 key={i}
                                 onClick={() => setSelectedSolidColor(color)}
                                 className={`aspect-square rounded-sm ${color} border-2 transition-all duration-150 ${selectedSolidColor === color
-                                    ? "border-white ring-2 ring-white"
-                                    : "border-border hover:border-gray-400"
+                                  ? "border-white ring-2 ring-white"
+                                  : "border-border hover:border-gray-400"
                                   }`}
                                 title={color}
                               />
@@ -2891,8 +3019,8 @@ function EditorInner() {
                                   key={`solid-${i + 13}`}
                                   onClick={() => setSelectedSolidColor(color)}
                                   className={`aspect-square rounded-sm ${color} border-2 transition-all duration-150 ${selectedSolidColor === color
-                                      ? "border-white ring-2 ring-white"
-                                      : "border-border hover:border-gray-400"
+                                    ? "border-white ring-2 ring-white"
+                                    : "border-border hover:border-gray-400"
                                     }`}
                                   title={color}
                                 />
@@ -2939,8 +3067,8 @@ function EditorInner() {
                             key={i}
                             onClick={() => setSelectedPattern(i)}
                             className={`relative rounded-sm border-2 overflow-hidden transition-all duration-150 ${selectedPattern === i
-                                ? "border-primary ring-2 ring-primary"
-                                : "border-border hover:border-muted-foreground"
+                              ? "border-primary ring-2 ring-primary"
+                              : "border-border hover:border-muted-foreground"
                               }`}
                             title={pattern.name}
                             style={{ aspectRatio: "16 / 10" }}
@@ -3699,6 +3827,90 @@ function EditorInner() {
                       </div>
                     );
                   })()}
+
+                {buttons.length > 0 && (() => {
+                  const activeIdx = selectedButtonIndex !== null && buttons[selectedButtonIndex] ? selectedButtonIndex : 0;
+                  const btn = buttons[activeIdx];
+                  return (
+                    <>
+                      <Separator className="bg-border" />
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                            Buttons
+                          </h3>
+                          <div className="flex gap-1">
+                            {buttons.map((_, i) => (
+                              <button
+                                key={i}
+                                onClick={() => setSelectedButtonIndex(i)}
+                                className={`w-6 h-6 rounded text-xs font-medium transition-colors ${activeIdx === i ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-accent"}`}
+                              >
+                                {i + 1}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="bg-background rounded-lg p-3 border border-border space-y-3">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <Label className="text-xs text-muted-foreground">Border Radius</Label>
+                              <Input
+                                type="number"
+                                min={0}
+                                max={50}
+                                value={btn.borderRadius}
+                                onChange={(e) =>
+                                  updateButton(activeIdx, {
+                                    borderRadius: Math.max(0, Number(e.target.value) || 0),
+                                  })
+                                }
+                                className="mt-1 bg-card border-border text-xs"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs text-muted-foreground">Border Size</Label>
+                              <Input
+                                type="number"
+                                min={0}
+                                max={10}
+                                value={btn.borderWidth ?? 0}
+                                onChange={(e) =>
+                                  updateButton(activeIdx, {
+                                    borderWidth: Math.max(0, Number(e.target.value) || 0),
+                                  })
+                                }
+                                className="mt-1 bg-card border-border text-xs"
+                              />
+                            </div>
+                          </div>
+                          <ColorRow
+                            label="Border Color"
+                            value={btn.borderColor ?? "#000000"}
+                            onChange={(color) => {
+                              updateButton(activeIdx, { borderColor: color });
+                              if (!btn.borderWidth) updateButton(activeIdx, { borderWidth: 1 });
+                            }}
+                          />
+                          <ColorRow
+                            label="Background Color"
+                            value={btn.backgroundColor}
+                            onChange={(color) =>
+                              updateButton(activeIdx, { backgroundColor: color })
+                            }
+                          />
+                          <ColorRow
+                            label="Text Color"
+                            value={btn.textColor}
+                            onChange={(color) =>
+                              updateButton(activeIdx, { textColor: color })
+                            }
+                          />
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
 
                 <Separator className="bg-border" />
 

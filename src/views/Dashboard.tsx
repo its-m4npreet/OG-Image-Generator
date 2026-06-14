@@ -28,6 +28,7 @@ import { useSession, signOut } from "next-auth/react";
 import { clearSessionStorage } from "@/lib/token-storage";
 import { templates, categories } from "@/templates";
 import { gradients, solidColors, gradientMap, patternMap } from "@/lib/colors";
+import { templateBadges } from "@/data/templateBadges";
 
 function TemplatePreview({ template }: { template: (typeof templates)[number] }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -47,8 +48,6 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
     return () => observer.disconnect();
   }, []);
 
-  const isStandardGradient = template.gradient.startsWith("from-");
-
   return (
     <div ref={containerRef} className="w-full aspect-[550/350] relative overflow-hidden flex-shrink-0">
       <div
@@ -59,9 +58,7 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
           transform: `scale(${scale})`,
           background: templatePattern
             ? templatePattern.backgroundColor
-            : isStandardGradient
-              ? undefined
-              : gradientCSS,
+            : gradientCSS,
           overflow: "hidden",
         }}
       >
@@ -77,8 +74,6 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
               maskComposite: templatePattern.maskComposite as React.CSSProperties['maskComposite'] || undefined,
             }}
           />
-        ) : isStandardGradient ? (
-          <div className={`absolute inset-0 bg-gradient-to-br ${template.gradient}`} />
         ) : (
           <div
             className="absolute inset-0"
@@ -117,7 +112,6 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
           )}
 
         {"istag" in template && template.istag && template.tag && "tagPosition" in template && template.tagPosition && (() => {
-          const tagX = template.tagPosition.x * (550 / 900) - 10;
           const tagY = template.tagPosition.y * (350 / 630);
           const scaleY = 350 / 630;
           const cp = template.contentPosition;
@@ -127,13 +121,16 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
             ? (350 - titleSize * 1.5 - (template.subtitle ? subtitleSize * 1.5 : 0)) / 2
             : cp ? cp.y * scaleY : 0;
           const tagHeight = 20;
-          const adjustedY = contentTop && (tagY + tagHeight > contentTop) ? contentTop - tagHeight - 2 : tagY;
+          const adjustedY = template.id === 11
+            ? tagY - 20
+            : contentTop && (tagY + tagHeight > contentTop) ? contentTop - tagHeight - 2 : tagY;
           return (
             <div
               style={{
                 position: "absolute",
-                left: tagX,
+                left: template.id === 10 ? "50%" : template.tagPosition.x * (550 / 900) - 10,
                 top: adjustedY,
+                transform: template.id === 10 ? "translateX(-50%)" : undefined,
                 border: `${template.tagPosition.borderWidth || 1}px solid ${template.tagPosition.borderColor || "#3b82f6"}`,
                 borderRadius: template.tagPosition.borderRadius || 10,
                 padding: "4px 10px",
@@ -175,7 +172,7 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
             const scaleY = 350 / 630;
             const isCenter =
               template.id === 5 || !template.hasImage || cp.textAlign === "center";
-            const left = isCenter ? (550 - cp.width * scaleX) / 2 : cp.x * scaleX;
+            const left = isCenter ? (550 - cp.width * scaleX) / 2 : template.id === 11 ? cp.x * scaleX + 15 : cp.x * scaleX;
             const titleSize = template.hasImage ? 32 : 24;
             const subtitleSize = template.hasImage ? 15 : 14;
 
@@ -183,45 +180,87 @@ function TemplatePreview({ template }: { template: (typeof templates)[number] })
               ? cp.y * scaleY + 20
               : template.id === 6
                 ? cp.y * scaleY + 15
-                : !template.hasImage && cp.textAlign === "center"
-                  ? (350 - titleSize * 1.5 - (template.subtitle ? subtitleSize * 1.5 : 0)) / 2
-                  : cp.y * scaleY;
+                : template.id === 10
+                  ? (350 - titleSize * 1.5 - (template.subtitle ? subtitleSize * 1.5 : 0)) / 2 - 25
+                  : template.id === 11
+                    ? cp.y * scaleY
+                    : !template.hasImage && cp.textAlign === "center"
+                      ? (350 - titleSize * 1.5 - (template.subtitle ? subtitleSize * 1.5 : 0)) / 2
+                      : cp.y * scaleY;
 
             return (
-              <div
-                style={{
-                  position: "absolute",
-                  left,
-                  top,
-                  width: cp.width * scaleX,
-                  textAlign: template.id === 5 ? "center" : cp.textAlign as any,
-                }}
-              >
+              <>
                 <div
                   style={{
-                    fontSize: titleSize,
-                    fontWeight: 700,
-                    lineHeight: 1.15,
-                    color: template.titleColor,
-                    marginBottom: 4,
-                    wordBreak: "break-word",
+                    position: "absolute",
+                    left,
+                    top,
+                    width: cp.width * scaleX,
+                    textAlign: template.id === 5 ? "center" : cp.textAlign as any,
                   }}
                 >
-                  {template.title}
-                </div>
-                {template.subtitle && (
                   <div
                     style={{
-                      fontSize: subtitleSize,
-                      color: template.subtitleColor,
-                      lineHeight: 1.4,
+                      fontSize: titleSize,
+                      fontWeight: 700,
+                      lineHeight: 1.15,
+                      color: template.titleColor,
+                      marginBottom: 4,
                       wordBreak: "break-word",
                     }}
                   >
-                    {template.subtitle}
+                    {template.title}
                   </div>
-                )}
-              </div>
+                  {template.subtitle && (
+                    <div
+                      style={{
+                        fontSize: subtitleSize,
+                        color: template.subtitleColor,
+                        lineHeight: 1.4,
+                        wordBreak: "break-word",
+                      }}
+                    >
+                      {template.subtitle}
+                    </div>
+                  )}
+                </div>
+
+                {"buttons" in template && template.buttons && template.buttons.map((btn: any, i: number) => {
+                  const btnScaleX = 550 / 900;
+                  const btnScaleY = 350 / 630;
+                  const btnTop = template.id === 10
+                    ? top + titleSize * 1.15 + 4 + (template.subtitle ? subtitleSize * 1.4 + 60 : 60)
+                    : template.id === 11
+                      ? btn.y * btnScaleY - 20
+                      : btn.y * btnScaleY;
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        position: "absolute",
+                        left: template.id === 10
+                          ? (550 - (btn.width * btnScaleX * template.buttons!.length) - ((template.buttons!.length - 1) * 16)) / 2 + i * (btn.width * btnScaleX + 16)
+                          : btn.x * btnScaleX,
+                        top: btnTop,
+                        width: btn.width * btnScaleX,
+                        height: btn.height * btnScaleY,
+                        borderRadius: btn.borderRadius,
+                        backgroundColor: btn.backgroundColor,
+                        color: btn.textColor,
+                        border: (btn.borderWidth ?? 0) > 0 ? `${btn.borderWidth}px solid ${btn.borderColor ?? "#000"}` : "none",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "8px",
+                        fontWeight: 600,
+                        boxSizing: "border-box",
+                      }}
+                    >
+                      {btn.label}
+                    </div>
+                  );
+                })}
+              </>
             );
           })()}
       </div>
@@ -484,9 +523,14 @@ const Dashboard = () => {
               >
                 <Link
                   href={`/editor?template=${template.id}`}
-                  className="block group h-full rounded-md border border-border bg-card overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-200"
+                  className="block group h-full rounded-md border border-border bg-card overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-200 relative"
                 >
                   <TemplatePreview template={template} />
+                  {templateBadges[template.id] && (
+                    <div className={`absolute top-2 right-2 ${templateBadges[template.id].className} text-[10px] font-bold px-2 py-0.5 rounded`}>
+                      {templateBadges[template.id].label}
+                    </div>
+                  )}
                 </Link>
               </motion.div>
             ))}

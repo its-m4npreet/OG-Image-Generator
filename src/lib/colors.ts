@@ -15,22 +15,19 @@ export const gradientMap = [
   { tailwind: "from-indigo-500 to-purple-300", css: "linear-gradient(to bottom right, #6366f1, #a78bfa)" },
   { tailwind: "from-cyan-500 to-blue-400", css: "linear-gradient(to bottom right, #06b6d4, #3b82f6)" },
   { tailwind: "from-green-500 to-emerald-400", css: "linear-gradient(to bottom right, #22c55e, #10b981)" },
-  { tailwind: "from-green-400 to-cyan-400", css: "linear-gradient(to bottom right, #4ade80, #06b6d4)" },
-
   // New Premium Gradients (Blog)
-  { tailwind: "from-[#172554] via-[#1E3A8A] to-[#2563EB]", css: "linear-gradient(to bottom right, #172554, #1E3A8A, #2563EB)" },
   { tailwind: "from-[#020617] via-[#111827] to-[#334155]", css: "linear-gradient(to bottom right, #020617, #111827, #334155)" },
-  
+
   // New Premium Gradients (SaaS)
   { tailwind: "from-[#7C2D12] via-[#C2410C] to-[#FB7185]", css: "linear-gradient(to bottom right, #7C2D12, #C2410C, #FB7185)" },
 
   // New Premium Gradients (Portfolio)
   { tailwind: "from-[#4C1D95] via-[#7E22CE] to-[#DB2777]", css: "linear-gradient(to bottom right, #4C1D95, #7E22CE, #DB2777)" },
   { tailwind: "from-[#064E3B] via-[#065F46] to-[#0F766E]", css: "linear-gradient(to bottom right, #064E3B, #065F46, #0F766E)" },
-  
+
   // New Premium Gradients (Product Launch)
   { tailwind: "from-[#2E1065] via-[#4C1D95] to-[#7C3AED]", css: "linear-gradient(to bottom right, #2E1065, #4C1D95, #7C3AED)" },
-  
+
   // New Premium Templates Gradients
   { tailwind: "from-[#020617] via-[#0F172A] to-[#1E293B]", css: "linear-gradient(to bottom right, #020617, #0F172A, #1E293B)" },
   { tailwind: "from-[#312E81] via-[#4338CA] to-[#818CF8]", css: "linear-gradient(to bottom right, #312E81, #4338CA, #818CF8)" },
@@ -135,14 +132,14 @@ export const isLightColor = (hexColor: string): boolean => {
 // Function to generate adaptive noise SVG pattern
 export const getNoiseSVG = (noiseLevel: number, bgColor?: string): string => {
   if (noiseLevel === 0) return "";
-  
+
   const isLight = bgColor ? isLightColor(bgColor) : false;
   const opacity = Math.min((noiseLevel / 100) * 0.8, 0.8);
-  
+
   // Use darker noise for light backgrounds, lighter noise for dark backgrounds
   const noiseColor = isLight ? "%23333333" : "%23FFFFFF"; // Dark gray for light, white for dark
   const noiseOpacity = isLight ? Math.min((noiseLevel / 100) * 0.6, 0.6) : opacity;
-  
+
   return `url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' seed='1' result='noise'/%3E%3C/filter%3E%3Crect width='100' height='100' fill='${noiseColor}' opacity='${noiseOpacity}' filter='url(%23n)'/%3E%3C/svg%3E")`;
 };
 
@@ -306,9 +303,9 @@ export const isLightBackground = (
   selectedPattern: number | null,
 ): boolean => {
   if (backgroundType === "gradient") {
-    if (selectedGradient >= 25 && selectedGradient <= 30) return true;
-    if (selectedGradient >= 31) return false;
-    return selectedGradient >= 16;
+    if (selectedGradient >= 24 && selectedGradient <= 29) return true;
+    if (selectedGradient >= 30) return false;
+    return selectedGradient >= 15;
   }
   if (backgroundType === "pattern" && selectedPattern !== null && patternMap[selectedPattern]) {
     const bg = patternMap[selectedPattern].backgroundColor || "#ffffff";
